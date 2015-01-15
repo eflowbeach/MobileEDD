@@ -47,18 +47,18 @@ qx.Class.define("mobilewx.Application",
       -------------------------------------------------------------------------
       */
 
-      var login = new mobilewx.page.Login();
+      var map = new mobilewx.page.Map();
       var overview = new mobilewx.page.Overview();
 
       // Add the pages to the page manager.
       var manager = new qx.ui.mobile.page.Manager(false);
       manager.addDetail([
-        login,
+        map,
         overview
       ]);
 
       // Initialize the application routing
-      this.getRouting().onGet("/", this._show, login);
+      this.getRouting().onGet("/", this._show, map);
       this.getRouting().onGet("/overview", this._show, overview);
 
       this.getRouting().init();
