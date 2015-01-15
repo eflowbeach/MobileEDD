@@ -65,6 +65,7 @@ qx.Class.define("mobilewx.page.Map",
       });
       var mapContainer = new qx.ui.mobile.container.Composite(layout);
       mapContainer.setId("map");
+      mapContainer.addCssClass("map");
       return mapContainer;
     },
 
