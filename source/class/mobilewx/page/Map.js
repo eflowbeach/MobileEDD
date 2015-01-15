@@ -25,6 +25,7 @@ qx.Class.define("mobilewx.page.Map",
     // overridden
     _initialize : function()
     {
+      var me = this;
       this.base(arguments);
       this._loadMapLibrary();
 
@@ -34,14 +35,14 @@ qx.Class.define("mobilewx.page.Map",
       drawer.setTapOffset(100);
 
       // Button in drawer
-      var button = new qx.ui.mobile.form.Button("Hide");
+      var button = new qx.ui.mobile.form.Button("Add radar");
       button.addListener("tap", function(e) {
-        drawer.hide();
+        me.addRadarLayer();
       })
       drawer.add(button);
       drawer.show();
 
-      //
+      // Options Button
       var fxButton = new qx.ui.mobile.navigationbar.Button("Options");
       fxButton.addListener("tap", function(e) {
         drawer.show();
@@ -69,10 +70,11 @@ qx.Class.define("mobilewx.page.Map",
      */
     _loadMapLibrary : function()
     {
+      var me = this;
       var req = new qx.bom.request.Script();
       req.onload = function()
       {
-        var map = new ol.Map(
+        me.map = new ol.Map(
         {
           target : 'map',
           layers : [new ol.layer.Tile( {
@@ -102,6 +104,20 @@ qx.Class.define("mobilewx.page.Map",
       }.bind(this);
       req.open("GET", this._mapUri);
       req.send();
+    },
+
+    /**
+    Add a radar layer ...
+    */
+    addRadarLayer : function()
+    {
+      var me = this;
+      var tms_layer = new ol.layer.Tile( {
+        source : new ol.source.XYZ( {
+          url : 'http://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png'
+        })
+      });
+      me.map.addLayer(tms_layer);
     }
   }
 });
