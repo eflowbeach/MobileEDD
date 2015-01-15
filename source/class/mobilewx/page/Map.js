@@ -28,31 +28,26 @@ qx.Class.define("mobilewx.page.Map",
       this.base(arguments);
       this._loadMapLibrary();
 
-      // Listens on window orientation change and resize, and triggers redraw of map.
+      // Drawer
+      var drawer = new qx.ui.mobile.container.Drawer();
+      drawer.setOrientation("right");
+      drawer.setTapOffset(100);
 
-      // Needed for triggering OpenLayers to use a bigger area, and draw more tiles.
+      // Button in drawer
+      var button = new qx.ui.mobile.form.Button("Hide");
+      button.addListener("tap", function(e) {
+        drawer.hide();
+      })
+      drawer.add(button);
+      drawer.show();
 
-      //      qx.event.Registration.addListener(window, "orientationchange", this._redrawMap, this);
-
-      //      qx.event.Registration.addListener(window, "resize", this._redrawMap, this);
+      //
+      var fxButton = new qx.ui.mobile.navigationbar.Button("Options");
+      fxButton.addListener("tap", function(e) {
+        drawer.show();
+      }, this);
+      this.getRightContainer().add(fxButton);
     },
-
-    /**
-     * Calls a redraw on Mapnik Layer. Needed after orientationChange event
-     * and drawing markers.
-     */
-
-    //    _redrawMap : function () {
-
-    //      if(this._mapnikLayer !== null) {
-
-    //        this._map.updateSize();
-
-    //        this._mapnikLayer.redraw();
-
-    //      }
-
-    //    },
 
     // overridden
     _createScrollContainer : function()
@@ -75,7 +70,8 @@ qx.Class.define("mobilewx.page.Map",
     _loadMapLibrary : function()
     {
       var req = new qx.bom.request.Script();
-      req.onload = function() {
+      req.onload = function()
+      {
         var map = new ol.Map(
         {
           target : 'map',
@@ -86,26 +82,23 @@ qx.Class.define("mobilewx.page.Map",
           })],
           view : new ol.View(
           {
-            center : ol.proj.transform([ -99,40], 'EPSG:4326', 'EPSG:3857'),
+            center : ol.proj.transform([-99, 40], 'EPSG:4326', 'EPSG:3857'),
             zoom : 4
           })
         });
-
         var deviceOrientation = new ol.DeviceOrientation();
+
         // tilt the map
-        deviceOrientation.on(['change:beta', 'change:gamma'], function(event) {
+        deviceOrientation.on(['change:beta', 'change:gamma'], function(event)
+        {
           var center = view.getCenter();
           var resolution = view.getResolution();
           var beta = event.target.getBeta() || 0;
           var gamma = event.target.getGamma() || 0;
-
           center[0] -= resolution * gamma * 25;
           center[1] += resolution * beta * 25;
-
           view.setCenter(view.constrainCenter(center));
         });
-
-
       }.bind(this);
       req.open("GET", this._mapUri);
       req.send();
