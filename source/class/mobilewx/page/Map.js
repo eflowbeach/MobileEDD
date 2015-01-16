@@ -112,12 +112,35 @@ qx.Class.define("mobilewx.page.Map",
     addRadarLayer : function()
     {
       var me = this;
-      var tms_layer = new ol.layer.Tile( {
-        source : new ol.source.XYZ( {
-          url : 'http://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png'
+
+      //      var tms_layer = new ol.layer.Tile( {
+
+      //        source : new ol.source.XYZ( {
+
+      //          url : 'http://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png'
+
+      //        })
+
+      //      });
+
+      //      me.map.addLayer(tms_layer);
+      var hazards = new ol.layer.Vector(
+      {
+        title : 'Hazards',
+        source : new ol.source.GeoJSON(
+        {
+          url : '/mwp/data/iris/allhazard.geojson',
+          projection : 'EPSG:3857'
+        }),
+        style : new ol.style.Style( {
+          stroke : new ol.style.Stroke(
+          {
+            color : 'red',
+            width : 2
+          })
         })
       });
-      me.map.addLayer(tms_layer);
+      me.map.addLayer(hazards);
     }
   }
 });
