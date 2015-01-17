@@ -40,7 +40,21 @@ qx.Class.define("mobilewx.page.Map",
         me.addRadarLayer();
       })
       drawer.add(button);
-      drawer.show();
+
+      //drawer.show();
+
+      // Hazards Button
+      var composite = new qx.ui.mobile.container.Composite();
+      composite.setLayout(new qx.ui.mobile.layout.HBox());
+      composite.add(new qx.ui.mobile.basic.Label("Hazards: "), {
+        flex : 1
+      });
+      var button = new qx.ui.mobile.form.ToggleButton(false, "YES", "NO");
+      button.addListener("tap", function(e) {
+        me.addHazardsLayer();
+      })
+      composite.add(button);
+      drawer.add(composite);
 
       // Options Button
       var fxButton = new qx.ui.mobile.navigationbar.Button("Options");
@@ -74,9 +88,11 @@ qx.Class.define("mobilewx.page.Map",
       var req = new qx.bom.request.Script();
       req.onload = function()
       {
+
         me.map = new ol.Map(
         {
           target : 'map',
+          controls : ol.control.defaults().extend([new ol.control.ScaleLine()]),
           layers : [new ol.layer.Tile( {
             source : new ol.source.MapQuest( {
               layer : 'sat'
@@ -112,18 +128,24 @@ qx.Class.define("mobilewx.page.Map",
     addRadarLayer : function()
     {
       var me = this;
+      var tms_layer = new ol.layer.Tile( {
+        source : new ol.source.XYZ( {
+          url : 'http://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png'
+        })
+      });
+      me.map.addLayer(tms_layer);
+    },
 
-      //      var tms_layer = new ol.layer.Tile( {
+    /**
+      Add a radar layer ...
+      */
+    addHazardsLayer : function()
+    {
+      var me = this;
 
-      //        source : new ol.source.XYZ( {
+      var selectSingleClick = new ol.interaction.Select();
+      me.map.addInteraction(selectSingleClick);
 
-      //          url : 'http://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png'
-
-      //        })
-
-      //      });
-
-      //      me.map.addLayer(tms_layer);
       var hazards = new ol.layer.Vector(
       {
         title : 'Hazards',
@@ -132,13 +154,42 @@ qx.Class.define("mobilewx.page.Map",
           url : '/mwp/data/iris/allhazard.geojson',
           projection : 'EPSG:3857'
         }),
-        style : new ol.style.Style( {
-          stroke : new ol.style.Stroke(
+        style : function(feature, resolution)
+        {
+          var textStroke = new ol.style.Stroke(
           {
-            color : 'red',
-            width : 2
-          })
-        })
+            color : '#fff',
+            width : 3
+          });
+          var textFill = new ol.style.Fill( {
+            color : '#000'
+          });
+          return [new ol.style.Style(
+          {
+            stroke : new ol.style.Stroke(
+            {
+              color : feature.get('color'),  //'red',
+              width : 2
+            }),
+
+            //            fill : new ol.style.Fill(
+
+            //            {
+
+            //              color : feature.get('color'),
+
+            //              opacity : 0.2
+
+            //            }),
+            text : new ol.style.Text(
+            {
+              font : '12px Calibri,sans-serif',
+              text : feature.get('phenomenon'),
+              fill : textFill,
+              stroke : textStroke
+            })
+          })]
+        }
       });
       me.map.addLayer(hazards);
     }

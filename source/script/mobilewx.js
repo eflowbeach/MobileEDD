@@ -20,7 +20,7 @@ qx.$$g = {}
 
 qx.$$loader = {
   parts : {"boot":[0]},
-  packages : {"0":{"uris":["__out__:mobilewx.6f41d80627ea.js","mobilewx:mobilewx/Application.js","__out__:mobilewx.3426e5856297.js","mobilewx:mobilewx/page/Map.js","mobilewx:mobilewx/page/Overview.js"]}},
+  packages : {"0":{"uris":["__out__:mobilewx.0621eed31eae.js","mobilewx:mobilewx/Application.js","__out__:mobilewx.3426e5856297.js","mobilewx:mobilewx/page/Map.js","__out__:mobilewx.de48d3da66e1.js","mobilewx:mobilewx/page/Overview.js"]}},
   urisBefore : [],
   cssBefore : ["./resource/mobilewx/css/custom.css"],
   boot : "boot",
