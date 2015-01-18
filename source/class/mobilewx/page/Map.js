@@ -34,23 +34,43 @@ qx.Class.define("mobilewx.page.Map",
       drawer.setOrientation("right");
       drawer.setTapOffset(100);
 
-      // Button in drawer
-      var button = new qx.ui.mobile.form.Button("Add radar");
-      button.addListener("tap", function(e) {
-        me.addRadarLayer();
-      })
-      drawer.add(button);
-
-      //drawer.show();
-
-      // Hazards Button
+      // Radar Container
       var composite = new qx.ui.mobile.container.Composite();
       composite.setLayout(new qx.ui.mobile.layout.HBox());
-      composite.add(new qx.ui.mobile.basic.Label("Hazards: "), {
+      var button = new qx.ui.mobile.form.ToggleButton(false, "YES", "NO");
+      var firstLoad = true;
+      button.addListener("changeValue", function(e) {
+        if (e.getData()) {
+          if (firstLoad)
+          {
+            me.addRadarLayer();
+            firstLoad = false;
+          } else
+          {
+            me.setOpacity('Radar Layer', 0.9);
+          }
+        } else {
+          me.setOpacity('Radar Layer', 0.0);
+        }
+      })
+      var radarLabel = new qx.ui.mobile.basic.Label("Radar: ")
+      radarLabel.addCssClass("menuLabels");
+      composite.add(radarLabel, {
         flex : 1
       });
+      composite.add(button);
+      drawer.add(composite);
+
+      // Hazards Container
+      var composite = new qx.ui.mobile.container.Composite();
+      composite.setLayout(new qx.ui.mobile.layout.HBox());
+      var hazardsLabel = new qx.ui.mobile.basic.Label("Hazards: ");
+      composite.add(hazardsLabel, {
+        flex : 1
+      });
+      hazardsLabel.addCssClass("menuLabels");
       var button = new qx.ui.mobile.form.ToggleButton(false, "YES", "NO");
-      button.addListener("tap", function(e) {
+      button.addListener("changeValue", function(e) {
         me.addHazardsLayer();
       })
       composite.add(button);
@@ -88,7 +108,6 @@ qx.Class.define("mobilewx.page.Map",
       var req = new qx.bom.request.Script();
       req.onload = function()
       {
-
         me.map = new ol.Map(
         {
           target : 'map',
@@ -128,10 +147,14 @@ qx.Class.define("mobilewx.page.Map",
     addRadarLayer : function()
     {
       var me = this;
-      var tms_layer = new ol.layer.Tile( {
+      var tms_layer = new ol.layer.Tile(
+      {
+        name : 'Radar Layer',
         source : new ol.source.XYZ( {
-          url : 'http://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png'
-        })
+          //url : 'http://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png'
+          url : 'http://ridgewms.srh.noaa.gov/tc/tc.py/1.0.0/N0Q_0/{z}/{x}/{y}.png'
+        }),
+        opacity : 0.4
       });
       me.map.addLayer(tms_layer);
     },
@@ -142,10 +165,8 @@ qx.Class.define("mobilewx.page.Map",
     addHazardsLayer : function()
     {
       var me = this;
-
       var selectSingleClick = new ol.interaction.Select();
       me.map.addInteraction(selectSingleClick);
-
       var hazards = new ol.layer.Vector(
       {
         title : 'Hazards',
@@ -192,6 +213,19 @@ qx.Class.define("mobilewx.page.Map",
         }
       });
       me.map.addLayer(hazards);
+    },
+
+    /**
+    Get a layer by name
+    */
+    setOpacity : function(name, opacity)
+    {
+      var me = this;
+      me.map.getLayers().forEach(function(layer) {
+        if (layer.get('name') == name) {
+          layer.setOpacity(opacity);
+        }
+      });
     }
   }
 });
