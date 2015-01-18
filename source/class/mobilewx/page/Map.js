@@ -16,7 +16,7 @@ qx.Class.define("mobilewx.page.Map",
   construct : function()
   {
     this.base(arguments);
-    this.setTitle("Map");
+    this.setTitle("Mobile EDD");
   },
   members :
   {
@@ -112,11 +112,23 @@ qx.Class.define("mobilewx.page.Map",
         {
           target : 'map',
           controls : ol.control.defaults().extend([new ol.control.ScaleLine()]),
-          layers : [new ol.layer.Tile( {
-            source : new ol.source.MapQuest( {
-              layer : 'sat'
-            })
-          })],
+          layers : [
+           new ol.layer.Tile({
+                source: new ol.source.Stamen({
+                  layer: 'watercolor'
+                })
+              }),
+              new ol.layer.Tile({
+                source: new ol.source.Stamen({
+                  layer: 'terrain-labels'
+                })
+              })
+//          new ol.layer.Tile( {
+//            source : new ol.source.MapQuest( {
+//              layer : 'sat'
+//            })
+//          })
+          ],
           view : new ol.View(
           {
             center : ol.proj.transform([-99, 40], 'EPSG:4326', 'EPSG:3857'),
@@ -136,9 +148,31 @@ qx.Class.define("mobilewx.page.Map",
           center[1] += resolution * beta * 25;
           view.setCenter(view.constrainCenter(center));
         });
+
+        // Add state overlay
+        me.addStatesLayer();
+
       }.bind(this);
       req.open("GET", this._mapUri);
       req.send();
+    },
+
+  /**
+    Add a state  layer ...
+    */
+    addStatesLayer : function()
+    {
+      var me = this;
+      var tms_layer = new ol.layer.Tile(
+      {
+        name : 'US States',
+        source : new ol.source.XYZ( {
+          //url : 'http://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png'
+          url : 'http://ridgewms.srh.noaa.gov/c/tc.py/1.0.0/state/{z}/{x}/{y}.png'
+        }),
+        opacity : 0.8
+      });
+      me.map.addLayer(tms_layer);
     },
 
     /**
@@ -158,6 +192,7 @@ qx.Class.define("mobilewx.page.Map",
       });
       me.map.addLayer(tms_layer);
     },
+
 
     /**
       Add a radar layer ...
