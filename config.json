@@ -47,7 +47,7 @@
   {
     "APPLICATION"  : "mobilewx",
     "APPLICATION_PATH" : "mobilewx",
-    "QOOXDOO_PATH" : "../mwp/trunk/libs/qooxdoo-4.1-sdk",
+    "QOOXDOO_PATH" : "../edd/libs/qooxdoo-5.0-sdk",
     "LOCALES"      : [ "en" ],
     "CACHE"        : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
     "MOBILE_THEME" : "custom",
