@@ -20,7 +20,7 @@ qx.Class.define("mobilewx.page.Map",
   },
   members :
   {
-    _mapUri : "http://openlayers.org/en/v3.1.1/build/ol.js",
+    _mapUri : "resource/mobilewx/ol.js",//"http://openlayers.org/en/v3.1.1/build/ol.js",
 
     // overridden
     _initialize : function()
