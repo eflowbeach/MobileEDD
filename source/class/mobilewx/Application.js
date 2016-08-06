@@ -45,7 +45,7 @@ qx.Class.define("mobilewx.Application",
         Remove or edit the following code to create your application.
       -------------------------------------------------------------------------
       */
-      var map = new mobilewx.page.Map();
+      var map = mobilewx.page.Map.getInstance();
       var overview = new mobilewx.page.Overview();
 
       // Add the pages to the page manager.
@@ -56,6 +56,10 @@ qx.Class.define("mobilewx.Application",
       this.getRouting().onGet("/", this._show, map);
       this.getRouting().onGet("/overview", this._show, overview);
       this.getRouting().init();
+      
+      // setTimeout(function(){
+      //   overview.show();
+      // },5000)
     },
 
     /**
