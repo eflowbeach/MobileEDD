@@ -21,7 +21,8 @@ qx.Class.define("mobilewx.page.Map",
   },
   members :
   {
-    _mapUri : "resource/mobilewx/ol-debug.js",  //"http://openlayers.org/en/v3.1.1/build/ol.js",
+    //_mapUri : "resource/mobilewx/ol-debug.js",  
+    _mapUri : "resource/mobilewx/ol.js",
 
     // overridden
     _initialize : function()
