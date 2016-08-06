@@ -46,19 +46,21 @@ qx.Class.define("mobilewx.Application",
       -------------------------------------------------------------------------
       */
       var map = mobilewx.page.Map.getInstance();
-      var overview = new mobilewx.page.Overview();
+      var hazardtext = mobilewx.page.HazardText.getInstance();
 
       // Add the pages to the page manager.
       var manager = new qx.ui.mobile.page.Manager(false);
-      manager.addDetail([map, overview]);
+      manager.addDetail([map, hazardtext]);
 
       // Initialize the application routing
       this.getRouting().onGet("/", this._show, map);
-      this.getRouting().onGet("/overview", this._show, overview);
+      this.getRouting().onGet("/hazardtext", this._show, hazardtext);
       this.getRouting().init();
-      
+
       // setTimeout(function(){
-      //   overview.show();
+
+      //   HazardText.show();
+
       // },5000)
     },
 

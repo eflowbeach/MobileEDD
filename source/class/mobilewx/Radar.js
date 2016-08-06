@@ -9,7 +9,7 @@ qx.Class.define("mobilewx.Radar",
   {
     opacity :
     {
-      init : 0.8,
+      init : 0.7,
       apply : "__changeOpacity"
     },
     sliderIndex :
@@ -222,7 +222,9 @@ qx.Class.define("mobilewx.Radar",
       //     time : time_range
 
       //   });
-      me.radarLayers[time] = new ol.layer.Tile( {
+      me.radarLayers[time] = new ol.layer.Tile(
+      {
+        name : "MRMS - " + time,
         source : new ol.source.TileWMS(
         {
           params :
@@ -247,6 +249,11 @@ qx.Class.define("mobilewx.Radar",
 
       // me.map.addLayer(me.radarLayers[time]);
       me.radarLayers[time].setOpacity(me.getOpacity());
+
+      // Silly way to get Vector Layer on top...
+      var hazardLayer = me.mapObject.getLayerByName('Hazards');
+      me.map.removeLayer(hazardLayer);
+      me.map.getLayers().setAt(me.map.getLayers().getArray().length, hazardLayer);
     }
   }
 });

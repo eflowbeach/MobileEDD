@@ -14,15 +14,22 @@ qx.Class.define("mobilewx.page.Map",
 {
   extend : qx.ui.mobile.page.NavigationPage,
   type : "singleton",
+  properties:{
+    jsonpRoot:{
+      init: "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
+    }
+  },
   construct : function()
   {
     this.base(arguments);
     this.setTitle("Mobile EDD");
+    this.bus = qx.event.message.Bus.getInstance();
   },
   members :
   {
-    //_mapUri : "resource/mobilewx/ol-debug.js",  
-    _mapUri : "resource/mobilewx/ol.js",
+    _mapUri : "resource/mobilewx/ol-debug.js",
+
+    //_mapUri : "resource/mobilewx/ol.js",
 
     // overridden
     _initialize : function()
@@ -30,20 +37,21 @@ qx.Class.define("mobilewx.page.Map",
       var me = this;
       this.base(arguments);
       this._loadMapLibrary();
-      me.bus = qx.event.message.Bus.getInstance();
+      
 
       // Drawer
       var drawer = new qx.ui.mobile.container.Drawer();
       drawer.setOrientation("right");
-      drawer.setTapOffset(100);
+      drawer.setTapOffset(0);
 
-      // Radar Container
+      /**
+       * Radar Container
+       */
       var composite = new qx.ui.mobile.container.Composite();
       composite.setLayout(new qx.ui.mobile.layout.HBox());
       me.radarToggleButton = new qx.ui.mobile.form.ToggleButton(false, "On", "Off");
       me.radarToggleButton.addListener("changeValue", function(e)
       {
-        //me.addRadarLayer();
         var radarClass = mobilewx.Radar.getInstance();
         if (e.getData()) {
           radarClass.start();
@@ -61,17 +69,16 @@ qx.Class.define("mobilewx.page.Map",
       composite.add(me.radarToggleButton);
       drawer.add(composite);
 
-      // Loop Timer
-
-      // Add a listener for the timer. This switches frames on the map
+      /**
+       * Radar Loop Timer
+       * - Add a listener for the timer. This switches frames on the map
+       */
       me.loopTimer = new qx.event.Timer(500);
       me.loopTimer.addListener("interval", function(e)
       {
         if (!me.loopControl.getValue()) {
           me.loopTimer.stop();
         }
-
-        //me.loopTimer.setInterval(500);
         var currentIndex = me.radarLoopSlider.getValue();
 
         // Delay on last frame
@@ -93,17 +100,21 @@ qx.Class.define("mobilewx.page.Map",
         }
       });
 
-      // Loop Container
+      /**
+       * Loop Container
+       */
       var composite = new qx.ui.mobile.container.Composite();
       composite.setLayout(new qx.ui.mobile.layout.HBox());
       me.loopControl = new qx.ui.mobile.form.ToggleButton(false, "On", "Off");
       me.loopControl.addListener("changeValue", function(e)
       {
         var bool = e.getData();
-        if (bool) {
+        if (bool)
+        {
           me.loopTimer.start();
           me.radarToggleButton.setValue(true);
-        } else {
+        } else
+        {
           me.loopTimer.stop();
         }
       })
@@ -115,7 +126,7 @@ qx.Class.define("mobilewx.page.Map",
       composite.add(me.loopControl);
       drawer.add(composite);
 
-      // Slider
+      // Radar Loop Slider
       var composite = new qx.ui.mobile.container.Composite();
       composite.setLayout(new qx.ui.mobile.layout.HBox());
       me.radarLoopSlider = new qx.ui.mobile.form.Slider().set(
@@ -127,16 +138,16 @@ qx.Class.define("mobilewx.page.Map",
       me.radarLoopSlider.addListener("changeValue", function(e)
       {
         var radarMrms = mobilewx.Radar.getInstance();
-        radarMrms.setSliderIndex(e.getData());  // + (radarMrms.getFrames() - 1));
-
-        // console.log(e.getData());
+        radarMrms.setSliderIndex(e.getData());
       }, this);
       composite.add(me.radarLoopSlider, {
         flex : 1
       });
       drawer.add(composite);
 
-      // Radar Time
+      /**
+       * Radar Time Label
+       */
       var composite = new qx.ui.mobile.container.Composite();
       me.radarTimeLabel = new qx.ui.mobile.basic.Label();
       composite.setLayout(new qx.ui.mobile.layout.HBox().set( {
@@ -146,7 +157,9 @@ qx.Class.define("mobilewx.page.Map",
       me.radarTimeLabel.addCssClass("timeLabel");
       drawer.add(composite);
 
-      // Hazards Container
+      /**
+      * Hazards Container
+      */
       var composite = new qx.ui.mobile.container.Composite();
       composite.setLayout(new qx.ui.mobile.layout.HBox());
       var hazardsLabel = new qx.ui.mobile.basic.Label("Hazards: ");
@@ -154,6 +167,12 @@ qx.Class.define("mobilewx.page.Map",
         flex : 1
       });
       hazardsLabel.addCssClass("menuLabels");
+      me.hazardRequestTimer = new qx.event.Timer(0);  //1000 * 60);
+      me.hazardRequestTimer.addListener("interval", function(e)
+      {
+        me.hazardRequestTimer.setInterval(1000 * 20);
+        me.hazardRequest.send();
+      })
       me.hazardToggleButton = new qx.ui.mobile.form.ToggleButton(false, "On", "Off");
       me.hazardToggleButton.addListener("changeValue", function(e)
       {
@@ -161,16 +180,93 @@ qx.Class.define("mobilewx.page.Map",
           me.addHazardsLayer();
         }
         me.hazardLayer.setVisible(e.getData());
+        if (e.getData()) {
+          me.hazardRequestTimer.start();
+        } else {
+          me.hazardRequestTimer.stop();
+        }
       }, this)
       composite.add(me.hazardToggleButton);
       drawer.add(composite);
+      
+      /**
+       * Background
+       * */
+      var bgButton = new qx.ui.mobile.form.Button("Background Map");
+      bgButton.addListener("tap", function(e)
+      {
+        var options = [me.terrain, me.lite, me.natgeo, me.esridark];
+        var option_names = [];
+        options.forEach(function(obj) {
+          option_names.push(obj.get('name'));
+        })
 
-      // Options Button
-      var fxButton = new qx.ui.mobile.navigationbar.Button("Menu");
-      fxButton.addListener("tap", function(e) {
+        //mobilewx.page.Map.getInstance().terrain.get('name')]
+        var model = new qx.data.Array(option_names);
+        var menu = new qx.ui.mobile.dialog.Menu(model);
+        menu.show();
+        menu.addListener("changeSelection", function(evt)
+        {
+          var selectedIndex = evt.getData().index;
+          var selectedItem = evt.getData().item;
+          var layers = me.map.getLayers();
+
+          
+          // Remove current layer
+          options.forEach(function(obj) {
+            if (obj.get('name') == layers.getArray()[0].get('name')) {
+              // Remove the reference too
+               if(obj.get('name') == "ESRI Gray"){
+                 //me.map.removeLayer(me.esridark_reference);  
+                 me.esridark_reference.setVisible(false);
+               }
+              me.map.removeLayer(obj);
+             
+            }
+          })
+
+          
+          options.forEach(function(obj) {
+            
+            // Add the reference too
+              
+            if (obj.get('name') == selectedItem) {
+              layers.insertAt(0, obj);
+            }
+            if(selectedItem == "ESRI Gray"){
+                me.esridark_reference.setVisible(true);
+              }
+          })
+          drawer.hide();
+        }, this);
+      }, this);
+      drawer.add(bgButton);
+      
+       /**
+       * Close
+       * */
+      var closeButton = new qx.ui.mobile.form.Button("Close");
+      closeButton.addListener("tap", function(e)
+      {
+        drawer.hide();
+      }, this);
+      drawer.add(closeButton,{flex:1});
+
+      // Menu Button
+      var menuButton = new qx.ui.mobile.navigationbar.Button("Menu");
+      menuButton.addListener("tap", function(e) {
         drawer.show();
       }, this);
-      this.getRightContainer().add(fxButton);
+      this.getRightContainer().add(menuButton);
+
+
+// var menuContainer = new qx.ui.mobile.container.Composite();
+//       menuContainer.setId("mapMenu");
+      
+//       me.radarTimeMapLabel = new qx.ui.mobile.basic.Label("Radar: ");
+//       menuContainer.add(me.radarTimeMapLabel);
+
+      // Radar Time
       var weekday = new Array(7);
       weekday[0] = "Sun";
       weekday[1] = "Mon";
@@ -184,10 +280,15 @@ qx.Class.define("mobilewx.page.Map",
         var myDate = e.getData();
         var dateString = me.formatDate(myDate) + ' ' + weekday[myDate.getDay()] + ' ' + myDate.getMonth() + '/' + myDate.getDate() + '/' + myDate.getFullYear();
         me.radarTimeLabel.setValue('<b>' + dateString + '</b>');
+        me.descriptionLabel.setValue('<b>' + dateString + '</b>');
       }, this)
     },
+
+    /**
+     * Format the Radar Date
+     */
     formatDate : function(date)
-    {  // This is to display 12 hour format like you asked
+    {
       var hours = date.getHours();
       var minutes = date.getMinutes();
       var ampm = hours >= 12 ? 'pm' : 'am';
@@ -212,6 +313,49 @@ qx.Class.define("mobilewx.page.Map",
       mapContainer.addCssClass("map");
       return mapContainer;
     },
+    
+    
+    // overridden
+    _createContent : function()
+    {
+      var me = this;
+      // Disable menu for Windows Phone 8.
+      if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+        return null;
+      }
+      var menuContainer = new qx.ui.mobile.container.Composite();
+      menuContainer.setId("mapMenu");
+
+      // // LABEL
+       me.descriptionLabel = new qx.ui.mobile.basic.Label("");
+        
+      //me.descriptionLabel.addCssClass("osmMapLabel");
+
+      // // TOGGLE BUTTON
+      // var toggleNavigationButton = new qx.ui.mobile.form.ToggleButton(true, "ON", "OFF");
+
+      // // SHOW MY POSITION BUTTON
+      // this._showMyPositionButton = new qx.ui.mobile.form.Button("Find me!");
+      // this._showMyPositionButton.addListener("tap", this._getGeoPosition, this);
+
+      // // Button is disabled when Geolocation is not available.
+      // this._showMyPositionButton.setEnabled(this._geolocationEnabled);
+      // toggleNavigationButton.addListener("changeValue", function()
+      // {
+      //   var newNavBarState = !this.isNavigationBarHidden();
+      //   this.setNavigationBarHidden(newNavBarState);
+      //   this.show();
+      // }, this);
+      // var groupPosition = new qx.ui.mobile.form.Group([this._showMyPositionButton], false);
+      // var groupFullScreen = new qx.ui.mobile.form.Group([descriptionLabel, toggleNavigationButton], true);
+      // this._showMyPositionButton.addCssClass("map-shadow");
+      // groupFullScreen.addCssClass("map-shadow");
+      // menuContainer.add(groupFullScreen);
+      // menuContainer.add(groupPosition);
+      menuContainer.add(me.descriptionLabel);
+      return menuContainer;
+    },
+    
 
     /**
      * Loads JavaScript library which is needed for the map.
@@ -222,66 +366,114 @@ qx.Class.define("mobilewx.page.Map",
       var req = new qx.bom.request.Script();
       req.onload = function()
       {
+        
+        // Background Maps
+        me.terrain = new ol.layer.Tile(
+        {
+          name : "Stamen Terrain",
+          source : new ol.source.Stamen( {
+            layer : 'terrain'
+          })
+        });
+        me.lite = new ol.layer.Tile(
+        {
+          name : "Stamen Lite",
+          source : new ol.source.Stamen( {
+            layer : 'toner-lite'
+          })
+        })
+        var attribution = new ol.Attribution( {
+          html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer">ArcGIS</a>'
+        });
+        me.natgeo = new ol.layer.Tile(
+        {
+          name : "ESRI Nat Geo",
+          source : new ol.source.XYZ(
+          {
+            attributions : [attribution],
+            url : 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}'
+          })
+        })
+        var attribution = new ol.Attribution( {
+          html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer">ArcGIS</a>'
+        });
+        me.esridark = new ol.layer.Tile(
+        {
+          name : "ESRI Gray",
+          source : new ol.source.XYZ(
+          {
+            attributions : [attribution],
+            url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+          })
+        })
+        var attribution = new ol.Attribution( {
+          html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer">ArcGIS</a>'
+        });
+        me.esridark_reference = new ol.layer.Tile(
+        {
+          name : "ESRI Gray Reference",
+          source : new ol.source.XYZ(
+          {
+            attributions : [attribution],
+            url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
+          })
+        })
         me.map = new ol.Map(
         {
           target : 'map',
           controls : ol.control.defaults().extend([new ol.control.ScaleLine()]),
-          layers : [new ol.layer.Tile( {
-            source : new ol.source.Stamen( {
-              layer : 'terrain'
-            })
-          }), new ol.layer.Tile( {
-            source : new ol.source.Stamen( {
-              layer : 'terrain-labels'
-            })
-          })],
+          layers : [me.esridark, me.esridark_reference],
           view : new ol.View( {
             //   center : ol.proj.transform([-99, 40], 'EPSG:4326', 'EPSG:3857'),
             zoom : 8
           })
         });
-        
-        me.map.on("click", function(e) {
-    me.map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
-       console.log(feature,layer);
-    })
-})
-        
+
+        me.map.on("click", function(e)
+        {
+          var hazards = [];
+          me.map.forEachFeatureAtPixel(e.pixel, function(feature, layer) {
+            if (layer.get('name') == "Hazards")
+            {
+              console.log(feature.get('office'), layer.get('name'));
+              hazards.push(feature);
+            }
+          })
+          me.handleHazardClick(hazards);
+        })
         var proj1 = ol.proj.get("EPSG:3857");
         var geolocation = new ol.Geolocation(
         {
           projection : proj1,
           tracking : true
         });
-        geolocation.once('change', function(evt) {
+        geolocation.once('change', function(evt)
+        {
           me.map.getView().setCenter(geolocation.getPosition());
-          
+
           // add Icon
-          var iconFeature = new ol.Feature({
-        geometry: new ol.geom.Point(geolocation.getPosition())
-       
-      });
-
-      var iconStyle = new ol.style.Style({
-        image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          anchor: [12,24],
-          anchorXUnits: 'pixels',
-          anchorYUnits: 'pixels',
-          src: 'resource/mobilewx/images/map-marker-icon.png'//'http://openlayers.org/en/v3.17.1/examples/data/icon.png'
-        }))
-      });
-
-      iconFeature.setStyle(iconStyle);
-
-      var vectorSource = new ol.source.Vector({
-        features: [iconFeature]
-      });
-
-      var vectorLayer = new ol.layer.Vector({
-        source: vectorSource
-      });
-      me.map.addLayer(vectorLayer);
-          
+          var iconFeature = new ol.Feature( {
+            geometry : new ol.geom.Point(geolocation.getPosition())
+          });
+          var iconStyle = new ol.style.Style( {
+            image : new ol.style.Icon(
+            {
+              anchor : [12, 24],
+              anchorXUnits : 'pixels',
+              anchorYUnits : 'pixels',
+              src : 'resource/mobilewx/images/map-marker-icon.png'
+            })
+          });
+          iconFeature.setStyle(iconStyle);
+          var vectorSource = new ol.source.Vector( {
+            features : [iconFeature]
+          });
+          var vectorLayer = new ol.layer.Vector(
+          {
+            name : "Marker",
+            source : vectorSource
+          });
+          me.map.addLayer(vectorLayer);
         });
         var deviceOrientation = new ol.DeviceOrientation();
 
@@ -296,45 +488,24 @@ qx.Class.define("mobilewx.page.Map",
           center[1] += resolution * beta * 25;
           view.setCenter(view.constrainCenter(center));
         });
-
-        //me.addHazardsLayer();
         me.radarToggleButton.setValue(true);
         me.hazardToggleButton.setValue(true);
         var styleArray = [new ol.style.Style( {
-          // fill: new ol.style.Fill({
-
-          //   color: 'rgba(255, 255, 255, 0.6)'
-
-          // }),
-
-          // text : new ol.style.Text(
-
-          //   {
-
-          //     //font : '28px Calibri,sans-serif',
-
-          //     text : 'Hi',//label,
-
-          //     //fill : textFill,
-
-          //     //stroke : textStroke
-
-          //   }),
           stroke : new ol.style.Stroke(
           {
             color : '#717171',
-            width : 3
+            width : 2
           })
         })];
         var vector = new ol.layer.Vector(
         {
+          name : "U.S. States",
           source : new ol.source.Vector(
           {
             url : 'resource/mobilewx/data/us-states.json',
             format : new ol.format.TopoJSON()
           }),
           style : function(feature, resolution) {
-            // don't want to render the full world polygon, which repeats all countries
             return feature.getId() !== undefined ? styleArray : null;
           }
         });
@@ -364,6 +535,58 @@ qx.Class.define("mobilewx.page.Map",
       });
       me.map.addLayer(tms_layer);
     },
+    handleHazardClick : function(hazardArray)
+    {
+      var me = this;
+      var hazards = [];
+      hazardArray.forEach(function(obj) {
+        hazards.push(obj.get('warn_type') + ' - ' + obj.get('etn'));
+      })
+      var model = new qx.data.Array(hazards);
+      var menu = new qx.ui.mobile.dialog.Menu(model);
+      if (hazards.length > 0) {
+        menu.show();
+      }
+      menu.addListener("changeSelection", function(evt)
+      {
+        var selectedIndex = evt.getData().index;
+        var selectedItem = evt.getData().item;
+        console.log(selectedIndex, selectedItem);
+        var hsplit = selectedItem.split(' - ');
+        var htype = hsplit[0];
+        var hetn = hsplit[1];
+        hazardArray.forEach(function(feature) {
+          if (feature.get('warn_type') == htype && feature.get('etn') == hetn)
+          {
+            console.log(feature);
+            var url = me.getJsonpRoot() + 'getWarningText.php';  //'https://nwschat.weather.gov/vtec/json-text.php';
+            url += '?year=' + new Date(feature.get('end') * 1000).getFullYear();
+            url += '&wfo=' + feature.get('office').substr(1, 4);
+            url += '&phenomena=' + feature.get('phenomenon');
+            url += '&eventid=' + feature.get('etn');
+            url += '&significance=W';
+
+            //url &nocache=1470392083128&jsonp=test
+            var hazardTextRequest = new qx.io.request.Jsonp();
+            hazardTextRequest.setUrl(url);  
+            hazardTextRequest.setCallbackParam('callback');
+            hazardTextRequest.addListenerOnce("success", function(e)
+            {
+              //console.log(e.getTarget().getResponse().data[0].report);
+              qx.core.Init.getApplication().getRouting().executeGet("/hazardtext");
+              var text = new qx.event.message.Message("edd.hazard");
+              text.setData(e.getTarget().getResponse().data[0].report);
+              me.bus.dispatch(text);
+              this.__busyPopup.hide();
+            }, this);
+            hazardTextRequest.send();
+            var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
+            this.__busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
+            this.__busyPopup.show();
+          }
+        })
+      }, this);
+    },
 
     /**
       Add a hazards layer ...
@@ -374,6 +597,7 @@ qx.Class.define("mobilewx.page.Map",
       var geoJSONFormat = new ol.format.GeoJSON();
       me.hazardLayer = new ol.layer.Vector(
       {
+        name : "Hazards",
         source : null,  // vectorSource,
         style : function(feature, resolution)
         {
@@ -436,16 +660,12 @@ qx.Class.define("mobilewx.page.Map",
       me.map.addLayer(me.hazardLayer);
 
       // Hazard Request
-      var req = new qx.io.request.Jsonp();
-      req.setUrl("https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/hazards/getShortFusedHazards.php");
-      req.setCallbackName('test');
-      req.setCallbackParam('callback');
-      req.addListener("success", function(e)
+      me.hazardRequest = new qx.io.request.Jsonp();
+      me.hazardRequest.setUrl( me.getJsonpRoot() + "hazards/getShortFusedHazards.php");
+      me.hazardRequest.setCallbackParam('callback');
+      me.hazardRequest.addListener("success", function(e)
       {
-        var req = e.getTarget();
-
-        // JSON response
-        var data = req.getResponse();
+        var data = e.getTarget().getResponse();
         var features = new ol.format.GeoJSON().readFeatures(data, {
           featureProjection : 'EPSG:3857'
         });
@@ -454,16 +674,40 @@ qx.Class.define("mobilewx.page.Map",
           projection : 'EPSG:3857',
           features : features
         }));
+        if (me.hazardLayer.getSource() !== null) {
+          me.hazardLayer.getSource().clear();
+        }
         me.hazardLayer.setSource(vectorSource);
       }, this);
-      req.send();
+
+      //me.hazardRequest.send();
     },
+
+    /**
+     * Get the map
+     */
     getMap : function() {
       return this.map;
     },
 
     /**
-    Get a layer by name
+     * Get a layer by name
+     */
+    getLayerByName : function(name)
+    {
+      var me = this;
+      var match = null;
+      me.map.getLayers().getArray().forEach(function(obj) {
+        // console.log(obj.get('name'), name);
+        if (obj.get('name') == name) {
+          match = obj;
+        };
+      })
+      return match;
+    },
+
+    /**
+    Set opacity of a layer by name
     */
     setOpacity : function(name, opacity)
     {

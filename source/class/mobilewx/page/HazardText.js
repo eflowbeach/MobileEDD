@@ -10,15 +10,18 @@
 
 /**
  */
-qx.Class.define("mobilewx.page.Overview",
+qx.Class.define("mobilewx.page.HazardText",
 {
   extend : qx.ui.mobile.page.NavigationPage,
+  type : 'singleton',
   construct : function()
   {
     this.base(arguments);
-    this.setTitle("Overview");
+    this.bus = qx.event.message.Bus.getInstance();
+    this.setTitle("Hazard Text");
     this.setShowBackButton(true);
     this.setBackButtonText("Back");
+   
   },
   members :
   {
@@ -26,7 +29,13 @@ qx.Class.define("mobilewx.page.Overview",
     _initialize : function()
     {
       this.base(arguments);
-      this.getContent().add(new qx.ui.mobile.basic.Label("Your first app."));
+      this.label = new qx.ui.mobile.basic.Label("Hazard Text");
+      this.getContent().add(this.label);
+       this.bus.subscribe("edd.hazard", function(e)
+      {
+        var text = e.getData();
+        this.label.setValue(text.replace(/\n/g, '<br>'));
+      }, this)
     },
 
     // overridden
