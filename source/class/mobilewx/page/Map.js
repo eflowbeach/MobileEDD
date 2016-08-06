@@ -16,7 +16,8 @@ qx.Class.define("mobilewx.page.Map",
   type : "singleton",
   properties:{
     jsonpRoot:{
-      init: "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
+      //init: "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
+      init: "http://preview.weather.gov/edd/resource/edd/"
     }
   },
   construct : function()
@@ -27,9 +28,9 @@ qx.Class.define("mobilewx.page.Map",
   },
   members :
   {
-    _mapUri : "resource/mobilewx/ol-debug.js",
+    //_mapUri : "resource/mobilewx/ol-debug.js",
 
-    //_mapUri : "resource/mobilewx/ol.js",
+    _mapUri : "resource/mobilewx/ol.js",
 
     // overridden
     _initialize : function()
