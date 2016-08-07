@@ -1,6 +1,10 @@
 /**
 * NowCOAST loopable class for Radar
+* 
 */
+/*global qx*/
+/*global ol*/
+/*global mobileedd*/
 qx.Class.define("mobileedd.Radar",
 {
   extend : qx.core.Object,
@@ -77,13 +81,13 @@ qx.Class.define("mobileedd.Radar",
             radarLoopSlider.setValue(radarLoopSlider.getMaximum());
           }
         }
-      }, this)
+      }, this);
       me.timer.restart();
     }, this);
 
     // Request Failed
     me.timesReq.addListener("fail", function(e) {
-      console.log('MRMS radar request failed...')
+      console.log('MRMS radar request failed...');
     });
   },
   members :
@@ -140,11 +144,11 @@ qx.Class.define("mobileedd.Radar",
       var me = this;
       Object.keys(me.radarLayers).sort().forEach(function(obj, index) {
         if (me.getSliderIndex() == index) {
-          me.radarLayers[obj].setOpacity(value)
+          me.radarLayers[obj].setOpacity(value);
         } else {
           me.radarLayers[obj].setOpacity(0);
         }
-      })
+      });
     },
 
     /**
@@ -155,7 +159,7 @@ qx.Class.define("mobileedd.Radar",
       var me = this;
       Object.keys(me.radarLayers).sort().forEach(function(obj, index) {
         me.radarLayers[obj].setVisible(value);
-      })
+      });
     },
 
     /**
@@ -178,7 +182,7 @@ qx.Class.define("mobileedd.Radar",
         {
           me.radarLayers[obj].setOpacity(0);
         }
-      })
+      });
       me.updateLegend(sliderIndex);
     },
 
@@ -194,7 +198,7 @@ qx.Class.define("mobileedd.Radar",
           me.timeMessage.setData(new Date(obj * 1));
           me.bus.dispatch(me.timeMessage);
         }
-      }, this)
+      }, this);
     },
 
     /**

@@ -7,7 +7,7 @@
    Authors:
 
 ************************************************************************ */
-
+/*global qx*/
 /**
  */
 qx.Class.define("mobileedd.page.HazardText",
@@ -34,7 +34,7 @@ qx.Class.define("mobileedd.page.HazardText",
       {
         var text = e.getData();
         this.label.setValue(text.replace(/\n/g, '<br>'));
-      }, this)
+      }, this);
     },
 
     // overridden

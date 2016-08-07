@@ -7,7 +7,9 @@
    Authors:
 
 ************************************************************************ */
-
+/*global qx*/
+/*global ol*/
+/*global mobileedd*/
 /**
  */
 qx.Class.define("mobileedd.page.Map",
@@ -17,12 +19,14 @@ qx.Class.define("mobileedd.page.Map",
   properties :
   {
     jsonpRoot : {
-      init: "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
-     // init : "https://preview.weather.gov/edd/resource/edd/"
+      init : "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
+
+      // init : "https://preview.weather.gov/edd/resource/edd/"
     },
     mapUri : {
-      //init: "resource/mobileedd/ol-debug.js"
-      init : "resource/mobileedd/ol.js"
+      init : "resource/mobileedd/ol-debug.js"
+
+      //init : "resource/mobileedd/ol.js"
     }
   },
   construct : function()
@@ -60,9 +64,9 @@ qx.Class.define("mobileedd.page.Map",
           me.loopControl.setValue(false);
           radarClass.stop();
         }
-        radarClass.toggleVisibility(e.getData()); 
-      })
-      var radarLabel = new qx.ui.mobile.basic.Label("Radar: ")
+        radarClass.toggleVisibility(e.getData());
+      });
+      var radarLabel = new qx.ui.mobile.basic.Label("Radar: ");
       radarLabel.addCssClass("menuLabels");
       composite.add(radarLabel, {
         flex : 1
@@ -118,8 +122,8 @@ qx.Class.define("mobileedd.page.Map",
         {
           me.loopTimer.stop();
         }
-      })
-      var loopLabel = new qx.ui.mobile.basic.Label("Loop Radar: ")
+      });
+      var loopLabel = new qx.ui.mobile.basic.Label("Loop Radar: ");
       loopLabel.addCssClass("loopLabel");
       composite.add(loopLabel, {
         flex : 1
@@ -174,7 +178,7 @@ qx.Class.define("mobileedd.page.Map",
       {
         me.hazardRequestTimer.setInterval(1000 * 20);
         me.hazardRequest.send();
-      })
+      });
       me.hazardToggleButton = new qx.ui.mobile.form.ToggleButton(false, "On", "Off");
       me.hazardToggleButton.addListener("changeValue", function(e)
       {
@@ -187,7 +191,7 @@ qx.Class.define("mobileedd.page.Map",
         } else {
           me.hazardRequestTimer.stop();
         }
-      }, this)
+      }, this);
       composite.add(me.hazardToggleButton);
       drawer.add(composite);
 
@@ -201,7 +205,7 @@ qx.Class.define("mobileedd.page.Map",
         var option_names = [];
         options.forEach(function(obj) {
           option_names.push(obj.get('name'));
-        })
+        });
 
         //mobileedd.page.Map.getInstance().terrain.get('name')]
         var model = new qx.data.Array(option_names.sort());
@@ -209,7 +213,7 @@ qx.Class.define("mobileedd.page.Map",
         menu.show();
         menu.addListener("changeSelection", function(evt)
         {
-          var selectedIndex = evt.getData().index;
+          //var selectedIndex = evt.getData().index;
           var selectedItem = evt.getData().item;
           var layers = me.map.getLayers();
 
@@ -226,7 +230,7 @@ qx.Class.define("mobileedd.page.Map",
 
               me.map.removeLayer(obj);
             }
-          })
+          });
           options.forEach(function(obj)
           {
             // Add the reference too
@@ -242,15 +246,15 @@ qx.Class.define("mobileedd.page.Map",
                 if (obj.get('name') == "ESRI Light Gray Reference") {
                   loaded = true;
                 }
-              })
+              });
               if (!loaded) {
                 //me.map.addLayer()
-                layers.insertAt(1, me.esrilite_reference)
+                layers.insertAt(1, me.esrilite_reference);
               }
               me.esrilite_reference.setVisible(true);
             }
 
-          })
+          });
           drawer.hide();
         }, this);
       }, this);
@@ -289,7 +293,7 @@ qx.Class.define("mobileedd.page.Map",
         var dateString = me.formatDate(myDate) + ' ' + weekday[myDate.getDay()] + ' ' + myDate.getMonth() + '/' + myDate.getDate() + '/' + myDate.getFullYear();
         me.radarTimeLabel.setValue('<b>' + dateString + '</b>');
         me.descriptionLabel.setValue('<b>Radar - ' + dateString + '</b>');
-      }, this)
+      }, this);
 
       // Wait a second before looping
 
@@ -358,7 +362,7 @@ qx.Class.define("mobileedd.page.Map",
       menuContainer.setId("mapMenu");
       me.descriptionLabel = new qx.ui.mobile.basic.Label("");
       menuContainer.add(me.descriptionLabel);
-      var image = new qx.ui.mobile.basic.Image("http://nowcoast.noaa.gov/images/legends/radar.png");
+      var image = new qx.ui.mobile.basic.Image("https://nowcoast.noaa.gov/images/legends/radar.png");
       menuContainer.add(image);
       return menuContainer;
     },
@@ -372,6 +376,19 @@ qx.Class.define("mobileedd.page.Map",
       var req = new qx.bom.request.Script();
       req.onload = function()
       {
+        me.defaultView = new ol.View(
+        {
+          center : ol.proj.transform([-99, 40], 'EPSG:4326', 'EPSG:3857'),
+          zoom : 4
+        });
+
+        // Firefox never triggers geolocation fail
+        setTimeout(function() {
+          if (me.map.getView().getCenter() == null) {
+            me.map.setView(me.defaultView);
+          }
+        }, 3000);
+
         // Background Maps
         me.terrain = new ol.layer.Tile(
         {
@@ -386,7 +403,7 @@ qx.Class.define("mobileedd.page.Map",
           source : new ol.source.Stamen( {
             layer : 'toner-lite'
           })
-        })
+        });
         var attribution = new ol.Attribution( {
           html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer">ArcGIS</a>'
         });
@@ -398,7 +415,7 @@ qx.Class.define("mobileedd.page.Map",
             attributions : [attribution],
             url : 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}'
           })
-        })
+        });
         var attribution = new ol.Attribution( {
           html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer">ArcGIS</a>'
         });
@@ -410,7 +427,7 @@ qx.Class.define("mobileedd.page.Map",
             attributions : [attribution],
             url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
           })
-        })
+        });
         var attribution = new ol.Attribution( {
           html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer">ArcGIS</a>'
         });
@@ -420,7 +437,7 @@ qx.Class.define("mobileedd.page.Map",
           source : new ol.source.XYZ( {
             url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
           })
-        })
+        });
         me.esrilite = new ol.layer.Tile(
         {
           name : "ESRI Light Gray",
@@ -429,7 +446,7 @@ qx.Class.define("mobileedd.page.Map",
             attributions : [attribution],
             url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
           })
-        })
+        });
         var attribution = new ol.Attribution( {
           html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer">ArcGIS</a>'
         });
@@ -439,7 +456,7 @@ qx.Class.define("mobileedd.page.Map",
           source : new ol.source.XYZ( {
             url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
           })
-        })
+        });
         me.map = new ol.Map(
         {
           target : 'map',
@@ -456,9 +473,9 @@ qx.Class.define("mobileedd.page.Map",
             if (layer.get('name') == "Hazards") {
               hazards.push(feature);
             }
-          })
+          });
           me.handleHazardClick(hazards);
-        })
+        });
         var proj1 = ol.proj.get("EPSG:3857");
         var geolocation = new ol.Geolocation(
         {
@@ -467,14 +484,8 @@ qx.Class.define("mobileedd.page.Map",
         });
 
         // Handle geolocation error.
-        geolocation.once('error', function(error)
-        {
-          var defaultView = new ol.View(
-          {
-            center : ol.proj.transform([-99, 40], 'EPSG:4326', 'EPSG:3857'),
-            zoom : 4
-          })
-          me.map.setView(defaultView);
+        geolocation.once('error', function(error) {
+          me.map.setView(me.defaultView);
         });
         geolocation.once('change', function(evt)
         {
@@ -574,7 +585,7 @@ qx.Class.define("mobileedd.page.Map",
       var hazards = [];
       hazardArray.forEach(function(obj) {
         hazards.push(obj.get('warn_type') + ' - #' + obj.get('etn'));
-      })
+      });
       var model = new qx.data.Array(hazards);
       var menu = new qx.ui.mobile.dialog.Menu(model);
       if (hazards.length > 0) {
@@ -613,7 +624,7 @@ qx.Class.define("mobileedd.page.Map",
             this.__busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
             this.__busyPopup.show();
           }
-        })
+        });
       }, this);
     },
 
@@ -623,7 +634,6 @@ qx.Class.define("mobileedd.page.Map",
     addHazardsLayer : function()
     {
       var me = this;
-      var geoJSONFormat = new ol.format.GeoJSON();
       me.hazardLayer = new ol.layer.Vector(
       {
         name : "Hazards",
@@ -671,7 +681,7 @@ qx.Class.define("mobileedd.page.Map",
               fill : textFill,
               stroke : textStroke
             })
-          })]
+          })];
         }
       });
       me.map.addLayer(me.hazardLayer);
@@ -716,8 +726,8 @@ qx.Class.define("mobileedd.page.Map",
         // console.log(obj.get('name'), name);
         if (obj.get('name') == name) {
           match = obj;
-        };
-      })
+        }
+      });
       return match;
     },
 
@@ -733,7 +743,7 @@ qx.Class.define("mobileedd.page.Map",
         }
       });
     },
-
+ 
     // From: http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
     getURLParameter : function(name) {
       return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
