@@ -1,7 +1,7 @@
 /**
 * NowCOAST loopable class for Radar
 */
-qx.Class.define("mobilewx.Radar",
+qx.Class.define("mobileedd.Radar",
 {
   extend : qx.core.Object,
   type : "singleton",
@@ -26,7 +26,7 @@ qx.Class.define("mobilewx.Radar",
     var me = this;
     me.base(arguments);
     me.bus = qx.event.message.Bus.getInstance();
-    me.mapObject = mobilewx.page.Map.getInstance();
+    me.mapObject = mobileedd.page.Map.getInstance();
     me.map = me.mapObject.getMap();
     me.radarLayers = {
 
@@ -70,7 +70,7 @@ qx.Class.define("mobilewx.Radar",
           if (Object.keys(this.radarLayers).length > me.getFrames() - 1)
           {
             // Toggle radar loop slider value to initiate a change event
-            var radarLoopSlider = mobilewx.page.Map.getInstance().radarLoopSlider;
+            var radarLoopSlider = mobileedd.page.Map.getInstance().radarLoopSlider;
             radarLoopSlider.setValue(radarLoopSlider.getMaximum() - 1);
 
             // Show latest

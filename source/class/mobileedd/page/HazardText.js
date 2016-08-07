@@ -10,7 +10,7 @@
 
 /**
  */
-qx.Class.define("mobilewx.page.HazardText",
+qx.Class.define("mobileedd.page.HazardText",
 {
   extend : qx.ui.mobile.page.NavigationPage,
   type : 'singleton',

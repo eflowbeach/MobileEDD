@@ -9,11 +9,11 @@
 ************************************************************************ */
 
 /**
- * This is the main application class of your custom application "MobileWx"
+ * This is the main application class of your custom application "MobileEDD"
  *
- * @asset(mobilewx/*)
+ * @asset(mobileedd/*)
  */
-qx.Class.define("mobilewx.Application",
+qx.Class.define("mobileedd.Application",
 {
   extend : qx.application.Mobile,
   members :
@@ -45,8 +45,8 @@ qx.Class.define("mobilewx.Application",
         Remove or edit the following code to create your application.
       -------------------------------------------------------------------------
       */
-      var map = mobilewx.page.Map.getInstance();
-      var hazardtext = mobilewx.page.HazardText.getInstance();
+      var map = mobileedd.page.Map.getInstance();
+      var hazardtext = mobileedd.page.HazardText.getInstance();
 
       // Add the pages to the page manager.
       var manager = new qx.ui.mobile.page.Manager(false);

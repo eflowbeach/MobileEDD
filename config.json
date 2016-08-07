@@ -1,5 +1,5 @@
 {
-  "name"    : "MobileWx",
+  "name"    : "MobileEDD",
 
   "include" :
   [
@@ -45,8 +45,8 @@
 
   "let" :
   {
-    "APPLICATION"  : "mobilewx",
-    "APPLICATION_PATH" : "mobilewx",
+    "APPLICATION"  : "mobileedd",
+    "APPLICATION_PATH" : "mobileedd",
     "QOOXDOO_PATH" : "../qooxdoo",
     "LOCALES"      : [ "en" ],
     "CACHE"        : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",

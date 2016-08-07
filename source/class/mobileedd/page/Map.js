@@ -10,7 +10,7 @@
 
 /**
  */
-qx.Class.define("mobilewx.page.Map",
+qx.Class.define("mobileedd.page.Map",
 {
   extend : qx.ui.mobile.page.NavigationPage,
   type : "singleton",
@@ -21,8 +21,8 @@ qx.Class.define("mobilewx.page.Map",
       init : "http://preview.weather.gov/edd/resource/edd/"
     },
     mapUri : {
-      //init: "resource/mobilewx/ol-debug.js"
-      init : "resource/mobilewx/ol.js"
+      //init: "resource/mobileedd/ol-debug.js"
+      init : "resource/mobileedd/ol.js"
     }
   },
   construct : function()
@@ -53,7 +53,7 @@ qx.Class.define("mobilewx.page.Map",
       me.radarToggleButton = new qx.ui.mobile.form.ToggleButton(false, "On", "Off");
       me.radarToggleButton.addListener("changeValue", function(e)
       {
-        var radarClass = mobilewx.Radar.getInstance();
+        var radarClass = mobileedd.Radar.getInstance();
         if (e.getData()) {
           radarClass.start();
         } else {
@@ -138,7 +138,7 @@ qx.Class.define("mobilewx.page.Map",
       });
       me.radarLoopSlider.addListener("changeValue", function(e)
       {
-        var radarMrms = mobilewx.Radar.getInstance();
+        var radarMrms = mobileedd.Radar.getInstance();
         radarMrms.setSliderIndex(e.getData());
       }, this);
       composite.add(me.radarLoopSlider, {
@@ -203,7 +203,7 @@ qx.Class.define("mobilewx.page.Map",
           option_names.push(obj.get('name'));
         })
 
-        //mobilewx.page.Map.getInstance().terrain.get('name')]
+        //mobileedd.page.Map.getInstance().terrain.get('name')]
         var model = new qx.data.Array(option_names.sort());
         var menu = new qx.ui.mobile.dialog.Menu(model);
         menu.show();
@@ -488,7 +488,7 @@ qx.Class.define("mobilewx.page.Map",
               anchor : [12, 24],
               anchorXUnits : 'pixels',
               anchorYUnits : 'pixels',
-              src : 'resource/mobilewx/images/map-marker-icon.png'
+              src : 'resource/mobileedd/images/map-marker-icon.png'
             })
           });
           iconFeature.setStyle(iconStyle);
@@ -529,7 +529,7 @@ qx.Class.define("mobilewx.page.Map",
           name : "U.S. States",
           source : new ol.source.Vector(
           {
-            url : 'resource/mobilewx/data/us-states.json',
+            url : 'resource/mobileedd/data/us-states.json',
             format : new ol.format.TopoJSON()
           }),
           style : function(feature, resolution) {
