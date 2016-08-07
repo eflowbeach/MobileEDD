@@ -15,7 +15,7 @@
       font-size: 1.5em;
       font-weight: bold;
       padding-left: 0.5em;
-      padding-top: 0.2em;
+      //padding-top: 0.2em;
               }
               
  .timeLabel{
@@ -30,7 +30,7 @@
     font-weight: bold;
     padding-left: 30px;
     padding-top: 0.2em;
-    color: green;
+    color: #4b57ff;
               }              
 
 .no-wrap {
@@ -40,15 +40,20 @@ text-overflow: ellipsis;
 }
 
 #mapMenu {
-    position: absolute;
+       position: absolute;
     z-index: 5000;
-    top: 2px;
-    right: 1px;
+    top: 0px;
+    right: 0px;
     background-color: rgba(0,0,0,0.48);
     color: #ffffff;
     padding-left: 5px;
     padding-right: 5px;
-    margin-top: -4px;
-    border-radius: 0px 0px 0px 5px;
+    margin-top: 5px;
+    border-radius: 5px 0px 0px 5px;
 }
 
+.hboxPad{
+     
+      padding-bottom: 1.0em;
+      padding-top: 1.0em;
+              }

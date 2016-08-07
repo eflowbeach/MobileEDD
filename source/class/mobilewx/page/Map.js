@@ -162,6 +162,7 @@ qx.Class.define("mobilewx.page.Map",
       * Hazards Container
       */
       var composite = new qx.ui.mobile.container.Composite();
+      composite.addCssClass("hboxPad");
       composite.setLayout(new qx.ui.mobile.layout.HBox());
       var hazardsLabel = new qx.ui.mobile.basic.Label("Hazards: ");
       composite.add(hazardsLabel, {
@@ -193,17 +194,17 @@ qx.Class.define("mobilewx.page.Map",
       /**
        * Background
        * */
-      var bgButton = new qx.ui.mobile.form.Button("Background Map");
+      var bgButton = new qx.ui.mobile.form.Button("Change Background Map");
       bgButton.addListener("tap", function(e)
       {
-        var options = [me.terrain, me.lite, me.natgeo, me.esridark];
+        var options = [me.terrain, me.lite, me.natgeo, me.esridark, me.esrilite];
         var option_names = [];
         options.forEach(function(obj) {
           option_names.push(obj.get('name'));
         })
 
         //mobilewx.page.Map.getInstance().terrain.get('name')]
-        var model = new qx.data.Array(option_names);
+        var model = new qx.data.Array(option_names.sort());
         var menu = new qx.ui.mobile.dialog.Menu(model);
         menu.show();
         menu.addListener("changeSelection", function(evt)
@@ -218,9 +219,11 @@ qx.Class.define("mobilewx.page.Map",
             {
               // Remove the reference too
               if (obj.get('name') == "ESRI Gray") {
-                //me.map.removeLayer(me.esridark_reference);
                 me.esridark_reference.setVisible(false);
+              } else if (obj.get('name') == "ESRI Light Gray") {
+                me.esrilite_reference.setVisible(false);
               }
+
               me.map.removeLayer(obj);
             }
           })
@@ -232,7 +235,21 @@ qx.Class.define("mobilewx.page.Map",
             }
             if (selectedItem == "ESRI Gray") {
               me.esridark_reference.setVisible(true);
+            } else if (obj.get('name') == "ESRI Light Gray")
+            {
+              var loaded = false;
+              layers.getArray().forEach(function(obj) {
+                if (obj.get('name') == "ESRI Light Gray Reference") {
+                  loaded = true;
+                }
+              })
+              if (!loaded) {
+                //me.map.addLayer()
+                layers.insertAt(1, me.esrilite_reference)
+              }
+              me.esrilite_reference.setVisible(true);
             }
+
           })
           drawer.hide();
         }, this);
@@ -335,51 +352,11 @@ qx.Class.define("mobilewx.page.Map",
       if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
         return null;
       }
+
+      // Radar Label on map
       var menuContainer = new qx.ui.mobile.container.Composite();
       menuContainer.setId("mapMenu");
-
-      // // LABEL
       me.descriptionLabel = new qx.ui.mobile.basic.Label("");
-
-      //me.descriptionLabel.addCssClass("osmMapLabel");
-
-      // // TOGGLE BUTTON
-
-      // var toggleNavigationButton = new qx.ui.mobile.form.ToggleButton(true, "ON", "OFF");
-
-      // // SHOW MY POSITION BUTTON
-
-      // this._showMyPositionButton = new qx.ui.mobile.form.Button("Find me!");
-
-      // this._showMyPositionButton.addListener("tap", this._getGeoPosition, this);
-
-      // // Button is disabled when Geolocation is not available.
-
-      // this._showMyPositionButton.setEnabled(this._geolocationEnabled);
-
-      // toggleNavigationButton.addListener("changeValue", function()
-
-      // {
-
-      //   var newNavBarState = !this.isNavigationBarHidden();
-
-      //   this.setNavigationBarHidden(newNavBarState);
-
-      //   this.show();
-
-      // }, this);
-
-      // var groupPosition = new qx.ui.mobile.form.Group([this._showMyPositionButton], false);
-
-      // var groupFullScreen = new qx.ui.mobile.form.Group([descriptionLabel, toggleNavigationButton], true);
-
-      // this._showMyPositionButton.addCssClass("map-shadow");
-
-      // groupFullScreen.addCssClass("map-shadow");
-
-      // menuContainer.add(groupFullScreen);
-
-      // menuContainer.add(groupPosition);
       menuContainer.add(me.descriptionLabel);
       return menuContainer;
     },
@@ -440,6 +417,25 @@ qx.Class.define("mobilewx.page.Map",
           name : "ESRI Gray Reference",
           source : new ol.source.XYZ( {
             url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
+          })
+        })
+        me.esrilite = new ol.layer.Tile(
+        {
+          name : "ESRI Light Gray",
+          source : new ol.source.XYZ(
+          {
+            attributions : [attribution],
+            url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+          })
+        })
+        var attribution = new ol.Attribution( {
+          html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer">ArcGIS</a>'
+        });
+        me.esrilite_reference = new ol.layer.Tile(
+        {
+          name : "ESRI Light Gray Reference",
+          source : new ol.source.XYZ( {
+            url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
           })
         })
         me.map = new ol.Map(
@@ -525,7 +521,7 @@ qx.Class.define("mobilewx.page.Map",
           stroke : new ol.style.Stroke(
           {
             color : '#717171',
-            width : 4
+            width : 3
           })
         })];
         var vector = new ol.layer.Vector(
