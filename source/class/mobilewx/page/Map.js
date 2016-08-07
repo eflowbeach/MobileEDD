@@ -20,7 +20,7 @@ qx.Class.define("mobilewx.page.Map",
       //init : "http://preview.weather.gov/edd/resource/edd/"
     },
     mapUri:{
-      init: "resource/mobilewx/ol-debug.js",
+      init: "resource/mobilewx/ol-debug.js"
       //init: "resource/mobilewx/ol.js" 
     }
   },
@@ -257,14 +257,6 @@ qx.Class.define("mobilewx.page.Map",
         drawer.show();
       }, this);
       this.getRightContainer().add(menuButton);
-
-      // var menuContainer = new qx.ui.mobile.container.Composite();
-
-      //       menuContainer.setId("mapMenu");
-
-      //       me.radarTimeMapLabel = new qx.ui.mobile.basic.Label("Radar: ");
-
-      //       menuContainer.add(me.radarTimeMapLabel);
 
       // Radar Time
       var weekday = new Array(7);
