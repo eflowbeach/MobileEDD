@@ -14,14 +14,15 @@ qx.Class.define("mobilewx.page.Map",
 {
   extend : qx.ui.mobile.page.NavigationPage,
   type : "singleton",
-  properties : {
+  properties :
+  {
     jsonpRoot : {
       //init: "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
       init : "http://preview.weather.gov/edd/resource/edd/"
     },
-    mapUri:{
+    mapUri : {
       //init: "resource/mobilewx/ol-debug.js"
-      init: "resource/mobilewx/ol.js" 
+      init : "resource/mobilewx/ol.js"
     }
   },
   construct : function()
@@ -32,8 +33,6 @@ qx.Class.define("mobilewx.page.Map",
   },
   members :
   {
-   
-
     // overridden
     _initialize : function()
     {
@@ -272,23 +271,31 @@ qx.Class.define("mobilewx.page.Map",
         var myDate = e.getData();
         var dateString = me.formatDate(myDate) + ' ' + weekday[myDate.getDay()] + ' ' + myDate.getMonth() + '/' + myDate.getDate() + '/' + myDate.getFullYear();
         me.radarTimeLabel.setValue('<b>' + dateString + '</b>');
-        me.descriptionLabel.setValue('<b>' + dateString + '</b>');
+        me.descriptionLabel.setValue('<b>Radar - ' + dateString + '</b>');
       }, this)
-      
+
       // Wait a second before looping
+
       // setTimeout(function() {
+
       //   try{
-          // me.setUrlParams();
+
+      // me.setUrlParams();
+
       //   }catch(e){
+
       //     // not ready yet
+
       //   }
+
       // }, 100);
     },
-
-    setUrlParams: function(){
+    setUrlParams : function()
+    {
       var bool = this.getURLParameter('lr') == "T" ? true : false;
       this.loopControl.setValue(bool);
     },
+
     /**
      * Format the Radar Date
      */
@@ -448,8 +455,7 @@ qx.Class.define("mobilewx.page.Map",
         {
           var hazards = [];
           me.map.forEachFeatureAtPixel(e.pixel, function(feature, layer) {
-            if (layer.get('name') == "Hazards")
-            {
+            if (layer.get('name') == "Hazards") {
               hazards.push(feature);
             }
           })
@@ -560,7 +566,7 @@ qx.Class.define("mobilewx.page.Map",
       });
       me.map.addLayer(tms_layer);
     },
-    
+
     /**
      * Handle the hazard click
      */
@@ -578,22 +584,21 @@ qx.Class.define("mobilewx.page.Map",
       }
       menu.addListener("changeSelection", function(evt)
       {
-       // var selectedIndex = evt.getData().index;
+        // var selectedIndex = evt.getData().index;
         var selectedItem = evt.getData().item;
         var hsplit = selectedItem.split(' - ');
         var htype = hsplit[0];
-        var hetn = hsplit[1].replace('#','');
+        var hetn = hsplit[1].replace('#', '');
         hazardArray.forEach(function(feature) {
           if (feature.get('warn_type') == htype && feature.get('etn') == hetn)
           {
             console.log(feature);
-            var url = me.getJsonpRoot() + 'getWarningText.php'; 
+            var url = me.getJsonpRoot() + 'getWarningText.php';
             url += '?year=' + new Date(feature.get('end') * 1000).getFullYear();
             url += '&wfo=' + feature.get('office').substr(1, 4);
             url += '&phenomena=' + feature.get('phenomenon');
             url += '&eventid=' + feature.get('etn');
             url += '&significance=W';
-
             var hazardTextRequest = new qx.io.request.Jsonp();
             hazardTextRequest.setUrl(url);
             hazardTextRequest.setCallbackParam('callback');
@@ -629,8 +634,7 @@ qx.Class.define("mobilewx.page.Map",
         {
           var color;
           var fg = 'white';
-
-          var label = ''; 
+          var label = '';
           if (feature.get('phenomenon') == "SV")
           {
             color = 'yellow';
@@ -644,6 +648,8 @@ qx.Class.define("mobilewx.page.Map",
           } else {
             color = feature.get('color');
           }
+
+
 
           var textStroke = new ol.style.Stroke(
           {
@@ -729,9 +735,9 @@ qx.Class.define("mobilewx.page.Map",
         }
       });
     },
-    
+
     // From: http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
-    getURLParameter: function (name) {
+    getURLParameter : function(name) {
       return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
     }
   }

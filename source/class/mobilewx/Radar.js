@@ -203,9 +203,8 @@ qx.Class.define("mobilewx.Radar",
     addLayer : function(time)
     {
       var me = this;
-     
       var time_range = time + ',' + time;
-      if(typeof me.map =="undefined"){
+      if (typeof me.map == "undefined") {
         return;
       }
       me.radarLayers[time] = new ol.layer.Tile(
