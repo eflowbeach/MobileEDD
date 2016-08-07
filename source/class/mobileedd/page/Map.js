@@ -17,8 +17,8 @@ qx.Class.define("mobileedd.page.Map",
   properties :
   {
     jsonpRoot : {
-      //init: "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
-      init : "https://preview.weather.gov/edd/resource/edd/"
+      init: "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
+     // init : "https://preview.weather.gov/edd/resource/edd/"
     },
     mapUri : {
       //init: "resource/mobileedd/ol-debug.js"
@@ -60,7 +60,7 @@ qx.Class.define("mobileedd.page.Map",
           me.loopControl.setValue(false);
           radarClass.stop();
         }
-        radarClass.toggleVisibility(e.getData());
+        radarClass.toggleVisibility(e.getData()); 
       })
       var radarLabel = new qx.ui.mobile.basic.Label("Radar: ")
       radarLabel.addCssClass("menuLabels");
@@ -358,6 +358,8 @@ qx.Class.define("mobileedd.page.Map",
       menuContainer.setId("mapMenu");
       me.descriptionLabel = new qx.ui.mobile.basic.Label("");
       menuContainer.add(me.descriptionLabel);
+      var image = new qx.ui.mobile.basic.Image("http://nowcoast.noaa.gov/images/legends/radar.png");
+      menuContainer.add(image);
       return menuContainer;
     },
 
