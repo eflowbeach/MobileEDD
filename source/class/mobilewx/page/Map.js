@@ -14,10 +14,14 @@ qx.Class.define("mobilewx.page.Map",
 {
   extend : qx.ui.mobile.page.NavigationPage,
   type : "singleton",
-  properties:{
-    jsonpRoot:{
-      //init: "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
-      init: "http://preview.weather.gov/edd/resource/edd/"
+  properties : {
+    jsonpRoot : {
+      init: "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
+      //init : "http://preview.weather.gov/edd/resource/edd/"
+    },
+    mapUri:{
+      init: "resource/mobilewx/ol-debug.js",
+      //init: "resource/mobilewx/ol.js" 
     }
   },
   construct : function()
@@ -28,9 +32,7 @@ qx.Class.define("mobilewx.page.Map",
   },
   members :
   {
-    //_mapUri : "resource/mobilewx/ol-debug.js",
-
-    _mapUri : "resource/mobilewx/ol.js",
+   
 
     // overridden
     _initialize : function()
@@ -38,7 +40,6 @@ qx.Class.define("mobilewx.page.Map",
       var me = this;
       this.base(arguments);
       this._loadMapLibrary();
-      
 
       // Drawer
       var drawer = new qx.ui.mobile.container.Drawer();
@@ -189,7 +190,7 @@ qx.Class.define("mobilewx.page.Map",
       }, this)
       composite.add(me.hazardToggleButton);
       drawer.add(composite);
-      
+
       /**
        * Background
        * */
@@ -212,46 +213,43 @@ qx.Class.define("mobilewx.page.Map",
           var selectedItem = evt.getData().item;
           var layers = me.map.getLayers();
 
-          
           // Remove current layer
           options.forEach(function(obj) {
-            if (obj.get('name') == layers.getArray()[0].get('name')) {
+            if (obj.get('name') == layers.getArray()[0].get('name'))
+            {
               // Remove the reference too
-               if(obj.get('name') == "ESRI Gray"){
-                 //me.map.removeLayer(me.esridark_reference);  
-                 me.esridark_reference.setVisible(false);
-               }
+              if (obj.get('name') == "ESRI Gray") {
+                //me.map.removeLayer(me.esridark_reference);
+                me.esridark_reference.setVisible(false);
+              }
               me.map.removeLayer(obj);
-             
             }
           })
-
-          
-          options.forEach(function(obj) {
-            
+          options.forEach(function(obj)
+          {
             // Add the reference too
-              
             if (obj.get('name') == selectedItem) {
               layers.insertAt(0, obj);
             }
-            if(selectedItem == "ESRI Gray"){
-                me.esridark_reference.setVisible(true);
-              }
+            if (selectedItem == "ESRI Gray") {
+              me.esridark_reference.setVisible(true);
+            }
           })
           drawer.hide();
         }, this);
       }, this);
       drawer.add(bgButton);
-      
-       /**
-       * Close
-       * */
+
+      /**
+      * Close
+      * */
       var closeButton = new qx.ui.mobile.form.Button("Close");
-      closeButton.addListener("tap", function(e)
-      {
+      closeButton.addListener("tap", function(e) {
         drawer.hide();
       }, this);
-      drawer.add(closeButton,{flex:1});
+      drawer.add(closeButton, {
+        flex : 1
+      });
 
       // Menu Button
       var menuButton = new qx.ui.mobile.navigationbar.Button("Menu");
@@ -260,12 +258,13 @@ qx.Class.define("mobilewx.page.Map",
       }, this);
       this.getRightContainer().add(menuButton);
 
+      // var menuContainer = new qx.ui.mobile.container.Composite();
 
-// var menuContainer = new qx.ui.mobile.container.Composite();
-//       menuContainer.setId("mapMenu");
-      
-//       me.radarTimeMapLabel = new qx.ui.mobile.basic.Label("Radar: ");
-//       menuContainer.add(me.radarTimeMapLabel);
+      //       menuContainer.setId("mapMenu");
+
+      //       me.radarTimeMapLabel = new qx.ui.mobile.basic.Label("Radar: ");
+
+      //       menuContainer.add(me.radarTimeMapLabel);
 
       // Radar Time
       var weekday = new Array(7);
@@ -283,8 +282,21 @@ qx.Class.define("mobilewx.page.Map",
         me.radarTimeLabel.setValue('<b>' + dateString + '</b>');
         me.descriptionLabel.setValue('<b>' + dateString + '</b>');
       }, this)
+      
+      // Wait a second before looping
+      // setTimeout(function() {
+      //   try{
+          // me.setUrlParams();
+      //   }catch(e){
+      //     // not ready yet
+      //   }
+      // }, 100);
     },
 
+    setUrlParams: function(){
+      var bool = this.getURLParameter('lr') == "T" ? true : false;
+      this.loopControl.setValue(bool);
+    },
     /**
      * Format the Radar Date
      */
@@ -314,12 +326,12 @@ qx.Class.define("mobilewx.page.Map",
       mapContainer.addCssClass("map");
       return mapContainer;
     },
-    
-    
+
     // overridden
     _createContent : function()
     {
       var me = this;
+
       // Disable menu for Windows Phone 8.
       if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
         return null;
@@ -328,35 +340,50 @@ qx.Class.define("mobilewx.page.Map",
       menuContainer.setId("mapMenu");
 
       // // LABEL
-       me.descriptionLabel = new qx.ui.mobile.basic.Label("");
-        
+      me.descriptionLabel = new qx.ui.mobile.basic.Label("");
+
       //me.descriptionLabel.addCssClass("osmMapLabel");
 
       // // TOGGLE BUTTON
+
       // var toggleNavigationButton = new qx.ui.mobile.form.ToggleButton(true, "ON", "OFF");
 
       // // SHOW MY POSITION BUTTON
+
       // this._showMyPositionButton = new qx.ui.mobile.form.Button("Find me!");
+
       // this._showMyPositionButton.addListener("tap", this._getGeoPosition, this);
 
       // // Button is disabled when Geolocation is not available.
+
       // this._showMyPositionButton.setEnabled(this._geolocationEnabled);
+
       // toggleNavigationButton.addListener("changeValue", function()
+
       // {
+
       //   var newNavBarState = !this.isNavigationBarHidden();
+
       //   this.setNavigationBarHidden(newNavBarState);
+
       //   this.show();
+
       // }, this);
+
       // var groupPosition = new qx.ui.mobile.form.Group([this._showMyPositionButton], false);
+
       // var groupFullScreen = new qx.ui.mobile.form.Group([descriptionLabel, toggleNavigationButton], true);
+
       // this._showMyPositionButton.addCssClass("map-shadow");
+
       // groupFullScreen.addCssClass("map-shadow");
+
       // menuContainer.add(groupFullScreen);
+
       // menuContainer.add(groupPosition);
       menuContainer.add(me.descriptionLabel);
       return menuContainer;
     },
-    
 
     /**
      * Loads JavaScript library which is needed for the map.
@@ -367,7 +394,6 @@ qx.Class.define("mobilewx.page.Map",
       var req = new qx.bom.request.Script();
       req.onload = function()
       {
-        
         // Background Maps
         me.terrain = new ol.layer.Tile(
         {
@@ -413,9 +439,7 @@ qx.Class.define("mobilewx.page.Map",
         me.esridark_reference = new ol.layer.Tile(
         {
           name : "ESRI Gray Reference",
-          source : new ol.source.XYZ(
-          {
-            attributions : [attribution],
+          source : new ol.source.XYZ( {
             url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
           })
         })
@@ -425,18 +449,15 @@ qx.Class.define("mobilewx.page.Map",
           controls : ol.control.defaults().extend([new ol.control.ScaleLine()]),
           layers : [me.esridark, me.esridark_reference],
           view : new ol.View( {
-            //   center : ol.proj.transform([-99, 40], 'EPSG:4326', 'EPSG:3857'),
             zoom : 8
           })
         });
-
         me.map.on("click", function(e)
         {
           var hazards = [];
           me.map.forEachFeatureAtPixel(e.pixel, function(feature, layer) {
             if (layer.get('name') == "Hazards")
             {
-              console.log(feature.get('office'), layer.get('name'));
               hazards.push(feature);
             }
           })
@@ -447,6 +468,17 @@ qx.Class.define("mobilewx.page.Map",
         {
           projection : proj1,
           tracking : true
+        });
+
+        // Handle geolocation error.
+        geolocation.once('error', function(error)
+        {
+          var defaultView = new ol.View(
+          {
+            center : ol.proj.transform([-99, 40], 'EPSG:4326', 'EPSG:3857'),
+            zoom : 4
+          })
+          me.map.setView(defaultView);
         });
         geolocation.once('change', function(evt)
         {
@@ -495,7 +527,7 @@ qx.Class.define("mobilewx.page.Map",
           stroke : new ol.style.Stroke(
           {
             color : '#717171',
-            width : 2
+            width : 4
           })
         })];
         var vector = new ol.layer.Vector(
@@ -516,7 +548,7 @@ qx.Class.define("mobilewx.page.Map",
 
         //me.addStatesLayer();
       }.bind(this);
-      req.open("GET", this._mapUri);
+      req.open("GET", this.getMapUri());
       req.send();
     },
 
@@ -536,12 +568,16 @@ qx.Class.define("mobilewx.page.Map",
       });
       me.map.addLayer(tms_layer);
     },
+    
+    /**
+     * Handle the hazard click
+     */
     handleHazardClick : function(hazardArray)
     {
       var me = this;
       var hazards = [];
       hazardArray.forEach(function(obj) {
-        hazards.push(obj.get('warn_type') + ' - ' + obj.get('etn'));
+        hazards.push(obj.get('warn_type') + ' - #' + obj.get('etn'));
       })
       var model = new qx.data.Array(hazards);
       var menu = new qx.ui.mobile.dialog.Menu(model);
@@ -550,30 +586,27 @@ qx.Class.define("mobilewx.page.Map",
       }
       menu.addListener("changeSelection", function(evt)
       {
-        var selectedIndex = evt.getData().index;
+       // var selectedIndex = evt.getData().index;
         var selectedItem = evt.getData().item;
-        console.log(selectedIndex, selectedItem);
         var hsplit = selectedItem.split(' - ');
         var htype = hsplit[0];
-        var hetn = hsplit[1];
+        var hetn = hsplit[1].replace('#','');
         hazardArray.forEach(function(feature) {
           if (feature.get('warn_type') == htype && feature.get('etn') == hetn)
           {
             console.log(feature);
-            var url = me.getJsonpRoot() + 'getWarningText.php';  //'https://nwschat.weather.gov/vtec/json-text.php';
+            var url = me.getJsonpRoot() + 'getWarningText.php'; 
             url += '?year=' + new Date(feature.get('end') * 1000).getFullYear();
             url += '&wfo=' + feature.get('office').substr(1, 4);
             url += '&phenomena=' + feature.get('phenomenon');
             url += '&eventid=' + feature.get('etn');
             url += '&significance=W';
 
-            //url &nocache=1470392083128&jsonp=test
             var hazardTextRequest = new qx.io.request.Jsonp();
-            hazardTextRequest.setUrl(url);  
+            hazardTextRequest.setUrl(url);
             hazardTextRequest.setCallbackParam('callback');
             hazardTextRequest.addListenerOnce("success", function(e)
             {
-              //console.log(e.getTarget().getResponse().data[0].report);
               qx.core.Init.getApplication().getRouting().executeGet("/hazardtext");
               var text = new qx.event.message.Message("edd.hazard");
               text.setData(e.getTarget().getResponse().data[0].report);
@@ -605,8 +638,7 @@ qx.Class.define("mobilewx.page.Map",
           var color;
           var fg = 'white';
 
-          //var label = feature.get('warn_type');// + "\nWarning";
-          var label = '';  //feature.get('phenomenon');
+          var label = ''; 
           if (feature.get('phenomenon') == "SV")
           {
             color = 'yellow';
@@ -620,8 +652,6 @@ qx.Class.define("mobilewx.page.Map",
           } else {
             color = feature.get('color');
           }
-
-
 
           var textStroke = new ol.style.Stroke(
           {
@@ -638,16 +668,6 @@ qx.Class.define("mobilewx.page.Map",
               color : color,
               width : 5
             }),
-
-            //            fill : new ol.style.Fill(
-
-            //            {
-
-            //              color : feature.get('color'),
-
-            //              opacity : 0.2
-
-            //            }),
             text : new ol.style.Text(
             {
               font : '28px Calibri,sans-serif',
@@ -662,7 +682,7 @@ qx.Class.define("mobilewx.page.Map",
 
       // Hazard Request
       me.hazardRequest = new qx.io.request.Jsonp();
-      me.hazardRequest.setUrl( me.getJsonpRoot() + "hazards/getShortFusedHazards.php");
+      me.hazardRequest.setUrl(me.getJsonpRoot() + "hazards/getShortFusedHazards.php");
       me.hazardRequest.setCallbackParam('callback');
       me.hazardRequest.addListener("success", function(e)
       {
@@ -680,8 +700,6 @@ qx.Class.define("mobilewx.page.Map",
         }
         me.hazardLayer.setSource(vectorSource);
       }, this);
-
-      //me.hazardRequest.send();
     },
 
     /**
@@ -718,6 +736,11 @@ qx.Class.define("mobilewx.page.Map",
           layer.setOpacity(opacity);
         }
       });
+    },
+    
+    // From: http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
+    getURLParameter: function (name) {
+      return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
     }
   }
 });

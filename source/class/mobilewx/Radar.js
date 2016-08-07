@@ -75,8 +75,6 @@ qx.Class.define("mobilewx.Radar",
 
             // Show latest
             radarLoopSlider.setValue(radarLoopSlider.getMaximum());
-
-            //edd.view.Map.getInstance().ensureBordersOnTop();
           }
         }
       }, this)
@@ -205,23 +203,11 @@ qx.Class.define("mobilewx.Radar",
     addLayer : function(time)
     {
       var me = this;
-
-      //console.log("Adding:", time);
+     
       var time_range = time + ',' + time;
-
-      //   me.radarLayers[time] = new OpenLayers.Layer.ArcGIS93Rest("MRMS Radar: " + time, "http://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/export",
-
-      //   {
-
-      //     layers : "show:3",
-
-      //     transparent : 'true',
-
-      //     format : 'png8',  // required, else defaults to png(8) and appears pixelated
-
-      //     time : time_range
-
-      //   });
+      if(typeof me.map =="undefined"){
+        return;
+      }
       me.radarLayers[time] = new ol.layer.Tile(
       {
         name : "MRMS - " + time,
@@ -243,11 +229,7 @@ qx.Class.define("mobilewx.Radar",
         })
       });
       me.map.addLayer(me.radarLayers[time]);
-
-      //   me.radarLayers[time].projection = "EPSG:102100";
       me.radarLayers[time].setVisible(false);
-
-      // me.map.addLayer(me.radarLayers[time]);
       me.radarLayers[time].setOpacity(me.getOpacity());
 
       // Silly way to get Vector Layer on top...

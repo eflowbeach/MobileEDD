@@ -21,7 +21,6 @@ qx.Class.define("mobilewx.page.HazardText",
     this.setTitle("Hazard Text");
     this.setShowBackButton(true);
     this.setBackButtonText("Back");
-   
   },
   members :
   {
@@ -31,7 +30,7 @@ qx.Class.define("mobilewx.page.HazardText",
       this.base(arguments);
       this.label = new qx.ui.mobile.basic.Label("Hazard Text");
       this.getContent().add(this.label);
-       this.bus.subscribe("edd.hazard", function(e)
+      this.bus.subscribe("edd.hazard", function(e)
       {
         var text = e.getData();
         this.label.setValue(text.replace(/\n/g, '<br>'));

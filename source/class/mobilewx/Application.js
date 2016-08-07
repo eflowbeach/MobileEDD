@@ -56,12 +56,6 @@ qx.Class.define("mobilewx.Application",
       this.getRouting().onGet("/", this._show, map);
       this.getRouting().onGet("/hazardtext", this._show, hazardtext);
       this.getRouting().init();
-
-      // setTimeout(function(){
-
-      //   HazardText.show();
-
-      // },5000)
     },
 
     /**
