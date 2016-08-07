@@ -18,7 +18,7 @@ qx.Class.define("mobileedd.page.Map",
   {
     jsonpRoot : {
       //init: "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
-      init : "http://preview.weather.gov/edd/resource/edd/"
+      init : "https://preview.weather.gov/edd/resource/edd/"
     },
     mapUri : {
       //init: "resource/mobileedd/ol-debug.js"
