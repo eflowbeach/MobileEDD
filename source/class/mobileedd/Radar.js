@@ -24,8 +24,10 @@ qx.Class.define("mobileedd.Radar",
       init : 5,
       apply : "changeIndex"
     },
-    frames : {
-      init : 5
+    frames :
+    {
+      init : 5,
+      apply : "changeFrames"
     }
   },
   construct : function()
@@ -194,6 +196,19 @@ qx.Class.define("mobileedd.Radar",
     },
 
     /**
+    * Change Loop Length
+    */
+    changeFrames : function(number)
+    {
+      var me = this;
+      var mapClass = mobileedd.page.Map.getInstance();
+      var radarLoopSlider = mapClass.radarLoopSlider;
+      radarLoopSlider.setMaximum(number - 1);
+      me.setSliderIndex(number);
+      me.timesReq.send();
+    },
+
+    /**
     * Update the Radar legend
     */
     updateLegend : function(index)
@@ -246,7 +261,6 @@ qx.Class.define("mobileedd.Radar",
       var hazardLayer = me.mapObject.getLayerByName('Hazards');
       me.map.removeLayer(hazardLayer);
       me.map.getLayers().setAt(me.map.getLayers().getArray().length, hazardLayer);
-      console.log('add');
     }
   }
 });

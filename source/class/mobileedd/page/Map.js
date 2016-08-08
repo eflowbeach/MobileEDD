@@ -23,17 +23,20 @@ qx.Class.define("mobileedd.page.Map",
   properties :
   {
     jsonpRoot : {
-      init : "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
+      //init : "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
 
-      // init : "https://preview.weather.gov/edd/resource/edd/"
+       init : "https://preview.weather.gov/edd/resource/edd/"
     },
     mapUri : {
-      init : "resource/mobileedd/ol-debug.js"
+      //init : "resource/mobileedd/ol-debug.js"
 
-      //init : "resource/mobileedd/ol.js"
+      init : "resource/mobileedd/ol.js"
     },
     ready : {
       init : false
+    },
+    basemap : {
+      init : "ESRI Gray"
     }
   },
   construct : function()
@@ -157,7 +160,6 @@ qx.Class.define("mobileedd.page.Map",
           me.radarLegendContainer.setVisibility('excluded')
         }
         radarClass.toggleVisibility(e.getData());
-        console.log(e.getData());
       });
       var radarLabel = new qx.ui.mobile.basic.Label("Radar: ");
       radarLabel.addCssClass("menuLabels");
@@ -228,6 +230,29 @@ qx.Class.define("mobileedd.page.Map",
       radarLoopComposite.add(me.loopControl);
       me.radarContainer.add(radarLoopComposite);
 
+      // Long loop
+
+      // Loop
+      var radarLoopComposite = new qx.ui.mobile.container.Composite();
+      radarLoopComposite.setLayout(new qx.ui.mobile.layout.HBox());
+      me.longLoop = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
+      me.longLoop.addListener("changeValue", function(e)
+      {
+        var bool = e.getData();
+        if (bool) {
+          mobileedd.Radar.getInstance().setFrames(20)
+        } else {
+          mobileedd.Radar.getInstance().setFrames(5)
+        }
+      });
+      var loopLabel = new qx.ui.mobile.basic.Label("Long Loop: ");
+      loopLabel.addCssClass("loopLabel");
+      radarLoopComposite.add(loopLabel, {
+        flex : 1
+      });
+      radarLoopComposite.add(me.longLoop);
+      me.radarContainer.add(radarLoopComposite);
+
       // Radar Loop Slider
       var radarLoopSliderComposite = new qx.ui.mobile.container.Composite();
       radarLoopSliderComposite.setLayout(new qx.ui.mobile.layout.HBox());
@@ -259,6 +284,9 @@ qx.Class.define("mobileedd.page.Map",
       me.radarTimeLabel.addCssClass("timeLabel");
       me.radarContainer.add(radarTimeComposite);
       drawer.add(me.radarContainer);
+      var separator = new qx.ui.mobile.form.Button("");
+      separator.addCssClass("separator");
+      drawer.add(separator);
 
       /**
       * Hazards Container
@@ -324,6 +352,9 @@ qx.Class.define("mobileedd.page.Map",
       }, this);
       me.showAllComposite.add(me.longfuseButton);
       drawer.add(me.showAllComposite);
+      var separator = new qx.ui.mobile.form.Button("");
+      separator.addCssClass("separator");
+      drawer.add(separator);
 
       /**
        * Background
@@ -331,9 +362,8 @@ qx.Class.define("mobileedd.page.Map",
       var bgButton = new qx.ui.mobile.form.Button("Change Background Map", "mobileedd/images/map_icon.png");
       bgButton.addListener("tap", function(e)
       {
-        var options = [me.terrain, me.lite, me.natgeo, me.esridark, me.esrilite, me.mapboxWorldbright];
         var option_names = [];
-        options.forEach(function(obj) {
+        me.BasemapOptions.forEach(function(obj) {
           option_names.push(obj.get('name'));
         });
 
@@ -343,44 +373,9 @@ qx.Class.define("mobileedd.page.Map",
         menu.show();
         menu.addListener("changeSelection", function(evt)
         {
-          //var selectedIndex = evt.getData().index;
           var selectedItem = evt.getData().item;
-          var layers = me.map.getLayers();
-
-          // Remove current layer
-          options.forEach(function(obj) {
-            if (obj.get('name') == layers.getArray()[0].get('name'))
-            {
-              // Hide/Remove the reference too
-              me.esridark_reference.setVisible(false);
-              me.esrilite_reference.setVisible(false);
-              me.map.removeLayer(obj);
-            }
-          });
-          options.forEach(function(obj)
-          {
-            // Add the reference too
-            if (obj.get('name') == selectedItem) {
-              layers.insertAt(0, obj);
-            }
-            if (selectedItem == "ESRI Gray") {
-              me.esridark_reference.setVisible(true);
-            } else if (selectedItem == "ESRI Light Gray")
-            {
-              var loaded = false;
-              layers.getArray().forEach(function(obj) {
-                if (obj.get('name') == "ESRI Light Gray Reference") {
-                  loaded = true;
-                }
-              });
-              if (!loaded) {
-                //me.map.addLayer()
-                layers.insertAt(1, me.esrilite_reference);
-              }
-              me.esrilite_reference.setVisible(true);
-            }
-
-          });
+          me.setBasemap(selectedItem);
+          me.setBasemapByName(selectedItem);
           drawer.hide();
         }, this);
       }, this);
@@ -405,14 +400,13 @@ qx.Class.define("mobileedd.page.Map",
           window.location = this.makeUrl();
         }, this);
         composite.add(widget);
-         var widget = new qx.ui.mobile.form.Button("Close");
+        var widget = new qx.ui.mobile.form.Button("Close");
         widget.addListener("tap", function() {
-         popup.hide();
+          popup.hide();
         }, this);
         composite.add(widget);
         popup.add(composite);
         popup.show();
-       
       }, this);
       drawer.add(bgButton);
 
@@ -467,6 +461,8 @@ qx.Class.define("mobileedd.page.Map",
       url += me.loopControl.getValue() ? 'T' : 'F';
       url += '&r=';
       url += me.radarToggleButton.getValue() ? 'T' : 'F';
+      url += '?rll=';
+      url += me.longLoop.getValue() ? 'T' : 'F';
       url += '&ah=';
       url += me.longfuseButton.getValue() ? 'T' : 'F';
       url += '&h=';
@@ -474,7 +470,9 @@ qx.Class.define("mobileedd.page.Map",
       url += '&z=';
       url += me.map.getView().getZoom();
       url += '&ll=';
-      url += ol.proj.transform(mobileedd.page.Map.getInstance().map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326').toString()
+      url += ol.proj.transform(mobileedd.page.Map.getInstance().map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326').toString();
+      url += '&bm=';
+      url += me.getBasemap()
       return url;
     },
     setUrlParams : function()
@@ -489,7 +487,6 @@ qx.Class.define("mobileedd.page.Map",
       // Set view
       var z = me.getURLParameter('z');
       var ll = me.getURLParameter('ll').split(',');
-      console.log(Number(ll[0]), Number(ll[1]),ol.proj.transform([Number(ll[0]), Number(ll[1])], 'EPSG:4326', 'EPSG:3857'));
       var newView = new ol.View(
       {
         zoom : z,
@@ -497,12 +494,16 @@ qx.Class.define("mobileedd.page.Map",
       })
       me.map.setView(newView);
 
+      // Set Basemap
+      var bm = me.setBasemapByName(me.getURLParameter('bm'));
+
       // Toggle buttons
       var bool = me.getURLParameter('lr') == "T" ? true : false;
       me.loopControl.setValue(bool);
       var bool = me.getURLParameter('r') == "T" ? true : false;
       me.radarToggleButton.setValue(bool);
-      console.log('off');
+      var bool = me.getURLParameter('rll') == "T" ? true : false;
+      me.longLoop.setValue(bool);
       var bool = me.getURLParameter('ah') == "T" ? true : false;
       me.longfuseButton.setValue(bool);
       var bool = me.getURLParameter('h') == "T" ? true : false;
@@ -621,7 +622,6 @@ qx.Class.define("mobileedd.page.Map",
         // Application ready after tiles load
         source.once('tileloadend', function(event)
         {
-          console.log('ready');
           me.setReady(true);
           me.setUrlParams();
         });
@@ -672,6 +672,27 @@ qx.Class.define("mobileedd.page.Map",
           name : "Mapbox World Bright",
           source : source
         });
+
+        // var source = new ol.source.TileJSON(
+
+        // {
+
+        //   url : 'https://api.tiles.mapbox.com/v3/mapbox.world-black.json',
+
+        //   crossOrigin : 'anonymous'
+
+        // });
+
+        // me.mapboxWorldDark = new ol.layer.Tile(
+
+        // {
+
+        //   name : "Mapbox World Black",
+
+        //   source : source
+
+        // });
+        me.BasemapOptions = [me.terrain, me.lite, me.natgeo, me.esridark, me.esrilite, me.mapboxWorldbright];  //, me.mapboxWorldDark];
 
         // The map
         me.map = new ol.Map(
@@ -957,6 +978,46 @@ qx.Class.define("mobileedd.page.Map",
      */
     getMap : function() {
       return this.map;
+    },
+    setBasemapByName : function(selectedItem)
+    {
+      var me = this;
+      var layers = me.map.getLayers();
+
+      // Remove current layer
+      me.BasemapOptions.forEach(function(obj) {
+        if (obj.get('name') == layers.getArray()[0].get('name'))
+        {
+          // Hide/Remove the reference too
+          me.esridark_reference.setVisible(false);
+          me.esrilite_reference.setVisible(false);
+          me.map.removeLayer(obj);
+        }
+      });
+      me.BasemapOptions.forEach(function(obj)
+      {
+        // Add the reference too
+        if (obj.get('name') == selectedItem) {
+          layers.insertAt(0, obj);
+        }
+        if (selectedItem == "ESRI Gray") {
+          me.esridark_reference.setVisible(true);
+        } else if (selectedItem == "ESRI Light Gray")
+        {
+          var loaded = false;
+          layers.getArray().forEach(function(obj) {
+            if (obj.get('name') == "ESRI Light Gray Reference") {
+              loaded = true;
+            }
+          });
+          if (!loaded) {
+            //me.map.addLayer()
+            layers.insertAt(1, me.esrilite_reference);
+          }
+          me.esrilite_reference.setVisible(true);
+        }
+
+      });
     },
 
     /**
