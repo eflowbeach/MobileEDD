@@ -7,7 +7,9 @@
    Authors:
 
 ************************************************************************ */
+
 /*global qx*/
+
 /**
  * This is the main application class of your custom application "MobileEDD"
  *

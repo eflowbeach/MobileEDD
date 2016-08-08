@@ -7,9 +7,13 @@
    Authors:
 
 ************************************************************************ */
+
 /*global qx*/
+
 /*global ol*/
+
 /*global mobileedd*/
+
 /**
  */
 qx.Class.define("mobileedd.page.Map",
@@ -27,6 +31,9 @@ qx.Class.define("mobileedd.page.Map",
       init : "resource/mobileedd/ol-debug.js"
 
       //init : "resource/mobileedd/ol.js"
+    },
+    ready : {
+      init : false
     }
   },
   construct : function()
@@ -34,6 +41,84 @@ qx.Class.define("mobileedd.page.Map",
     this.base(arguments);
     this.setTitle("Mobile EDD");
     this.bus = qx.event.message.Bus.getInstance();
+    this.sigMap =
+    {
+      "Warning" : "W",
+      "Watch" : "A",
+      "Advisory" : "Y"
+    }
+    this.hazardMap =
+    {
+      "Air Stagnation" : "AS",
+      "Areal Flood" : "FA",
+      "Ashfall" : "AF",
+      "Avalanche" : "AV",
+      "Beach Hazards" : "BH",
+      "Blizzard" : "BZ",
+      "Blowing Dust" : "DU",
+      "Blowing Snow" : "BS",
+      "Brisk Wind" : "BW",
+      "Coastal Flood" : "CF",
+      "Dense Fog" : "FG",
+      "Dense Smoke" : "SM",
+      "Dust Storm" : "DS",
+      "Excessive Heat" : "EH",
+      "Extreme Cold" : "EC",
+      "Extreme Wind" : "EW",
+      "Fire Weather" : "FW",
+      "Flash Flood" : "FF",
+      "Flood" : "FL",
+      "Freeze" : "FZ",
+      "Freezing Fog" : "ZF",
+      "Freezing Rain" : "ZR",
+      "Freezing Spray" : "UP",
+      "Frost" : "FR",
+      "Gale" : "GL",
+      "Hard Freeze" : "HZ",
+      "Hazardous Seas" : "SE",
+      "Heat" : "HT",
+      "Heavy Sleet" : "HP",
+      "Heavy Snow" : "HS",
+      "High Surf" : "SU",
+      "High Wind" : "HW",
+      "Hurricane" : "HU",
+      "Hurricane Force Wind" : "HF",
+      "Hydrologic" : "HY",
+      "Ice Accretion" : "UP",
+      "Ice Storm" : "IS",
+      "Inland Hurricane" : "HI",
+      "Inland Hurricane Wind" : "HI",
+      "Inland Tropical Storm" : "TI",
+      "Lake Effect Snow" : "LE",
+      "Lake Effect Snow and " : "LB",
+      "Lake Wind" : "LW",
+      "Lakeshore Flood" : "LS",
+      "Low Water" : "LO",
+      "Marine" : "MA",
+      "Marine Dense Fog" : "MF",
+      "Radiological Hazard" : "RH",
+      "Red Flag" : "FW",
+      "Rip Currents" : "RP",
+      "Severe Thunderstorm" : "SV",
+      "Sleet" : "IP",
+      "Small Craft" : "SC",
+      "Small Craft for Hazardous Seas" : "SW",
+      "Small Craft for Rough Bar" : "RB",
+      "Small Craft for Winds" : "SI",
+      "Snow" : "SN",
+      "Snow and Blowing Snow" : "SB",
+      "Storm" : "SR",
+      "Tornado" : "TO",
+      "Tropical Storm" : "TR",
+      "Tsunami" : "TS",
+      "Typhoon" : "TY",
+      "Volcanic Ashfall" : "AF",
+      "Volcano" : "VO",
+      "Wind" : "WI",
+      "Wind Chill" : "WC",
+      "Winter Storm" : "WS",
+      "Winter Weather" : "WW"
+    };
   },
   members :
   {
@@ -53,18 +138,26 @@ qx.Class.define("mobileedd.page.Map",
        * Radar Container
        */
       var composite = new qx.ui.mobile.container.Composite();
+      composite.addCssClass("hboxPad");
       composite.setLayout(new qx.ui.mobile.layout.HBox());
-      me.radarToggleButton = new qx.ui.mobile.form.ToggleButton(false, "On", "Off");
+      me.radarToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
       me.radarToggleButton.addListener("changeValue", function(e)
       {
         var radarClass = mobileedd.Radar.getInstance();
-        if (e.getData()) {
+        if (e.getData())
+        {
           radarClass.start();
-        } else {
+          me.radarContainer.setVisibility("visible");
+          me.radarLegendContainer.setVisibility('visible')
+        } else
+        {
           me.loopControl.setValue(false);
           radarClass.stop();
+          me.radarContainer.setVisibility("excluded");
+          me.radarLegendContainer.setVisibility('excluded')
         }
         radarClass.toggleVisibility(e.getData());
+        console.log(e.getData());
       });
       var radarLabel = new qx.ui.mobile.basic.Label("Radar: ");
       radarLabel.addCssClass("menuLabels");
@@ -106,11 +199,15 @@ qx.Class.define("mobileedd.page.Map",
       });
 
       /**
-       * Loop Container
+       * Radar Container
        */
-      var composite = new qx.ui.mobile.container.Composite();
-      composite.setLayout(new qx.ui.mobile.layout.HBox());
-      me.loopControl = new qx.ui.mobile.form.ToggleButton(false, "On", "Off");
+      me.radarContainer = new qx.ui.mobile.container.Composite();
+      me.radarContainer.setLayout(new qx.ui.mobile.layout.VBox());
+
+      // Loop
+      var radarLoopComposite = new qx.ui.mobile.container.Composite();
+      radarLoopComposite.setLayout(new qx.ui.mobile.layout.HBox());
+      me.loopControl = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
       me.loopControl.addListener("changeValue", function(e)
       {
         var bool = e.getData();
@@ -125,15 +222,15 @@ qx.Class.define("mobileedd.page.Map",
       });
       var loopLabel = new qx.ui.mobile.basic.Label("Loop Radar: ");
       loopLabel.addCssClass("loopLabel");
-      composite.add(loopLabel, {
+      radarLoopComposite.add(loopLabel, {
         flex : 1
       });
-      composite.add(me.loopControl);
-      drawer.add(composite);
+      radarLoopComposite.add(me.loopControl);
+      me.radarContainer.add(radarLoopComposite);
 
       // Radar Loop Slider
-      var composite = new qx.ui.mobile.container.Composite();
-      composite.setLayout(new qx.ui.mobile.layout.HBox());
+      var radarLoopSliderComposite = new qx.ui.mobile.container.Composite();
+      radarLoopSliderComposite.setLayout(new qx.ui.mobile.layout.HBox());
       me.radarLoopSlider = new qx.ui.mobile.form.Slider().set(
       {
         minimum : 0,
@@ -145,22 +242,23 @@ qx.Class.define("mobileedd.page.Map",
         var radarMrms = mobileedd.Radar.getInstance();
         radarMrms.setSliderIndex(e.getData());
       }, this);
-      composite.add(me.radarLoopSlider, {
+      radarLoopSliderComposite.add(me.radarLoopSlider, {
         flex : 1
       });
-      drawer.add(composite);
+      me.radarContainer.add(radarLoopSliderComposite);
 
       /**
        * Radar Time Label
        */
-      var composite = new qx.ui.mobile.container.Composite();
+      var radarTimeComposite = new qx.ui.mobile.container.Composite();
       me.radarTimeLabel = new qx.ui.mobile.basic.Label();
-      composite.setLayout(new qx.ui.mobile.layout.HBox().set( {
+      radarTimeComposite.setLayout(new qx.ui.mobile.layout.HBox().set( {
         alignX : "center"
       }));
-      composite.add(me.radarTimeLabel);
+      radarTimeComposite.add(me.radarTimeLabel);
       me.radarTimeLabel.addCssClass("timeLabel");
-      drawer.add(composite);
+      me.radarContainer.add(radarTimeComposite);
+      drawer.add(me.radarContainer);
 
       /**
       * Hazards Container
@@ -177,31 +275,63 @@ qx.Class.define("mobileedd.page.Map",
       me.hazardRequestTimer.addListener("interval", function(e)
       {
         me.hazardRequestTimer.setInterval(1000 * 20);
-        me.hazardRequest.send();
+        if (me.getReady()) {
+          me.hazardRequest.send();
+        }
       });
-      me.hazardToggleButton = new qx.ui.mobile.form.ToggleButton(false, "On", "Off");
+      me.hazardToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
       me.hazardToggleButton.addListener("changeValue", function(e)
       {
         if (typeof me.hazardLayer == "undefined") {
           me.addHazardsLayer();
         }
         me.hazardLayer.setVisible(e.getData());
-        if (e.getData()) {
+        if (e.getData())
+        {
           me.hazardRequestTimer.start();
-        } else {
+          me.showAllComposite.setVisibility("visible");
+        } else
+        {
           me.hazardRequestTimer.stop();
+          me.showAllComposite.setVisibility("excluded");
         }
       }, this);
       composite.add(me.hazardToggleButton);
       drawer.add(composite);
 
       /**
+           * Longfuse Container
+           */
+      me.showAllComposite = new qx.ui.mobile.container.Composite();
+      me.showAllComposite.addCssClass("hboxPad");
+      me.showAllComposite.setLayout(new qx.ui.mobile.layout.HBox());
+      var hazardsLabel = new qx.ui.mobile.basic.Label("Show All: ");
+      hazardsLabel.addCssClass("loopLabel");
+      me.showAllComposite.add(hazardsLabel, {
+        flex : 1
+      });
+
+      // hazardsLabel.addCssClass("menuLabels");
+      me.longfuseButton = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
+      me.longfuseButton.addListener("changeValue", function(e)
+      {
+        var url = me.getJsonpRoot() + "hazards/getShortFusedHazards.php";
+        if (me.longfuseButton.getValue()) {
+          url += "?all=t";
+        }
+        me.hazardRequest.setUrl(url);
+        me.hazardRequest.send();
+      }, this);
+      me.showAllComposite.add(me.longfuseButton);
+      drawer.add(me.showAllComposite);
+
+      /**
        * Background
        * */
-      var bgButton = new qx.ui.mobile.form.Button("Change Background Map");
+      var bgButton = new qx.ui.mobile.form.Button("Change Background Map", "mobileedd/images/map_icon.png");
       bgButton.addListener("tap", function(e)
       {
-        var options = [me.terrain, me.lite, me.natgeo, me.esridark, me.esrilite];
+        var options = [me.terrain, me.lite, me.natgeo, me.esridark, me.esrilite, me.mapboxWorldbright];
         var option_names = [];
         options.forEach(function(obj) {
           option_names.push(obj.get('name'));
@@ -221,13 +351,9 @@ qx.Class.define("mobileedd.page.Map",
           options.forEach(function(obj) {
             if (obj.get('name') == layers.getArray()[0].get('name'))
             {
-              // Remove the reference too
-              if (obj.get('name') == "ESRI Gray") {
-                me.esridark_reference.setVisible(false);
-              } else if (obj.get('name') == "ESRI Light Gray") {
-                me.esrilite_reference.setVisible(false);
-              }
-
+              // Hide/Remove the reference too
+              me.esridark_reference.setVisible(false);
+              me.esrilite_reference.setVisible(false);
               me.map.removeLayer(obj);
             }
           });
@@ -239,7 +365,7 @@ qx.Class.define("mobileedd.page.Map",
             }
             if (selectedItem == "ESRI Gray") {
               me.esridark_reference.setVisible(true);
-            } else if (obj.get('name') == "ESRI Light Gray")
+            } else if (selectedItem == "ESRI Light Gray")
             {
               var loaded = false;
               layers.getArray().forEach(function(obj) {
@@ -257,6 +383,36 @@ qx.Class.define("mobileedd.page.Map",
           });
           drawer.hide();
         }, this);
+      }, this);
+      drawer.add(bgButton);
+
+      /**
+       * Share
+       */
+      var bgButton = new qx.ui.mobile.form.Button("Generate Web Link", "mobileedd/images/url.png");
+      bgButton.addListener("tap", function(e)
+      {
+        var composite = new qx.ui.mobile.container.Composite();
+        composite.setLayout(new qx.ui.mobile.layout.VBox());
+        var popup = new qx.ui.mobile.dialog.Popup();
+        var form = new qx.ui.mobile.form.Form();
+        var tf = new qx.ui.mobile.form.TextField();
+        tf.setValue(this.makeUrl());
+        form.add(tf, "Web Link: ");
+        composite.add(new qx.ui.mobile.form.renderer.Single(form))
+        var widget = new qx.ui.mobile.form.Button("Go to Link");
+        widget.addListener("tap", function() {
+          window.location = this.makeUrl();
+        }, this);
+        composite.add(widget);
+         var widget = new qx.ui.mobile.form.Button("Close");
+        widget.addListener("tap", function() {
+         popup.hide();
+        }, this);
+        composite.add(widget);
+        popup.add(composite);
+        popup.show();
+       
       }, this);
       drawer.add(bgButton);
 
@@ -294,27 +450,63 @@ qx.Class.define("mobileedd.page.Map",
         me.radarTimeLabel.setValue('<b>' + dateString + '</b>');
         me.descriptionLabel.setValue('<b>Radar - ' + dateString + '</b>');
       }, this);
+    },
 
-      // Wait a second before looping
-
-      // setTimeout(function() {
-
-      //   try{
-
-      // me.setUrlParams();
-
-      //   }catch(e){
-
-      //     // not ready yet
-
-      //   }
-
-      // }, 100);
+    /**
+     * Generate a url
+     */
+    makeUrl : function()
+    {
+      var me = this;
+      var url = document.location.href;
+      if (url.indexOf("?") > -1) {
+        url = url.substr(0, url.indexOf("?"));
+      }
+      url = decodeURIComponent(url).replace('#/', '').replace('#', '');
+      url += '?lr=';
+      url += me.loopControl.getValue() ? 'T' : 'F';
+      url += '&r=';
+      url += me.radarToggleButton.getValue() ? 'T' : 'F';
+      url += '&ah=';
+      url += me.longfuseButton.getValue() ? 'T' : 'F';
+      url += '&h=';
+      url += me.hazardToggleButton.getValue() ? 'T' : 'F';
+      url += '&z=';
+      url += me.map.getView().getZoom();
+      url += '&ll=';
+      url += ol.proj.transform(mobileedd.page.Map.getInstance().map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326').toString()
+      return url;
     },
     setUrlParams : function()
     {
-      var bool = this.getURLParameter('lr') == "T" ? true : false;
-      this.loopControl.setValue(bool);
+      var me = this;
+
+      // Check for params
+      if (this.getURLParameter('lr') == null) {
+        return;
+      }
+
+      // Set view
+      var z = me.getURLParameter('z');
+      var ll = me.getURLParameter('ll').split(',');
+      console.log(Number(ll[0]), Number(ll[1]),ol.proj.transform([Number(ll[0]), Number(ll[1])], 'EPSG:4326', 'EPSG:3857'));
+      var newView = new ol.View(
+      {
+        zoom : z,
+        center : ol.proj.transform([Number(ll[0]), Number(ll[1])], 'EPSG:4326', 'EPSG:3857')
+      })
+      me.map.setView(newView);
+
+      // Toggle buttons
+      var bool = me.getURLParameter('lr') == "T" ? true : false;
+      me.loopControl.setValue(bool);
+      var bool = me.getURLParameter('r') == "T" ? true : false;
+      me.radarToggleButton.setValue(bool);
+      console.log('off');
+      var bool = me.getURLParameter('ah') == "T" ? true : false;
+      me.longfuseButton.setValue(bool);
+      var bool = me.getURLParameter('h') == "T" ? true : false;
+      me.hazardToggleButton.setValue(bool);
     },
 
     /**
@@ -360,10 +552,12 @@ qx.Class.define("mobileedd.page.Map",
       // Radar Label on map
       var menuContainer = new qx.ui.mobile.container.Composite();
       menuContainer.setId("mapMenu");
+      me.radarLegendContainer = new qx.ui.mobile.container.Composite();
       me.descriptionLabel = new qx.ui.mobile.basic.Label("");
-      menuContainer.add(me.descriptionLabel);
+      me.radarLegendContainer.add(me.descriptionLabel);
       var image = new qx.ui.mobile.basic.Image("https://nowcoast.noaa.gov/images/legends/radar.png");
-      menuContainer.add(image);
+      me.radarLegendContainer.add(image);
+      menuContainer.add(me.radarLegendContainer);
       return menuContainer;
     },
 
@@ -416,17 +610,28 @@ qx.Class.define("mobileedd.page.Map",
             url : 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}'
           })
         });
+
+        // ESRI Dark
+        var source = new ol.source.XYZ(
+        {
+          attributions : [attribution],
+          url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+        });
+
+        // Application ready after tiles load
+        source.once('tileloadend', function(event)
+        {
+          console.log('ready');
+          me.setReady(true);
+          me.setUrlParams();
+        });
         var attribution = new ol.Attribution( {
           html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer">ArcGIS</a>'
         });
         me.esridark = new ol.layer.Tile(
         {
           name : "ESRI Gray",
-          source : new ol.source.XYZ(
-          {
-            attributions : [attribution],
-            url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
-          })
+          source : source
         });
         var attribution = new ol.Attribution( {
           html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer">ArcGIS</a>'
@@ -457,6 +662,18 @@ qx.Class.define("mobileedd.page.Map",
             url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
           })
         });
+        var source = new ol.source.TileJSON(
+        {
+          url : 'https://api.tiles.mapbox.com/v3/mapbox.world-bright.json',
+          crossOrigin : 'anonymous'
+        });
+        me.mapboxWorldbright = new ol.layer.Tile(
+        {
+          name : "Mapbox World Bright",
+          source : source
+        });
+
+        // The map
         me.map = new ol.Map(
         {
           target : 'map',
@@ -583,31 +800,52 @@ qx.Class.define("mobileedd.page.Map",
     {
       var me = this;
       var hazards = [];
-      hazardArray.forEach(function(obj) {
-        hazards.push(obj.get('warn_type') + ' - #' + obj.get('etn'));
+      hazardArray.forEach(function(obj)
+      {
+        var htype = obj.get('warn_type');
+        var hsig = 'Warning';
+        if (typeof htype == "undefined")
+        {
+          htype = obj.get('phenomenon');
+          hsig = obj.get('significance');
+        }
+        hazards.push(htype + ' ' + hsig + ' - #' + obj.get('etn'));
       });
+      hazards.push("Cancel");
       var model = new qx.data.Array(hazards);
       var menu = new qx.ui.mobile.dialog.Menu(model);
-      if (hazards.length > 0) {
+      if (hazards.length > 1) {
         menu.show();
       }
       menu.addListener("changeSelection", function(evt)
       {
         // var selectedIndex = evt.getData().index;
         var selectedItem = evt.getData().item;
+        if (selectedItem == "Cancel") {
+          return;
+        }
         var hsplit = selectedItem.split(' - ');
-        var htype = hsplit[0];
+        var htype1 = hsplit[0];
         var hetn = hsplit[1].replace('#', '');
-        hazardArray.forEach(function(feature) {
-          if (feature.get('warn_type') == htype && feature.get('etn') == hetn)
+        hazardArray.forEach(function(feature)
+        {
+          var htype = feature.get('warn_type');
+          var hsig = 'Warning';
+          if (typeof htype == "undefined")
           {
-            console.log(feature);
+            htype = feature.get('phenomenon');
+            hsig = feature.get('significance');
+          }
+          if (htype + ' ' + hsig == htype1 && feature.get('etn') == hetn)
+          {
             var url = me.getJsonpRoot() + 'getWarningText.php';
             url += '?year=' + new Date(feature.get('end') * 1000).getFullYear();
             url += '&wfo=' + feature.get('office').substr(1, 4);
-            url += '&phenomena=' + feature.get('phenomenon');
-            url += '&eventid=' + feature.get('etn');
-            url += '&significance=W';
+            var phenom = feature.get('phenomenon').length == 2 ? feature.get('phenomenon') : me.hazardMap[feature.get('phenomenon')];
+            url += '&phenomena=' + phenom;
+            url += '&eventid=' + feature.get('etn').replace(/ /g, '');
+            var sig = (typeof feature.get('significance') == "undefined") ? 'W' : me.sigMap[feature.get('significance')];
+            url += '&significance=' + sig;
             var hazardTextRequest = new qx.io.request.Jsonp();
             hazardTextRequest.setUrl(url);
             hazardTextRequest.setCallbackParam('callback');
@@ -643,16 +881,18 @@ qx.Class.define("mobileedd.page.Map",
           var color;
           var fg = 'white';
           var label = '';
-          if (feature.get('phenomenon') == "SV")
+
+          // Better colors for short-fused hazards
+          if (feature.get('phenomenon') == "SV" || me.hazardMap[feature.get('phenomenon')] == "SV" && feature.get('significance') == "Warning")
           {
             color = 'yellow';
             fg = 'black';
-          } else if (feature.get('phenomenon') == "TO") {
+          } else if (feature.get('phenomenon') == "TO" || me.hazardMap[feature.get('phenomenon')] == "TO" && feature.get('significance') == "Warning") {
             color = 'red';
-          } else if (feature.get('phenomenon') == "FF") {
+          } else if (feature.get('phenomenon') == "FF" || me.hazardMap[feature.get('phenomenon')] == "FF" && feature.get('significance') == "Warning") {
             color = 'green';
-          } else if (feature.get('phenomenon') == "MA") {
-            color = 'orange';
+          } else if (feature.get('phenomenon') == "MA" || me.hazardMap[feature.get('phenomenon')] == "MA" && feature.get('significance') == "Warning") {
+            color = '#29E8EF';
           } else {
             color = feature.get('color');
           }
@@ -688,7 +928,11 @@ qx.Class.define("mobileedd.page.Map",
 
       // Hazard Request
       me.hazardRequest = new qx.io.request.Jsonp();
-      me.hazardRequest.setUrl(me.getJsonpRoot() + "hazards/getShortFusedHazards.php");
+      var url = me.getJsonpRoot() + "hazards/getShortFusedHazards.php";
+      if (me.longfuseButton.getValue()) {
+        url += "?all=t";
+      }
+      me.hazardRequest.setUrl(url);
       me.hazardRequest.setCallbackParam('callback');
       me.hazardRequest.addListener("success", function(e)
       {
@@ -743,7 +987,7 @@ qx.Class.define("mobileedd.page.Map",
         }
       });
     },
- 
+
     // From: http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
     getURLParameter : function(name) {
       return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;

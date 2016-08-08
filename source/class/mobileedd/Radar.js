@@ -1,9 +1,12 @@
 /**
 * NowCOAST loopable class for Radar
-* 
+*
 */
+
 /*global qx*/
+
 /*global ol*/
+
 /*global mobileedd*/
 qx.Class.define("mobileedd.Radar",
 {
@@ -74,11 +77,15 @@ qx.Class.define("mobileedd.Radar",
           if (Object.keys(this.radarLayers).length > me.getFrames() - 1)
           {
             // Toggle radar loop slider value to initiate a change event
-            var radarLoopSlider = mobileedd.page.Map.getInstance().radarLoopSlider;
-            radarLoopSlider.setValue(radarLoopSlider.getMaximum() - 1);
+            var mapClass = mobileedd.page.Map.getInstance();
+            if (mapClass.radarToggleButton.getValue())
+            {
+              var radarLoopSlider = mapClass.radarLoopSlider;
+              radarLoopSlider.setValue(radarLoopSlider.getMaximum() - 1);
 
-            // Show latest
-            radarLoopSlider.setValue(radarLoopSlider.getMaximum());
+              // Show latest
+              radarLoopSlider.setValue(radarLoopSlider.getMaximum());
+            }
           }
         }
       }, this);
@@ -239,6 +246,7 @@ qx.Class.define("mobileedd.Radar",
       var hazardLayer = me.mapObject.getLayerByName('Hazards');
       me.map.removeLayer(hazardLayer);
       me.map.getLayers().setAt(me.map.getLayers().getArray().length, hazardLayer);
+      console.log('add');
     }
   }
 });
