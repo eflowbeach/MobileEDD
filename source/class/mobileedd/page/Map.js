@@ -459,7 +459,7 @@ qx.Class.define("mobileedd.page.Map",
       url += me.loopControl.getValue() ? 'T' : 'F';
       url += '&r=';
       url += me.radarToggleButton.getValue() ? 'T' : 'F';
-      url += '?rll=';
+      url += '&rll=';
       url += me.longLoop.getValue() ? 'T' : 'F';
       url += '&ah=';
       url += me.longfuseButton.getValue() ? 'T' : 'F';
