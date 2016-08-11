@@ -113,15 +113,6 @@ qx.Class.define("mobileedd.TravelHazards",
     addLayer : function()
     {
       var me = this;
-      
-       me.pointSource = new ol.source.Vector();
-          me.pointLayer = new ol.layer.Vector(
-          {
-            name : "Travel Hazards Points",
-            source : me.pointSource
-          });
-          me.map.addLayer(me.pointLayer);
-      
       me.lineSource = new ol.source.Vector();
       me.thLayer = new ol.layer.Vector(
       {
@@ -218,45 +209,6 @@ qx.Class.define("mobileedd.TravelHazards",
           } else {
             color = "#7bb043";
           }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
           return [new ol.style.Style(
           {
             fill : new ol.style.Fill( {
@@ -269,22 +221,65 @@ qx.Class.define("mobileedd.TravelHazards",
             })
           })]
         }
-
-        // image: new ol.style.Circle({
-
-        //   radius: 7,
-
-        //   fill: new ol.style.Fill({
-
-        //     color: '#ffcc33'
-
-        //   })
-
-        // })
-
-        // })
       });
       me.map.addLayer(me.thLayer);
+      me.pointSource = new ol.source.Vector();
+      me.pointLayer = new ol.layer.Vector(
+      {
+        name : "Travel Hazards Points",
+        source : me.pointSource,
+        style : function(feature, resolution)
+        {
+          var image = "resource/mobileedd/images/grayball.png";
+          var anchor = [8, 12];
+          if (feature.get("Watches_Warnings_Advisories") != null) {
+            if (feature.get("Watches_Warnings_Advisories").indexOf("Wind Warning") !== -1) {
+              image = "resource/mobileedd/images/lsr/wind.png";
+            }
+          }
+          if (feature.get("Weather") != null)
+          {
+            var wx = feature.get("Weather").toLowerCase();
+            if (wx.indexOf("freezing") !== -1 || wx.indexOf("frost") !== -1) {
+              image = "resource/mobileedd/images/lsr/ice.png";
+            } else if (wx.indexOf("snow") !== -1) {
+              image = "resource/mobileedd/images/lsr/snow.png";
+            } else if (wx.indexOf("sleet") !== -1) {
+              image = "resource/mobileedd/images/lsr/sleet.png";
+            } else if (wx.indexOf("thunder") !== -1) {
+              image = "resource/mobileedd/images/lsr/lightning.png";
+            } else if (wx.indexOf("rain") !== -1) {
+              image = "resource/mobileedd/images/lsr/heavyrain.png";
+            } else if (wx.indexOf("fog") !== -1) {
+              image = "resource/mobileedd/images/lsr/fog.png";
+            } else if (wx.indexOf("dust") !== -1) {
+              image = "resource/mobileedd/images/lsr/dust.png";
+            } else if (wx.indexOf("drizzle") !== -1) {
+              image = "resource/mobileedd/images/lsr/drizzle.png";
+            } else if (wx.indexOf("smoke") !== -1) {
+              image = "resource/mobileedd/images/lsr/smoke.png";
+            } else {
+              if (typeof (feature.get("Max Wind Gust")) !== "undefined" && feature.get("Max Wind Gust") >= 30) {
+                image = "resource/mobileedd/images/lsr/wind.png";
+              }
+            }
+
+            if (image != "resource/mobileedd/images/grayball.png") {
+              anchor = [20, 40];
+            }
+            return [new ol.style.Style( {
+              image : new ol.style.Icon(
+              {
+                anchor : anchor,
+                anchorXUnits : 'pixels',
+                anchorYUnits : 'pixels',
+                src : image  
+              })
+            })]
+          }
+        }
+      });
+      me.map.addLayer(me.pointLayer);
     },
 
     /**
@@ -294,56 +289,15 @@ qx.Class.define("mobileedd.TravelHazards",
     {
       var me = this;
 
-      //      console.log(response);
       var error = false;
       if (me.thLayer.getSource() !== null) {
         me.thLayer.getSource().clear();
       }
 
-      // var startAddress = document.getElementById('startLocation-input').value;
+      // Error checking should go here FIXME
 
-      // var endAddress = document.getElementById('endLocation-input').value;
-
-      // if (startAddress == "")
-
-      // {
-
-      //   qxnws.ui.notification.Manager.getInstance().postError("Missing Start Location.");
-
-      //   me.goButton.setIcon("edd/images/car.png");
-
-      //   return;
-
-      // }
-
-      // if (endAddress = "")
-
-      // {
-
-      //   qxnws.ui.notification.Manager.getInstance().postError("Missing End Location.");
-
-      //   me.goButton.setIcon("edd/images/car.png");
-
-      //   return;
-
-      // }
-
-      // if (typeof (response.route) === "undefined" || typeof (response.route.shape) === "undefined")
-
-      // {
-
-      //   me.goButton.setIcon("edd/images/car.png");
-
-      //   qxnws.ui.notification.Manager.getInstance().postError("Could not calculate route. <br>Double check your locations.<br>Try right-clicking on the map instead.", 10);
-
-      //   return;
-
-      // }
-
-      // Get date and time from GUI
-
-      //var hoursToAddFromTimeSelect = me.times.indexOf(me.timeSelect.getSelection()[0].getLabel());
-      var selectionDateTime = me.getLeaveAt();  //me.dateField.getValue().addHoursClone(hoursToAddFromTimeSelect);
+      // Get date and time
+      var selectionDateTime = me.getLeaveAt(); 
       var delta = (selectionDateTime - new Date()) / 1000.0;
       var hoursToAdd = Math.ceil(delta / 3600);
 
@@ -361,12 +315,12 @@ qx.Class.define("mobileedd.TravelHazards",
        * Algorithm to calculate the optimum amount of points to skip to get 1 hour interval travel times
        *  - Should be an even number otherwise the lat/lons get messed up
        */
-      var pointsToSkip = 1000;  //me.densitySlider.getValue() * -1;
+      var pointsToSkip = 1000;  
 
       // For short distances cut value in half
       if (totalDistanceMiles < 300)
       {
-        pointsToSkip = 1000 * 0.5;  //me.densitySlider.getValue() * -1 * 0.5;
+        pointsToSkip = 1000 * 0.5; 
       }
 
       // Pair down giant array
@@ -385,10 +339,7 @@ qx.Class.define("mobileedd.TravelHazards",
       var endLon = lonLatPlotArray[lonLatPlotArray.length - 1][0];
       var endLat = lonLatPlotArray[lonLatPlotArray.length - 1][1];
 
-      // Add a start marker
-
-      // me.addMarker(startLat, startLon, 0);
-
+     
       // // Waypoints
 
       // var sleeper = false;
@@ -555,35 +506,14 @@ qx.Class.define("mobileedd.TravelHazards",
           var c2 = ol.proj.transform(coordinates[i + 1], sourceProj, 'EPSG:4326');
           length += wgs84Sphere.haversineDistance(c1, c2);
         }
-        var output;
-
-        // if (length > 100) {
-
-        //   output = (Math.round(length / 1000 * 100) / 100) + ' ' + 'km';
-
-        // } else {
-        output = (Math.round(length * 100) / 100);  // + ' ' + 'm';
-
-        //}
-        return output;
+        return (Math.round(length * 100) / 100); // m
       };
       var distanceTraveled = 0;
       lonLatPlotArray.forEach(function(obj, index)
       {
         var lon = obj[0];
         var lat = obj[1];
-
-        // Keep track of total distance
-
-        //lonLatPointsAll.push(new OpenLayers.Geometry.Point(lon, lat));
-
-        // var iconFeature = new ol.Feature( {
-
-        //   geometry : new ol.geom.Point(ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857'))
-
-        // });
-
-        //lonLatPointsAll.push(iconFeature);
+       
         lonLatPointsAll.push([lon, lat]);
         if (index > 0 && index < lonLatPlotArray.length)
         {
@@ -637,19 +567,12 @@ qx.Class.define("mobileedd.TravelHazards",
       });
       lines.forEach(function(obj, index)
       {
-        //var feature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.LineString(obj[0].geom));
         var wktLinePath = new ol.format.WKT().writeFeature(obj);
         var validTime = obj.get('probeTime');
         var arriveTime = obj.get('arriveTime');
         var region = obj.get('region');
-
-   
         me.getPathData(wktLinePath, validTime, region, index, lines, arriveTime);
-
-   
       })
-
-   
     },
 
     /**
@@ -662,7 +585,7 @@ qx.Class.define("mobileedd.TravelHazards",
       var end = me.getEndLocationLL()
 
       // Date / Time leaving
-      var selectionDateTime = me.getLeaveAt(); 
+      var selectionDateTime = me.getLeaveAt();
       var leaveDate = new moment(selectionDateTime).format('MM/DD/YYYY');
       var leaveTime = new moment(selectionDateTime).format('HH:mm');
 
@@ -697,7 +620,6 @@ qx.Class.define("mobileedd.TravelHazards",
       {
         //qxnws.ui.notification.Manager.getInstance().postWarning(me.errorMessage, 15);
       }, this);
-
 
       // Send direction Request
       me.directionService.send();
@@ -830,212 +752,98 @@ qx.Class.define("mobileedd.TravelHazards",
           "Total Precipitation" : totalqpfLabel,
           "_Total Precipitation" : "\""
         });
+        if (tLabel == "NA") {
+          var pointProperties =
+          {
+            "Arrive here around" : arriveTime,
+            "Forecast Valid" : closestTime,
+            "_DataQuality" : within12Hr,
+            "Watches_Warnings_Advisories" : wwa,
+            "Snow Amount" : snowamtLabel,
+            "_Snow Amount" : "\"",
+            "Total Snow Amount" : totalsnowamtLabel,
+            "_Total Snow Amount" : "\"",
+            "Ice Accumulation" : iceaccumLabel,
+            "_Ice Accumulation" : "\"",
+            "Total Ice Amount" : totaliceaccumLabel,
+            "_Total Ice Amount" : "\"",
+            "Weather" : (response.wx[0] == null || response.wx[0] == "") ? "" : response.wx[0],
+            "Temperature" : tLabel,
+            "_Temperature" : " \xBAF",
+            "Wind Chill" : apparentLabel,
+            "_Wind Chill" : " \xBAF",
+            "Dew Point" : tdLabel,
+            "_Dew Point" : " \xBAF",
+            "RH" : rhLabel,
+            "_RH" : " %",
+            "Wind Speed" : wsLabel,
+            "_Wind Speed" : " mph",
+            "Max Wind Gust" : wgLabel,
+            "_Max Wind Gust" : " mph",
+            "Wind Direction" : winddir.toString(),
+            "_Wind Direction" : "",
+            "Prob. of Precip (12 hour)" : pop12Label,
+            "_Prob. of Precip (12 hour)" : " %",
+            "Precipitation" : qpfLabel,
+            "_Precipitation" : "\"",
+            "Total Precipitation" : totalqpfLabel,
+            "_Total Precipitation" : "\""
+          };
+        } else {
+          var pointProperties =
+          {
+            "Arrive here around" : arriveTime,
+            "Forecast Valid" : closestTime,
+            "_DataQuality" : within12Hr,
+            "Watches_Warnings_Advisories" : wwa,
+            "Snow Amount" : (typeof (snowamt.max) == "undefined") ? "NA" : snowamt.max.toFixed(1),
+            "_Snow Amount" : "\"",
+            "Total Snow Amount" : (typeof (totalsnowamt.max) == "undefined") ? "NA" : totalsnowamt.max.toFixed(1),
+            "_Total Snow Amount" : "\"",
+            "Ice Amount" : (typeof (iceaccum.max) == "undefined") ? "NA" : iceaccum.max.toFixed(2),
+            "_Ice Amount" : "\"",
+            "Total Ice Amount" : (typeof (totaliceaccum.max) == "undefined") ? "NA" : totaliceaccum.max.toFixed(2),
+            "_Total Ice Amount" : "\"",
+            "Weather" : (response.wx[0] == null || response.wx[0] == "") ? "" : response.wx[0],
+            "Temperature" : (t.mean < 75) ? t.min.toFixed(0) : t.max.toFixed(0),
+            "_Temperature" : " \xBAF",
+            "Wind Chill" : apparentLabel,
+            "_Wind Chill" : " \xBAF",
+            "Dew Point" : td.min.toFixed(0),
+            "_Dew Point" : " \xBAF",
+            "RH" : rh.mean.toFixed(0),
+            "_RH" : " %",
+            "Wind Speed" : ws.max.toFixed(0),
+            "_Wind Speed" : " mph",
+            "Max Wind Gust" : wg.max.toFixed(0),
+            "_Max Wind Gust" : " mph",
+            "Wind Direction" : winddir.toString(),
+            "_Wind Direction" : "",
+            "Prob. of Precip (12 hour)" : pop12.max,
+            "_Prob. of Precip (12 hour)" : " %",
+            "Precipitation" : (typeof (qpf.max) == "undefined") ? "NA" : qpf.max.toFixed(2),
+            "_Precipitation" : "\"",
+            "Total Precipitation" : (typeof (totalqpf.max) == "undefined") ? "NA" : totalqpf.max.toFixed(2),
+            "_Total Precipitation" : "\""
+          };
+        }
 
-        // if (tLabel == "NA") {
-
-        //   var pointFeature = new OpenLayers.Feature.Vector(lineFeature.geometry.components[0],
-
-        //   {
-
-        //     "Arrive here around" : arriveTime,
-
-        //     "Forecast Valid" : closestTime,
-
-        //     "_DataQuality" : within12Hr,
-
-        //     "Watches_Warnings_Advisories" : wwa,
-
-        //     "Snow Amount" : snowamtLabel,
-
-        //     "_Snow Amount" : "\"",
-
-        //     "Total Snow Amount" : totalsnowamtLabel,
-
-        //     "_Total Snow Amount" : "\"",
-
-        //     "Ice Accumulation" : iceaccumLabel,
-
-        //     "_Ice Accumulation" : "\"",
-
-        //     "Total Ice Amount" : totaliceaccumLabel,
-
-        //     "_Total Ice Amount" : "\"",
-
-        //     "Weather" : (response.wx[0] == null || response.wx[0] == "") ? "" : response.wx[0],
-
-        //     "Temperature" : tLabel,
-
-        //     "_Temperature" : " \xBAF",
-
-        //     "Wind Chill" : apparentLabel,
-
-        //     "_Wind Chill" : " \xBAF",
-
-        //     "Dew Point" : tdLabel,
-
-        //     "_Dew Point" : " \xBAF",
-
-        //     "RH" : rhLabel,
-
-        //     "_RH" : " %",
-
-        //     "Wind Speed" : wsLabel,
-
-        //     "_Wind Speed" : " mph",
-
-        //     "Max Wind Gust" : wgLabel,
-
-        //     "_Max Wind Gust" : " mph",
-
-        //     "Wind Direction" : winddir.toString(),
-
-        //     "_Wind Direction" : "",
-
-        //     "Prob. of Precip (12 hour)" : pop12Label,
-
-        //     "_Prob. of Precip (12 hour)" : " %",
-
-        //     "Precipitation" : qpfLabel,
-
-        //     "_Precipitation" : "\"",
-
-        //     "Total Precipitation" : totalqpfLabel,
-
-        //     "_Total Precipitation" : "\""
-
-        //   });
-
-        // } else {
-
-        //   var pointFeature = new OpenLayers.Feature.Vector(lineFeature.geometry.components[0],
-
-        //   {
-
-        //     "Arrive here around" : arriveTime,
-
-        //     "Forecast Valid" : closestTime,
-
-        //     "_DataQuality" : within12Hr,
-
-        //     "Watches_Warnings_Advisories" : wwa,
-
-        //     "Snow Amount" : (typeof (snowamt.max) == "undefined") ? "NA" : snowamt.max.toFixed(1),
-
-        //     "_Snow Amount" : "\"",
-
-        //     "Total Snow Amount" : (typeof (totalsnowamt.max) == "undefined") ? "NA" : totalsnowamt.max.toFixed(1),
-
-        //     "_Total Snow Amount" : "\"",
-
-        //     "Ice Amount" : (typeof (iceaccum.max) == "undefined") ? "NA" : iceaccum.max.toFixed(2),
-
-        //     "_Ice Amount" : "\"",
-
-        //     "Total Ice Amount" : (typeof (totaliceaccum.max) == "undefined") ? "NA" : totaliceaccum.max.toFixed(2),
-
-        //     "_Total Ice Amount" : "\"",
-
-        //     "Weather" : (response.wx[0] == null || response.wx[0] == "") ? "" : response.wx[0],
-
-        //     "Temperature" : (t.mean < 75) ? t.min.toFixed(0) : t.max.toFixed(0),
-
-        //     "_Temperature" : " \xBAF",
-
-        //     "Wind Chill" : apparentLabel,
-
-        //     "_Wind Chill" : " \xBAF",
-
-        //     "Dew Point" : td.min.toFixed(0),
-
-        //     "_Dew Point" : " \xBAF",
-
-        //     "RH" : rh.mean.toFixed(0),
-
-        //     "_RH" : " %",
-
-        //     "Wind Speed" : ws.max.toFixed(0),
-
-        //     "_Wind Speed" : " mph",
-
-        //     "Max Wind Gust" : wg.max.toFixed(0),
-
-        //     "_Max Wind Gust" : " mph",
-
-        //     "Wind Direction" : winddir.toString(),
-
-        //     "_Wind Direction" : "",
-
-        //     "Prob. of Precip (12 hour)" : pop12.max,
-
-        //     "_Prob. of Precip (12 hour)" : " %",
-
-        //     "Precipitation" : (typeof (qpf.max) == "undefined") ? "NA" : qpf.max.toFixed(2),
-
-        //     "_Precipitation" : "\"",
-
-        //     "Total Precipitation" : (typeof (totalqpf.max) == "undefined") ? "NA" : totalqpf.max.toFixed(2),
-
-        //     "_Total Precipitation" : "\""
-
-        //   });
-
-        // }
-
-        // me.tfLayer.addFeatures(pointFeature);
-
-        // me.linesLayer.addFeatures([lineFeature]);
         me.lineSource.addFeature(lineFeature);
-        
-        
+
         /**
          * Point Values
          * */
          
-          var iconFeature = new ol.Feature( {
-            geometry : new ol.geom.Point(lineFeature.getGeometry().getFlatCoordinates().slice(0,2))
-          });
-          
-           var iconStyle = new ol.style.Style( {
-            image : new ol.style.Icon(
-            {
-              anchor : [12, 24],
-              anchorXUnits : 'pixels',
-              anchorYUnits : 'pixels',
-              src : 'resource/mobileedd/images/map-marker-icon.png'
-            })
-          });
-          iconFeature.setStyle(iconStyle);
-         me.pointSource.addFeature(iconFeature);
-        
-        
+         // Get Geometry from LineFeature
+        var iconFeature = new ol.Feature( {
+          geometry : new ol.geom.Point(lineFeature.getGeometry().getFlatCoordinates().slice(0, 2))
+        });
+        iconFeature.setProperties(pointProperties);
+        me.pointSource.addFeature(iconFeature);
       }, this);
 
       // Send request
       req.send();
-
-      /**
-      Zoom to location after requests come back
-      */
-
-      // if (index == lines.length - 2)
-
-      // {
-
-      //   me.displayGroupBox.setVisibility("visible");
-
-      //   new qx.event.Timer.once(function()
-
-      //   {
-
-      //     var vecLyr = me.map.getLayersByName('Travel Hazard Forecast')[0];
-
-      //     me.map.raiseLayer(vecLyr, me.map.layers.length);
-
-      //     me.goButton.setIcon("edd/images/car.png");
-
-      //   }, this, 2000);
-
-      // }
     }
   }
 });
