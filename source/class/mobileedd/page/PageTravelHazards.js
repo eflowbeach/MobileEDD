@@ -303,7 +303,7 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         placeholder : "Get from map click or type it"
       });
       form.add(this.__end, "Destination:");
-      this.setMyLocation();
+      //this.setMyLocation();
       return form;
     },
     setMyLocation : function()
@@ -333,6 +333,25 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         {
           var address = response.address.Match_addr;
           this.__end.setValue(address)
+        }catch (e) {
+          //qxnws.ui.notification.Manager.getInstance().postWarning("Unable to find address for the specified location.", 15);
+          return;
+        }
+      }, this)
+      geo.reverseGeoRequest(ll[1], ll[0]);
+      qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+    },
+    
+    setOrigin : function(ll)
+    {
+      var geo = new mobileedd.geo.EsriGeo();
+      geo.reverseGeocodeReq.addListenerOnce("success", function(e)
+      {
+        var response = e.getTarget().getResponse();
+        try
+        {
+          var address = response.address.Match_addr;
+          this.__start.setValue(address)
         }catch (e) {
           //qxnws.ui.notification.Manager.getInstance().postWarning("Unable to find address for the specified location.", 15);
           return;

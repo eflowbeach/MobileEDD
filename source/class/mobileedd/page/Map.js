@@ -851,16 +851,23 @@ qx.Class.define("mobileedd.page.Map",
     {
       var me = this;
       var items = [];
+      
+      items.push("Set Origin");
       items.push("Set Destination");
+      //items.push("Edit Route");
       var hazards = [];
       var travelSegment = [];
+      var travelPoint = [];
       me.map.forEachFeatureAtPixel(e.pixel, function(feature, layer)
       {
         if (layer.get('name') == "Hazards") {
           hazards.push(feature);
         }
-        if (layer.get('name') == "Travel Hazards") {
+         if (layer.get('name') == "Travel Hazards Segments") {
           travelSegment.push(feature);
+        }
+        if (layer.get('name') == "Travel Hazards Points") {
+          travelPoint.push(feature);
         }
       });
       hazards.forEach(function(obj)
@@ -876,6 +883,10 @@ qx.Class.define("mobileedd.page.Map",
       });
       travelSegment.forEach(function(obj, index) {
         items.push('Travel Hazard Segment - #' + index);
+      })
+      
+       travelPoint.forEach(function(obj, index) {
+        items.push('Travel Hazard Point - #' + index);
       })
 
       // Cancel
@@ -893,16 +904,31 @@ qx.Class.define("mobileedd.page.Map",
         {
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           mobileedd.page.PageTravelHazards.getInstance().setDestination(ll);
+          qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+          return;
+        }
+         if (selectedItem == "Set Origin")
+        {
+          var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
+          mobileedd.page.PageTravelHazards.getInstance().setOrigin(ll);
+          qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+          return;
+        }
+         if (selectedItem == "Edit Route")
+        {
+           qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+          // var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
+          // mobileedd.page.PageTravelHazards.getInstance().setDestination(ll);
           return;
         }
         if (selectedItem == "Cancel") {
           return;
         }
-        if (selectedItem.indexOf("Travel Hazard") != -1) {
+        if (selectedItem.indexOf("Travel Hazard S") != -1) {
           travelSegment.forEach(function(obj, index) {
             if (selectedItem.split('#')[1] == index)
             {
-              console.log(travelSegment[index]);
+              
               qx.core.Init.getApplication().getRouting().executeGet("/travelsample");
               var text = new qx.event.message.Message("edd.travelsample");
               text.setData(travelSegment[index]);
@@ -910,6 +936,19 @@ qx.Class.define("mobileedd.page.Map",
             }
           })
         }
+        
+         if (selectedItem.indexOf("Travel Hazard P") != -1) {
+          travelPoint.forEach(function(obj, index) {
+            if (selectedItem.split('#')[1] == index)
+            {
+              qx.core.Init.getApplication().getRouting().executeGet("/travelsample");
+              var text = new qx.event.message.Message("edd.travelsample");
+              text.setData(travelPoint[index]);
+              me.bus.dispatch(text);
+            }
+          })
+        }
+        
         var hsplit = selectedItem.split(' - ');
         var htype1 = hsplit[0];
         var hetn = hsplit[1].replace('#', '');

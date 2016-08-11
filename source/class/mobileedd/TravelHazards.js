@@ -49,6 +49,8 @@ qx.Class.define("mobileedd.TravelHazards",
   {
     var me = this;
     me.base(arguments);
+     var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
+    this.busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
     me.mapObject = mobileedd.page.Map.getInstance();
     me.map = me.mapObject.getMap();
     me.bus = qx.event.message.Bus.getInstance();
@@ -117,7 +119,7 @@ qx.Class.define("mobileedd.TravelHazards",
       me.thLayer = new ol.layer.Vector(
       {
         source : me.lineSource,
-        name : 'Travel Hazards',
+        name : 'Travel Hazards Segments',
         style : function(feature, resolution)
         {
           var color = 'green';
@@ -273,7 +275,8 @@ qx.Class.define("mobileedd.TravelHazards",
                 anchor : anchor,
                 anchorXUnits : 'pixels',
                 anchorYUnits : 'pixels',
-                src : image  
+                src : image,
+                scale: 0.75
               })
             })]
           }
@@ -292,6 +295,7 @@ qx.Class.define("mobileedd.TravelHazards",
       var error = false;
       if (me.thLayer.getSource() !== null) {
         me.thLayer.getSource().clear();
+        me.pointLayer.getSource().clear()
       }
 
       // Error checking should go here FIXME
@@ -565,6 +569,8 @@ qx.Class.define("mobileedd.TravelHazards",
           lineindex++;
         }
       });
+      me.lineindex = lineindex;
+      this.busyPopup.show();
       lines.forEach(function(obj, index)
       {
         var wktLinePath = new ol.format.WKT().writeFeature(obj);
@@ -641,13 +647,15 @@ qx.Class.define("mobileedd.TravelHazards",
       {
         "path" : wktLinePath,
         "validTime" : validTime,
-        "region" : region
+        "region" : region,
+        "index": index
       });
       req.addListenerOnce("success", function(e)
       {
         var response = e.getTarget().getResponse();
         var lineString = e.getTarget().getRequestData().path;
         var validTime = e.getTarget().getRequestData().validTime;
+        
         var lineFeature = new ol.format.WKT().readFeature(e.getTarget().getRequestData().path);
 
         // Fill variables with response data
@@ -840,10 +848,28 @@ qx.Class.define("mobileedd.TravelHazards",
         });
         iconFeature.setProperties(pointProperties);
         me.pointSource.addFeature(iconFeature);
+        
+        
+                var index = e.getTarget().getRequestData().index;
+        
+          /**
+      Zoom to location after requests come back
+      */
+      if(index == me.lineindex -1){
+        me.map.getView().fit(me.pointSource.getExtent(), me.map.getSize());
+        this.busyPopup.hide();
+      }
+     
+
+        
+        
       }, this);
 
       // Send request
       req.send();
+      
+     
+     
     }
   }
 });
