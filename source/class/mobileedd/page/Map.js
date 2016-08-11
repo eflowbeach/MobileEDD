@@ -23,18 +23,25 @@ qx.Class.define("mobileedd.page.Map",
   properties :
   {
     jsonpRoot : {
-      //init : "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
-      init : "https://preview.weather.gov/edd/resource/edd/"
+      init : "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
+
+      //init : "https://preview.weather.gov/edd/resource/edd/"
     },
     mapUri : {
-      //init : "resource/mobileedd/ol-debug.js"
-      init : "resource/mobileedd/ol.js"
+      init : "resource/mobileedd/ol-debug.js"
+
+      //init : "resource/mobileedd/ol.js"
     },
     ready : {
       init : false
     },
     basemap : {
       init : "ESRI Gray"
+    },
+    myPosition :
+    {
+      init : null,
+      nullable : true
     }
   },
   construct : function()
@@ -42,6 +49,8 @@ qx.Class.define("mobileedd.page.Map",
     this.base(arguments);
     this.setTitle("Mobile EDD");
     this.bus = qx.event.message.Bus.getInstance();
+    var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
+    this.busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
     this.sigMap =
     {
       "Warning" : "W",
@@ -134,6 +143,10 @@ qx.Class.define("mobileedd.page.Map",
       var drawer = new qx.ui.mobile.container.Drawer();
       drawer.setOrientation("right");
       drawer.setTapOffset(0);
+      var scroll = new qx.ui.mobile.container.Scroll();
+      var scrollContainer = new qx.ui.mobile.container.Composite();
+      scroll.add(scrollContainer);
+      drawer.add(scroll);
 
       /**
        * Radar Container
@@ -165,7 +178,7 @@ qx.Class.define("mobileedd.page.Map",
         flex : 1
       });
       composite.add(me.radarToggleButton);
-      drawer.add(composite);
+      scrollContainer.add(composite);
 
       /**
        * Radar Loop Timer
@@ -281,10 +294,10 @@ qx.Class.define("mobileedd.page.Map",
       radarTimeComposite.add(me.radarTimeLabel);
       me.radarTimeLabel.addCssClass("timeLabel");
       me.radarContainer.add(radarTimeComposite);
-      drawer.add(me.radarContainer);
+      scrollContainer.add(me.radarContainer);
       var separator = new qx.ui.mobile.form.Button("");
       separator.addCssClass("separator");
-      drawer.add(separator);
+      scrollContainer.add(separator);
 
       /**
       * Hazards Container
@@ -323,7 +336,7 @@ qx.Class.define("mobileedd.page.Map",
         }
       }, this);
       composite.add(me.hazardToggleButton);
-      drawer.add(composite);
+      scrollContainer.add(composite);
 
       /**
            * Longfuse Container
@@ -349,10 +362,10 @@ qx.Class.define("mobileedd.page.Map",
         me.hazardRequest.send();
       }, this);
       me.showAllComposite.add(me.longfuseButton);
-      drawer.add(me.showAllComposite);
+      scrollContainer.add(me.showAllComposite);
       var separator = new qx.ui.mobile.form.Button("");
       separator.addCssClass("separator");
-      drawer.add(separator);
+      scrollContainer.add(separator);
 
       /**
        * Background
@@ -377,19 +390,30 @@ qx.Class.define("mobileedd.page.Map",
           drawer.hide();
         }, this);
       }, this);
-      drawer.add(bgButton);
+      scrollContainer.add(bgButton);
+
+      /**
+            * Travel Hazards
+            */
+      var travelButton = new qx.ui.mobile.form.Button("Map a Route", "mobileedd/images/slipperyroad.png");
+      travelButton.addListener("tap", function(e)
+      {
+        qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+        drawer.hide();
+      }, this);
+      scrollContainer.add(travelButton);
 
       /**
        * Share
        */
-      var bgButton = new qx.ui.mobile.form.Button("Generate Web Link", "mobileedd/images/url.png");
-      bgButton.addListener("tap", function(e)
+      var shareButton = new qx.ui.mobile.form.Button("Generate Web Link", "mobileedd/images/url.png");
+      shareButton.addListener("tap", function(e)
       {
         var composite = new qx.ui.mobile.container.Composite();
         composite.setLayout(new qx.ui.mobile.layout.VBox());
         var popup = new qx.ui.mobile.dialog.Popup();
         var form = new qx.ui.mobile.form.Form();
-        var tf = new qx.ui.mobile.form.TextField();
+        var tf = new qx.ui.mobile.form.TextArea();
         tf.setValue(this.makeUrl());
         form.add(tf, "Web Link: ");
         composite.add(new qx.ui.mobile.form.renderer.Single(form))
@@ -406,16 +430,18 @@ qx.Class.define("mobileedd.page.Map",
         popup.add(composite);
         popup.show();
       }, this);
-      drawer.add(bgButton);
+      scrollContainer.add(shareButton);
 
       /**
       * Close
       * */
       var closeButton = new qx.ui.mobile.form.Button("Close");
-      closeButton.addListener("tap", function(e) {
+      closeButton.addListener("tap", function(e)
+      {
         drawer.hide();
+        me.map.updateSize();
       }, this);
-      drawer.add(closeButton, {
+      scrollContainer.add(closeButton, {
         flex : 1
       });
 
@@ -468,7 +494,7 @@ qx.Class.define("mobileedd.page.Map",
       url += '&z=';
       url += me.map.getView().getZoom();
       url += '&ll=';
-      url += ol.proj.transform(mobileedd.page.Map.getInstance().map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326').toString();
+      url += ol.proj.transform(me.map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326').toString();
       url += '&bm=';
       url += me.getBasemap()
       return url;
@@ -535,6 +561,14 @@ qx.Class.define("mobileedd.page.Map",
       var mapContainer = new qx.ui.mobile.container.Composite(layout);
       mapContainer.setId("map");
       mapContainer.addCssClass("map");
+
+      //   var travel = new qx.ui.mobile.form.Button("Hello World");
+
+      // //mapContainer.setId("travelButton");
+
+      //   mapContainer.addCssClass("travelButton");
+
+      // mapContainer.add(travel);
       return mapContainer;
     },
 
@@ -702,15 +736,8 @@ qx.Class.define("mobileedd.page.Map",
             zoom : 8
           })
         });
-        me.map.on("click", function(e)
-        {
-          var hazards = [];
-          me.map.forEachFeatureAtPixel(e.pixel, function(feature, layer) {
-            if (layer.get('name') == "Hazards") {
-              hazards.push(feature);
-            }
-          });
-          me.handleHazardClick(hazards);
+        me.map.on("click", function(e) {
+          me.handleMapClick(e);
         });
         var proj1 = ol.proj.get("EPSG:3857");
         var geolocation = new ol.Geolocation(
@@ -720,12 +747,15 @@ qx.Class.define("mobileedd.page.Map",
         });
 
         // Handle geolocation error.
-        geolocation.once('error', function(error) {
+        geolocation.on('error', function(error) {
           me.map.setView(me.defaultView);
+        });
+        geolocation.on('change', function(evt) {
+          me.setMyPosition(geolocation.getPosition());
         });
         geolocation.once('change', function(evt)
         {
-          me.map.getView().setCenter(geolocation.getPosition());
+          me.map.getView().setCenter(me.getMyPosition());
 
           // add Icon
           var iconFeature = new ol.Feature( {
@@ -751,6 +781,8 @@ qx.Class.define("mobileedd.page.Map",
           });
           me.map.addLayer(vectorLayer);
         });
+
+        // Orientation
         var deviceOrientation = new ol.DeviceOrientation();
 
         // tilt the map
@@ -815,11 +847,23 @@ qx.Class.define("mobileedd.page.Map",
     /**
      * Handle the hazard click
      */
-    handleHazardClick : function(hazardArray)
+    handleMapClick : function(e)
     {
       var me = this;
+      var items = [];
+      items.push("Set Destination");
       var hazards = [];
-      hazardArray.forEach(function(obj)
+      var travelSegment = [];
+      me.map.forEachFeatureAtPixel(e.pixel, function(feature, layer)
+      {
+        if (layer.get('name') == "Hazards") {
+          hazards.push(feature);
+        }
+        if (layer.get('name') == "Travel Hazards") {
+          travelSegment.push(feature);
+        }
+      });
+      hazards.forEach(function(obj)
       {
         var htype = obj.get('warn_type');
         var hsig = 'Warning';
@@ -828,25 +872,48 @@ qx.Class.define("mobileedd.page.Map",
           htype = obj.get('phenomenon');
           hsig = obj.get('significance');
         }
-        hazards.push(htype + ' ' + hsig + ' - #' + obj.get('etn'));
+        items.push(htype + ' ' + hsig + ' - #' + obj.get('etn'));
       });
-      hazards.push("Cancel");
-      var model = new qx.data.Array(hazards);
+      travelSegment.forEach(function(obj, index) {
+        items.push('Travel Hazard Segment - #' + index);
+      })
+
+      // Cancel
+      items.push("Cancel");
+      var model = new qx.data.Array(items);
       var menu = new qx.ui.mobile.dialog.Menu(model);
-      if (hazards.length > 1) {
+      if (items.length > 1) {
         menu.show();
       }
-      menu.addListener("changeSelection", function(evt)
+      menu.addListenerOnce("changeSelection", function(evt)
       {
-        // var selectedIndex = evt.getData().index;
+        var selectedIndex = evt.getData().index;
         var selectedItem = evt.getData().item;
+        if (selectedItem == "Set Destination")
+        {
+          var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
+          mobileedd.page.PageTravelHazards.getInstance().setDestination(ll);
+          return;
+        }
         if (selectedItem == "Cancel") {
           return;
+        }
+        if (selectedItem.indexOf("Travel Hazard") != -1) {
+          travelSegment.forEach(function(obj, index) {
+            if (selectedItem.split('#')[1] == index)
+            {
+              console.log(travelSegment[index]);
+              qx.core.Init.getApplication().getRouting().executeGet("/travelsample");
+              var text = new qx.event.message.Message("edd.travelsample");
+              text.setData(travelSegment[index]);
+              me.bus.dispatch(text);
+            }
+          })
         }
         var hsplit = selectedItem.split(' - ');
         var htype1 = hsplit[0];
         var hetn = hsplit[1].replace('#', '');
-        hazardArray.forEach(function(feature)
+        hazards.forEach(function(feature)
         {
           var htype = feature.get('warn_type');
           var hsig = 'Warning';
@@ -857,13 +924,15 @@ qx.Class.define("mobileedd.page.Map",
           }
           if (htype + ' ' + hsig == htype1 && feature.get('etn') == hetn)
           {
+            var wfo = feature.get('office').substr(1, 4);
+            var phenom = feature.get('phenomenon').length == 2 ? feature.get('phenomenon') : me.hazardMap[feature.get('phenomenon')];
+            var eventid = feature.get('etn').replace(/ /g, '');
+            var sig = (typeof feature.get('significance') == "undefined") ? 'W' : me.sigMap[feature.get('significance')];
             var url = me.getJsonpRoot() + 'getWarningText.php';
             url += '?year=' + new Date(feature.get('end') * 1000).getFullYear();
-            url += '&wfo=' + feature.get('office').substr(1, 4);
-            var phenom = feature.get('phenomenon').length == 2 ? feature.get('phenomenon') : me.hazardMap[feature.get('phenomenon')];
+            url += '&wfo=' + wfo;
             url += '&phenomena=' + phenom;
-            url += '&eventid=' + feature.get('etn').replace(/ /g, '');
-            var sig = (typeof feature.get('significance') == "undefined") ? 'W' : me.sigMap[feature.get('significance')];
+            url += '&eventid=' + eventid;
             url += '&significance=' + sig;
             var hazardTextRequest = new qx.io.request.Jsonp();
             hazardTextRequest.setUrl(url);
@@ -872,14 +941,17 @@ qx.Class.define("mobileedd.page.Map",
             {
               qx.core.Init.getApplication().getRouting().executeGet("/hazardtext");
               var text = new qx.event.message.Message("edd.hazard");
-              text.setData(e.getTarget().getResponse().data[0].report);
+              var html = '';
+              if ((phenom == "TO" | phenom == "SV" | phenom == "FF") && sig == 'W') {
+                html += '<img style="width: 100%;" src="https://www.weather.gov/images/crh/impact/K' + wfo + "_" + phenom + "_" + eventid + "_" + feature.get('end') + '.png">';
+              }
+              html += e.getTarget().getResponse().data[0].report;
+              text.setData(html);
               me.bus.dispatch(text);
-              this.__busyPopup.hide();
+              me.busyPopup.hide();
             }, this);
             hazardTextRequest.send();
-            var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
-            this.__busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
-            this.__busyPopup.show();
+            me.busyPopup.show();
           }
         });
       }, this);
@@ -976,6 +1048,13 @@ qx.Class.define("mobileedd.page.Map",
      */
     getMap : function() {
       return this.map;
+    },
+    getCenter : function() {
+      if (typeof ol != "undefined") {
+        return ol.proj.transform(this.map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326');
+      } else {
+        return null;
+      }
     },
     setBasemapByName : function(selectedItem)
     {

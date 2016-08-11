@@ -35,13 +35,15 @@ qx.Class.define("mobileedd.page.HazardText",
       this.bus.subscribe("edd.hazard", function(e)
       {
         var text = e.getData();
-        this.label.setValue(text.replace(/\n/g, '<br>').replace(/FLASH FLOOD WARNING/g, '<b style="color:red;">FLASH FLOOD WARNING</b>').replace(/TORNADO WARNING/g, '<b style="color:red;"TORNADO WARNING</b>').replace(/SEVERE THUNDERSTORM WARNING/g, '<b style="color:red;">SEVERE THUNDERSTORM WARNING</b>'));
+        this.label.setValue(text.replace(/\n/g, '<br>').replace(/FLASH FLOOD WARNING/g, '<b style="color:red;">FLASH FLOOD WARNING</b>').replace(/TORNADO WARNING/g, '<b style="color:red;">TORNADO WARNING</b>').replace(/SEVERE THUNDERSTORM WARNING/g, '<b style="color:red;">SEVERE THUNDERSTORM WARNING</b>'));
       }, this);
     },
 
     // overridden
-    _back : function() {
+    _back : function()
+    {
       qx.core.Init.getApplication().getRouting().back();
+      mobileedd.page.Map.getInstance().map.updateSize();
     }
   }
 });

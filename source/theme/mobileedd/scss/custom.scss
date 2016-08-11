@@ -54,6 +54,19 @@
     border-radius: 5px 0px 0px 5px;
 }
 
+.travelButton {
+    position: absolute;
+    z-index: 5000;
+    top: 0px;
+    bottom: -20px;
+    background-color: rgba(0,0,0,0.48);
+    color: #ffffff;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-top: 5px;
+    border-radius: 5px 0px 0px 5px;
+}
+
 .hboxPad{
     padding-bottom: 1.0em;
     padding-top: 1.0em;
@@ -66,3 +79,4 @@
     padding: 1px;
     border: 1px solid #646464;
 }
+

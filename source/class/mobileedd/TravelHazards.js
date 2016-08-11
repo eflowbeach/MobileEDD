@@ -1,0 +1,1041 @@
+/**
+ *
+ * Creates a travel forecast colored by weather hazards along the route
+ *
+ */
+qx.Class.define("mobileedd.TravelHazards",
+{
+  extend : qx.core.Object,
+  properties :
+  {
+    mapQuestKey : {
+      init : "6hcuidlVtrh41AFzsdKyGxUfuuzz1LAu"
+    },
+    leaveAt : {
+      init : new Date()
+    },
+    avoidTolls : {
+      init : false
+    },
+    startLocation :
+    {
+      init : null,
+      nullable : true
+    },
+    endLocation :
+    {
+      init : null,
+      nullable : true
+    },
+    startLocationLL :
+    {
+      init : null,
+      nullable : true
+    },
+    endLocationLL :
+    {
+      init : null,
+      nullable : true
+    },
+    waypoint : {
+      apply : "_setNewWaypoint"
+    },
+    route : {
+      init : null
+    }
+  },
+  type : "singleton",
+  construct : function()
+  {
+    var me = this;
+    me.base(arguments);
+    me.mapObject = mobileedd.page.Map.getInstance();
+    me.map = me.mapObject.getMap();
+    me.bus = qx.event.message.Bus.getInstance();
+    me.waypoints = {
+
+    };
+    me.addLayer();
+    me.directionService = new qx.io.request.Jsonp();
+    me.directionService.setCallbackName("renderNarrative");
+    me.directionService.setTimeout(10 * 1000);
+    var timer = new qx.event.Timer(10 * 1000);
+    timer.addListener("interval", function(e) {
+      // qxnws.ui.notification.Manager.getInstance().postError("Request Timed Out. The server may be busy...");
+      timer.stop();
+    });
+    me.directionService.addListener("timeout", function(e) {
+      timer.restart();
+    });
+    me.geo = new mobileedd.geo.EsriGeo();
+  },
+  members :
+  {
+    /**
+    sets a new waypoint so I can get at location information from an address
+    @param value {array} - [ address (str), latitude, longitude]
+    */
+    _setNewWaypoint : function(value)
+    {
+      var me = this;
+      me.waypoints[value[0]] = [value[1], value[2]];
+    },
+
+    /**
+    Add a route marker to the vector layer
+    * @param lon {var}
+         * @param lat {var}
+         * @param start {var} - 0, 1, 2 for start, waypoint, end
+    */
+    addMarker : function(lat, lon, start)
+    {
+      var me = this;
+      var origin = new OpenLayers.Layer.SphericalMercator.forwardMercator(lon, lat);
+      if (me.tfLayer.visibility == false)
+      {
+        me.tfLayer.setVisibility(true);
+        me.linesLayer.setVisibility(true);
+        me.travelforecastWindow.open();
+        edd.view.LegendWindow.getInstance().toggleHtmlLegend("Travel Hazard Forecast", true);
+      }
+
+      // Make the feature
+      var point = new OpenLayers.Geometry.Point(origin.lon, origin.lat);
+      var pointFeature = new OpenLayers.Feature.Vector(point, {
+        "Route Markers" : start
+      });
+      me.tfLayer.addFeatures([pointFeature]);
+    },
+
+    /**
+     * Adds Layer to the map
+     */
+    addLayer : function()
+    {
+      var me = this;
+      
+       me.pointSource = new ol.source.Vector();
+          me.pointLayer = new ol.layer.Vector(
+          {
+            name : "Travel Hazards Points",
+            source : me.pointSource
+          });
+          me.map.addLayer(me.pointLayer);
+      
+      me.lineSource = new ol.source.Vector();
+      me.thLayer = new ol.layer.Vector(
+      {
+        source : me.lineSource,
+        name : 'Travel Hazards',
+        style : function(feature, resolution)
+        {
+          var color = 'green';
+          if (!feature.get("_DataQuality")) {
+            color = "#bdbdbd";
+          }
+          var wx = feature.get("Weather").toString().toLowerCase();
+          var wwa = feature.get("Watches_Warnings_Advisories").toString();
+          if (wwa.indexOf("Blizzard Warning") !== -1) {
+            color = "#ff6cff";
+          } else if (wwa.indexOf("Freezing Rain Warning") !== -1) {
+            color = "#ff6cff";
+          } else if (wwa.indexOf("Hurricane") !== -1) {
+            color = "#ff6cff";
+          } else if (wwa.indexOf("Tropical") !== -1) {
+            color = "#ff6cff";
+          } else if (wwa.indexOf("Flood Warning") !== -1) {
+            color = "#ff6cff";
+          } else if (wwa.indexOf("Ice Storm Warning") !== -1) {
+            color = "#ff6cff";
+          } else if (wwa.indexOf("Coastal Flood Warning") !== -1) {
+            color = "#ff6cff";
+          } else if (wwa.indexOf("Tornado Warning") !== -1) {
+            color = "#ff6cff";
+          } else if (wwa.indexOf("Severe Thunderstorm Warning") !== -1) {
+            color = "#ff6cff";
+          } else if (wwa.indexOf("High Wind Warning") !== -1) {
+            color = "#ff6cff";
+          } else if (wx.indexOf("tornado") !== -1) {
+            color = "#ff6cff";
+          } else if (wwa.indexOf("Blizzard Watch") !== -1) {
+            color = "red";
+          } else if (wwa.indexOf("Winter Storm Warning") !== -1) {
+            color = "red";
+          } else if (wwa.indexOf("Wind Chill Warning") !== -1) {
+            color = "red";
+          } else if (wwa.indexOf("Snow Warning") !== -1) {
+            color = "red";
+          } else if (wwa.indexOf("Avalanche Warning") !== -1) {
+            color = "red";
+          } else if (wwa.indexOf("Freezing Rain Advisory") !== -1 || wwa.indexOf("Freezing Fog Advisory") !== -1) {
+            color = "red";
+          } else if (wwa.indexOf("Areal Flood Warning") !== -1) {
+            color = "red";
+          } else if (wwa.indexOf("Red Flag Warning") !== -1) {
+            color = "red";
+          } else if (wx.indexOf("severe thunderstorms") !== -1) {
+            color = "red";
+          } else if (feature.get("Max Wind Gust") >= 50) {
+            color = "red";
+          } else if (wwa.indexOf("Winter Storm Watch") !== -1) {
+            color = "orange";
+          } else if (wwa.indexOf("Flash Flood Watch") !== -1) {
+            color = "orange";
+          } else if (feature.get("Temperature") <= -20) {
+            color = "orange";
+          } else if (wwa.indexOf("Wind Chill Advisory") !== -1) {
+            color = "orange";
+          } else if (wwa.indexOf("Flood Advisory") !== -1) {
+            color = "orange";
+          } else if (feature.get("Max Wind Gust") >= 40) {
+            color = "orange";
+          } else if (wwa.indexOf("Winter Weather Advisory") !== -1) {
+            color = "orange";
+          } else if (wwa.indexOf("Wind Advisory") !== -1) {
+            color = "orange";
+          } else if (wx.indexOf("numerous thunderstorms") !== -1 || wx.indexOf("thunderstorms likely") !== -1) {
+            color = "orange";
+          } else if (wwa.indexOf("Winter Weather") !== -1) {
+            color = "orange";
+          } else if (wwa.indexOf("Snow Advisory") !== -1) {
+            color = "orange";
+          } else if (wwa.indexOf("Dense Fog Advisory") !== -1) {
+            color = "orange";
+          } else if (wx.indexOf("snow") !== -1 || wx.indexOf("freezing") !== -1 || wx.indexOf("ice") !== -1 || wx.indexOf("fog") !== -1 || wx.indexOf("sleet") !== -1 || wx.indexOf("frost") !== -1) {
+            color = "yellow";
+          } else if (feature.get("Max Wind Gust") >= 30) {
+            color = "yellow";
+          } else if (wx.indexOf("thunderstorms") !== -1) {
+            color = "yellow";
+          } else if (feature.get("Temperature") <= 15) {  // Temperature when road salt stops working
+            color = "yellow";
+          } else if (wx.indexOf("rain") !== -1 || wx.indexOf("drizzle") !== -1) {
+            color = "#4486b8";
+          } else if (feature.get("Temperature") <= 32) {
+            color = "#4486b8";
+          } else if (feature.get("Temperature") == "NA") {  // Missing data
+            color = "#bdbdbd";
+          } else {
+            color = "#7bb043";
+          }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          return [new ol.style.Style(
+          {
+            fill : new ol.style.Fill( {
+              color : color
+            }),
+            stroke : new ol.style.Stroke(
+            {
+              color : color,
+              width : 4
+            })
+          })]
+        }
+
+        // image: new ol.style.Circle({
+
+        //   radius: 7,
+
+        //   fill: new ol.style.Fill({
+
+        //     color: '#ffcc33'
+
+        //   })
+
+        // })
+
+        // })
+      });
+      me.map.addLayer(me.thLayer);
+    },
+
+    /**
+    Plot Route
+    */
+    plotRoute : function(response)
+    {
+      var me = this;
+
+      //      console.log(response);
+      var error = false;
+      if (me.thLayer.getSource() !== null) {
+        me.thLayer.getSource().clear();
+      }
+
+      // var startAddress = document.getElementById('startLocation-input').value;
+
+      // var endAddress = document.getElementById('endLocation-input').value;
+
+      // if (startAddress == "")
+
+      // {
+
+      //   qxnws.ui.notification.Manager.getInstance().postError("Missing Start Location.");
+
+      //   me.goButton.setIcon("edd/images/car.png");
+
+      //   return;
+
+      // }
+
+      // if (endAddress = "")
+
+      // {
+
+      //   qxnws.ui.notification.Manager.getInstance().postError("Missing End Location.");
+
+      //   me.goButton.setIcon("edd/images/car.png");
+
+      //   return;
+
+      // }
+
+      // if (typeof (response.route) === "undefined" || typeof (response.route.shape) === "undefined")
+
+      // {
+
+      //   me.goButton.setIcon("edd/images/car.png");
+
+      //   qxnws.ui.notification.Manager.getInstance().postError("Could not calculate route. <br>Double check your locations.<br>Try right-clicking on the map instead.", 10);
+
+      //   return;
+
+      // }
+
+      // Get date and time from GUI
+
+      //var hoursToAddFromTimeSelect = me.times.indexOf(me.timeSelect.getSelection()[0].getLabel());
+      var selectionDateTime = me.getLeaveAt();  //me.dateField.getValue().addHoursClone(hoursToAddFromTimeSelect);
+      var delta = (selectionDateTime - new Date()) / 1000.0;
+      var hoursToAdd = Math.ceil(delta / 3600);
+
+      // Don't allow past departure times to minimize confusion
+      if (delta < -3600) {
+        return;
+      }
+
+      // Distance Calculations
+      var totalDistanceMiles = response.route.distance;  // In miles
+      var lonLatPairs = decompress(response.route.shape.shapePoints, 5);
+      var lonLatPlotArray = [];
+
+      /**
+       * Algorithm to calculate the optimum amount of points to skip to get 1 hour interval travel times
+       *  - Should be an even number otherwise the lat/lons get messed up
+       */
+      var pointsToSkip = 1000;  //me.densitySlider.getValue() * -1;
+
+      // For short distances cut value in half
+      if (totalDistanceMiles < 300)
+      {
+        pointsToSkip = 1000 * 0.5;  //me.densitySlider.getValue() * -1 * 0.5;
+      }
+
+      // Pair down giant array
+
+      //  * Note: lonLatPairs from Mapquest returns [lat1, lon1, lat2, lon2] - so for lon lat we need 2nd index then first
+      lonLatPairs.forEach(function(obj, index) {
+        if (index % pointsToSkip == 0 && typeof (index + 1) !== "undefined") {
+          lonLatPlotArray.push([lonLatPairs[index + 1], obj]);
+        }
+      })
+
+      // Ensure destination is added
+      lonLatPlotArray.push([lonLatPairs[lonLatPairs.length - 1], lonLatPairs[lonLatPairs.length - 2]]);
+      var startLon = lonLatPlotArray[0][0];
+      var startLat = lonLatPlotArray[0][1];
+      var endLon = lonLatPlotArray[lonLatPlotArray.length - 1][0];
+      var endLat = lonLatPlotArray[lonLatPlotArray.length - 1][1];
+
+      // Add a start marker
+
+      // me.addMarker(startLat, startLon, 0);
+
+      // // Waypoints
+
+      // var sleeper = false;
+
+      // var waypointString = "";
+
+      // var minimums = [];
+
+      // me.both.getSelectables().forEach(function(obj) {
+
+      //   if (typeof (obj.getLabel) == "function")
+
+      //   {
+
+      //     var label = obj.getLabel().split('(')[0];
+
+      //     // Found a sleeping/resting waypoint
+
+      //     if (typeof (obj.getLabel().split('(')[1]) !== "undefined")
+
+      //     {
+
+      //       sleeper = true;
+
+      //       var differences = [];
+
+      //       var key = label.trim();  //substring(0, label.length - 1);
+
+      //       var hourString = obj.getLabel().split('(')[1];
+
+      //       var pattern = /(\d+)/g;
+
+      //       try
+
+      //       {
+
+      //         var waypointLat = me.waypoints[key][0];
+
+      //         var waypointLon = me.waypoints[key][1];
+
+      //       }catch (e) {
+
+      //         me.mapObject.addWaypoints(key);
+
+      //       }
+
+      //       // Find the index of waypoints that best match a sleepover
+
+      //       lonLatPlotArray.forEach(function(trackPosition, index)
+
+      //       {
+
+      //         var lat = trackPosition[0];
+
+      //         var lon = trackPosition[1];
+
+      //         // Keep track of total distance
+
+      //         var trackPositionLonLat = new OpenLayers.Geometry.Point(lon, lat);
+
+      //         var waypointPosition = new OpenLayers.Geometry.Point(waypointLon, waypointLat);
+
+      //         var difference = waypointPosition.distanceTo(trackPositionLonLat);
+
+      //         differences.push(difference);
+
+      //       });
+
+      //       // Find the extrema (use a broad sweep to grab general min curve and a short one to grab the local minima
+
+      //       if (differences.length > 500) {
+
+      //         var broadSweep = 14;
+
+      //       } else if (differences.length > 100) {
+
+      //         broadSweep = 7;
+
+      //       } else if (differences.length > 50) {
+
+      //         broadSweep = 4;
+
+      //       } else {
+
+      //         broadSweep = 1;
+
+      //       }
+
+      //       differences.forEach(function(diffobj, index) {
+
+      //         if (index > broadSweep && index < differences.length - 2 - broadSweep) {
+
+      //           if (differences[index - broadSweep] > diffobj && diffobj < differences[index + broadSweep]) {
+
+      //             if (index > 0 && index < differences.length - 2) {
+
+      //               if (differences[index - 1] > diffobj && diffobj < differences[index + 1])
+
+      //               {
+
+      //                 pattern.lastIndex = 0;  // Reset  regex index
+
+      //                 var match = pattern.exec(hourString);
+
+      //                 minimums.push([key, index, match[0]])
+
+      //               }
+
+      //             }
+
+      //           }
+
+      //         }
+
+      //       })
+
+      //     }
+
+      //     waypointString += label + "^";
+
+      //     me.mapObject.addWaypoints(label);
+
+      //   }
+
+      // });
+      var displayTime = response.route.time;
+      var days = Math.floor(displayTime / 86400);
+      var hours = Math.floor(displayTime / 3600) % 24;
+      var minutes = Math.floor(displayTime / 60) % 60;
+
+      // if (days == 0) {
+
+      //   me.routeTime.setLabel(Math.round(response.route.distance) + " mi.<br>" + hours + 'h ' + minutes + 'm');
+
+      // } else {
+
+      //   me.routeTime.setLabel(Math.round(response.route.distance) + " mi.<br>" + days + 'd ' + hours + 'h ' + minutes + 'm');
+
+      // }
+      var totaltime_hours = response.route.time / 3600;  // Convert form seconds to hours
+      var total_points = lonLatPlotArray;
+      var total_segments = total_points / pointsToSkip;
+      var distance_per_segment = totalDistanceMiles / total_segments;
+      var speed_mph = totalDistanceMiles / totaltime_hours;
+      var lines = [];
+      var lineindex = 0;
+      var lonLatPointsAll = [];
+
+      /**
+      * Format length output.
+      * @param {ol.geom.LineString} line The line.
+      * @return {string} The formatted length.
+      */
+      var wgs84Sphere = new ol.Sphere(6378137);
+      var formatLength = function(line)
+      {
+        var length;
+        var coordinates = line.getCoordinates();
+        length = 0;
+        var sourceProj = mobileedd.page.Map.getInstance().getMap().getView().getProjection();
+        for (var i = 0, ii = coordinates.length - 1; i < ii; ++i)
+        {
+          var c1 = ol.proj.transform(coordinates[i], sourceProj, 'EPSG:4326');
+          var c2 = ol.proj.transform(coordinates[i + 1], sourceProj, 'EPSG:4326');
+          length += wgs84Sphere.haversineDistance(c1, c2);
+        }
+        var output;
+
+        // if (length > 100) {
+
+        //   output = (Math.round(length / 1000 * 100) / 100) + ' ' + 'km';
+
+        // } else {
+        output = (Math.round(length * 100) / 100);  // + ' ' + 'm';
+
+        //}
+        return output;
+      };
+      var distanceTraveled = 0;
+      lonLatPlotArray.forEach(function(obj, index)
+      {
+        var lon = obj[0];
+        var lat = obj[1];
+
+        // Keep track of total distance
+
+        //lonLatPointsAll.push(new OpenLayers.Geometry.Point(lon, lat));
+
+        // var iconFeature = new ol.Feature( {
+
+        //   geometry : new ol.geom.Point(ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857'))
+
+        // });
+
+        //lonLatPointsAll.push(iconFeature);
+        lonLatPointsAll.push([lon, lat]);
+        if (index > 0 && index < lonLatPlotArray.length)
+        {
+          var geom = new ol.geom.LineString([lonLatPlotArray[index - 1], lonLatPlotArray[index]]).transform('EPSG:4326', 'EPSG:3857');
+          distanceTraveled += formatLength(geom) * 0.000621371;  // m to mi
+          var feature = new ol.Feature( {
+            geometry : geom
+          });
+          lines.push(feature);
+
+          /**
+          * Find times
+          */
+
+          // Check waypoint additions by looping through minimums and comparing them with the index
+          var waypointAdditions = 0;
+
+          // When the user departed
+          var departedAt = new moment(selectionDateTime);
+
+          // Units -> Hours
+          var timeTraveled = (distanceTraveled / speed_mph) + waypointAdditions;
+
+          // Find the closest forecast hour to the time at which you arrive at a location. This determines if you want to round up or not.
+
+          // Use departed at time for minute calculation
+          var roundHour = (departedAt.clone().add(timeTraveled, 'hours').format('m') < 30) ? 0 : 1;
+
+          // FIXME
+          var region = "conus";
+
+          //var region = me.dataStore.getNdfdRegionFromPoint(lat, lon);
+
+          // Get the time of arrival at each point by adding the time it takes to arrive at the point
+
+          // based on speed and distance traveled
+          var t = departedAt.clone().add(timeTraveled, 'hours');
+          var arriveTimeString = t.format("h:mm A ddd, MMM. DD, YYYY");
+
+          // Note the round hour...
+          var probeTime = timeTraveled + roundHour;
+          var probeTimeString = departedAt.clone().utc().add(probeTime, 'hours').format('YYYY-MM-DDTHH:00');
+          lines[lineindex].setProperties(
+          {
+            probeTime : probeTimeString,
+            arriveTime : arriveTimeString,
+            region : region
+          });
+          lineindex++;
+        }
+      });
+      lines.forEach(function(obj, index)
+      {
+        //var feature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.LineString(obj[0].geom));
+        var wktLinePath = new ol.format.WKT().writeFeature(obj);
+        var validTime = obj.get('probeTime');
+        var arriveTime = obj.get('arriveTime');
+        var region = obj.get('region');
+
+   
+        me.getPathData(wktLinePath, validTime, region, index, lines, arriveTime);
+
+   
+      })
+
+   
+    },
+
+    /**
+    Make the request and pass the response to the function which adds data to map
+    */
+    getRoutePoints : function()
+    {
+      var me = this;
+      var start = me.getStartLocationLL();
+      var end = me.getEndLocationLL()
+
+      // Date / Time leaving
+      var selectionDateTime = me.getLeaveAt(); 
+      var leaveDate = new moment(selectionDateTime).format('MM/DD/YYYY');
+      var leaveTime = new moment(selectionDateTime).format('HH:mm');
+
+      // Waypoints
+      var waypoints = '';
+
+      // me.both.getSelectables().forEach(function(obj) {
+
+      //   if (typeof (obj.getLabel) == "function")
+
+      //   {
+
+      //     var label = obj.getLabel().split('(')[0].replace(/\s+$/g, "");
+
+      //     waypoints += '&to=' + me.waypoints[label].toString();  // label;
+
+      //   }
+
+      // });
+
+      // Add destination point to waypoint string
+      waypoints += "&to=" + end;
+      var url = "https://open.mapquestapi.com/directions/v2/route?key=" + me.getMapQuestKey() + "&outFormat=json&routeType=fastest&timeType=2&dateType=0&date=" + leaveDate + "&localTime=" + leaveTime + "&doReverseGeocode=false&enhancedNarrative=false&shapeFormat=cmp&generalize=0&locale=en_US&unit=m&from=" + start + waypoints + "&drivingStyle=2&highwayEfficiency=21.0";
+      me.directionService.setUrl(url);
+      me.directionService.addListenerOnce("success", function(e)
+      {
+        console.log(e.getTarget().getResponse());
+        me.setRoute(e.getTarget().getResponse());
+        me.plotRoute(e.getTarget().getResponse());
+      }, this);
+      me.directionService.addListenerOnce("error", function(e)
+      {
+        //qxnws.ui.notification.Manager.getInstance().postWarning(me.errorMessage, 15);
+      }, this);
+
+
+      // Send direction Request
+      me.directionService.send();
+    },
+
+    /**
+    Get the Path data from NDFD and color it based on the returned values
+    */
+    getPathData : function(wktLinePath, validTime, region, index, lines, arriveTime)
+    {
+      var me = this;
+
+      // Instantiate request
+      var req = new qx.io.request.Jsonp()
+      req.setUrl(mobileedd.page.Map.getInstance().getJsonpRoot() + "travelforecast/getNdfdDataPath.php");
+
+      // Set request data. Accepts String, Map or qooxdoo Object.
+      req.setRequestData(
+      {
+        "path" : wktLinePath,
+        "validTime" : validTime,
+        "region" : region
+      });
+      req.addListenerOnce("success", function(e)
+      {
+        var response = e.getTarget().getResponse();
+        var lineString = e.getTarget().getRequestData().path;
+        var validTime = e.getTarget().getRequestData().validTime;
+        var lineFeature = new ol.format.WKT().readFeature(e.getTarget().getRequestData().path);
+
+        // Fill variables with response data
+        var t = response.t[0];
+        var td = response.td[0];
+        var apparentt = response.apparentt[0];
+        var rh = response.rh[0];
+        var ws = response.windspd[0];
+
+        // try
+
+        // {
+        ws.min = kt2mph(ws.min);
+        ws.max = kt2mph(ws.max);
+        var wg = response.windgust[0];
+        wg.max = kt2mph(wg.max);
+
+        // }catch (e) {
+
+        //   qxnws.ui.notification.Manager.getInstance().postError("There appears to be a problem with the database. Please try back later.");
+
+        // }
+        var winddir = new qx.data.Array();
+        var pop12 = (typeof (response.pop12) === "undefined") ? "NA" : response.pop12[0];
+        var qpf = (typeof (response.qpf) === "undefined") ? "NA" : response.qpf[0];
+        var totalqpf = (typeof (response.totalqpf) === "undefined") ? "NA" : response.totalqpf[0];
+        var snowamt = (typeof (response.snowamt) === "undefined") ? "NA" : response.snowamt[0];
+        var totalsnowamt = (typeof (response.totalsnowamt) === "undefined") ? "NA" : response.totalsnowamt[0];
+        var iceaccum = (typeof (response.iceaccum) === "undefined") ? "NA" : response.iceaccum[0];
+        var totaliceaccum = (typeof (response.totaliceaccum) === "undefined") ? "NA" : response.totaliceaccum[0];
+
+        // Check validity of data
+        var closestTime = (t.num == 0) ? "NA" : new moment(t.qT, "YYYY-MM-DD HH:mm Z").format("h:00 A ddd, MMM. DD, YYYY");
+        var tLabel = (t.num == 0) ? "NA" : t.min.toFixed(0) + '-' + t.max.toFixed(0);
+        var tdLabel = (td.num == 0) ? "NA" : td.min.toFixed(0) + '-' + td.max.toFixed(0);
+        var apparentLabel = (apparentt.num == 0) ? "NA" : apparentt.min.toFixed(0) + '-' + apparentt.max.toFixed(0);
+        var rhLabel = (rh.num == 0) ? "NA" : rh.min.toFixed(0) + '-' + rh.max.toFixed(0);
+        var wsLabel = (ws.num == 0) ? "NA" : ws.min.toFixed(0) + '-' + ws.max.toFixed(0);
+        var wgLabel = (wg.num == 0) ? "NA" : wg.max.toFixed(0);
+        var pop12Label = (pop12.num == 0 || pop12 == "NA") ? "NA" : pop12.min.toFixed(0) + '-' + pop12.max.toFixed(0);
+        var qpfLabel = (qpf.num == 0 || qpf == "NA") ? "NA" : qpf.min.toFixed(2) + '-' + qpf.max.toFixed(2);
+        var totalqpfLabel = (totalqpf.num == 0 || totalqpf == "NA") ? "NA" : totalqpf.min.toFixed(2) + '-' + totalqpf.max.toFixed(2);
+        var snowamtLabel = (snowamt.num == 0 || snowamt == "NA") ? "NA" : snowamt.min.toFixed(1) + '-' + snowamt.max.toFixed(1);
+        var totalsnowamtLabel = (totalsnowamt.num == 0 || totalsnowamt == "NA") ? "NA" : totalsnowamt.min.toFixed(1) + '-' + totalsnowamt.max.toFixed(1);
+        var iceaccumLabel = (iceaccum.num == 0 || iceaccum == "NA") ? "NA" : iceaccum.min.toFixed(2) + '-' + iceaccum.max.toFixed(2);
+        var totaliceaccumLabel = (totaliceaccum.num == 0 || totaliceaccum == "NA") ? "NA" : totaliceaccum.min.toFixed(2) + '-' + totaliceaccum.max.toFixed(2);
+        var within12Hr = (new moment.utc() - new moment.utc(t.qT, "YYYY-MM-DD HH:mm Z")) / (1000 * 3600 * 12);
+        if (within12Hr >= 1) {
+          within12Hr = false;
+        } else {
+          within12Hr = true;
+        }
+
+        // Eliminate duplicate directions
+        response.winddir.forEach(function(obj)
+        {
+          var dir = degToCompass(Number(obj));
+          if (!winddir.contains(dir)) {
+            winddir.push(dir);
+          }
+        });
+        var wwa = new qx.data.Array();
+        response.wwa.forEach(function(obj) {
+          if (obj != "<None>" && !wwa.contains(obj)) {
+            wwa.push(obj);
+          }
+        })
+        wwa = wwa.toString();
+        lineFeature.setProperties(
+        {
+          "Arrive here around" : arriveTime,
+          "Forecast Valid" : closestTime,
+          "_DataQuality" : within12Hr,
+          "Watches_Warnings_Advisories" : wwa,
+          "Snow Amount" : snowamtLabel,
+          "_Snow Amount" : "\"",
+          "Total Snow" : totalsnowamtLabel,
+          "_Total Snow" : "\"",
+          "Ice Amount" : iceaccumLabel,
+          "_Ice Amount" : "\"",
+          "Total Ice" : totaliceaccumLabel,
+          "_Total Ice" : "\"",
+          "Weather" : (response.wx[0] == null || response.wx[0] == "") ? "" : response.wx[0],
+          "Temperature" : tLabel,
+          "_Temperature" : " \xBAF",
+          "Wind Chill" : apparentLabel,
+          "_Wind Chill" : " \xBAF",
+          "Dew Point" : tdLabel,
+          "_Dew Point" : " \xBAF",
+          "RH" : rhLabel,
+          "_RH" : " %",
+          "Wind Speed" : wsLabel,
+          "_Wind Speed" : " mph",
+          "Max Wind Gust" : wgLabel,
+          "_Max Wind Gust" : " mph",
+          "Wind Direction" : winddir.toString(),
+          "_Wind Direction" : "",
+          "Prob. of Precip (12 hour)" : pop12Label,
+          "_Prob. of Precip (12 hour)" : "  %",
+          "Precipitation" : qpfLabel,
+          "_Precipitation" : "\"",
+          "Total Precipitation" : totalqpfLabel,
+          "_Total Precipitation" : "\""
+        });
+
+        // if (tLabel == "NA") {
+
+        //   var pointFeature = new OpenLayers.Feature.Vector(lineFeature.geometry.components[0],
+
+        //   {
+
+        //     "Arrive here around" : arriveTime,
+
+        //     "Forecast Valid" : closestTime,
+
+        //     "_DataQuality" : within12Hr,
+
+        //     "Watches_Warnings_Advisories" : wwa,
+
+        //     "Snow Amount" : snowamtLabel,
+
+        //     "_Snow Amount" : "\"",
+
+        //     "Total Snow Amount" : totalsnowamtLabel,
+
+        //     "_Total Snow Amount" : "\"",
+
+        //     "Ice Accumulation" : iceaccumLabel,
+
+        //     "_Ice Accumulation" : "\"",
+
+        //     "Total Ice Amount" : totaliceaccumLabel,
+
+        //     "_Total Ice Amount" : "\"",
+
+        //     "Weather" : (response.wx[0] == null || response.wx[0] == "") ? "" : response.wx[0],
+
+        //     "Temperature" : tLabel,
+
+        //     "_Temperature" : " \xBAF",
+
+        //     "Wind Chill" : apparentLabel,
+
+        //     "_Wind Chill" : " \xBAF",
+
+        //     "Dew Point" : tdLabel,
+
+        //     "_Dew Point" : " \xBAF",
+
+        //     "RH" : rhLabel,
+
+        //     "_RH" : " %",
+
+        //     "Wind Speed" : wsLabel,
+
+        //     "_Wind Speed" : " mph",
+
+        //     "Max Wind Gust" : wgLabel,
+
+        //     "_Max Wind Gust" : " mph",
+
+        //     "Wind Direction" : winddir.toString(),
+
+        //     "_Wind Direction" : "",
+
+        //     "Prob. of Precip (12 hour)" : pop12Label,
+
+        //     "_Prob. of Precip (12 hour)" : " %",
+
+        //     "Precipitation" : qpfLabel,
+
+        //     "_Precipitation" : "\"",
+
+        //     "Total Precipitation" : totalqpfLabel,
+
+        //     "_Total Precipitation" : "\""
+
+        //   });
+
+        // } else {
+
+        //   var pointFeature = new OpenLayers.Feature.Vector(lineFeature.geometry.components[0],
+
+        //   {
+
+        //     "Arrive here around" : arriveTime,
+
+        //     "Forecast Valid" : closestTime,
+
+        //     "_DataQuality" : within12Hr,
+
+        //     "Watches_Warnings_Advisories" : wwa,
+
+        //     "Snow Amount" : (typeof (snowamt.max) == "undefined") ? "NA" : snowamt.max.toFixed(1),
+
+        //     "_Snow Amount" : "\"",
+
+        //     "Total Snow Amount" : (typeof (totalsnowamt.max) == "undefined") ? "NA" : totalsnowamt.max.toFixed(1),
+
+        //     "_Total Snow Amount" : "\"",
+
+        //     "Ice Amount" : (typeof (iceaccum.max) == "undefined") ? "NA" : iceaccum.max.toFixed(2),
+
+        //     "_Ice Amount" : "\"",
+
+        //     "Total Ice Amount" : (typeof (totaliceaccum.max) == "undefined") ? "NA" : totaliceaccum.max.toFixed(2),
+
+        //     "_Total Ice Amount" : "\"",
+
+        //     "Weather" : (response.wx[0] == null || response.wx[0] == "") ? "" : response.wx[0],
+
+        //     "Temperature" : (t.mean < 75) ? t.min.toFixed(0) : t.max.toFixed(0),
+
+        //     "_Temperature" : " \xBAF",
+
+        //     "Wind Chill" : apparentLabel,
+
+        //     "_Wind Chill" : " \xBAF",
+
+        //     "Dew Point" : td.min.toFixed(0),
+
+        //     "_Dew Point" : " \xBAF",
+
+        //     "RH" : rh.mean.toFixed(0),
+
+        //     "_RH" : " %",
+
+        //     "Wind Speed" : ws.max.toFixed(0),
+
+        //     "_Wind Speed" : " mph",
+
+        //     "Max Wind Gust" : wg.max.toFixed(0),
+
+        //     "_Max Wind Gust" : " mph",
+
+        //     "Wind Direction" : winddir.toString(),
+
+        //     "_Wind Direction" : "",
+
+        //     "Prob. of Precip (12 hour)" : pop12.max,
+
+        //     "_Prob. of Precip (12 hour)" : " %",
+
+        //     "Precipitation" : (typeof (qpf.max) == "undefined") ? "NA" : qpf.max.toFixed(2),
+
+        //     "_Precipitation" : "\"",
+
+        //     "Total Precipitation" : (typeof (totalqpf.max) == "undefined") ? "NA" : totalqpf.max.toFixed(2),
+
+        //     "_Total Precipitation" : "\""
+
+        //   });
+
+        // }
+
+        // me.tfLayer.addFeatures(pointFeature);
+
+        // me.linesLayer.addFeatures([lineFeature]);
+        me.lineSource.addFeature(lineFeature);
+        
+        
+        /**
+         * Point Values
+         * */
+         
+          var iconFeature = new ol.Feature( {
+            geometry : new ol.geom.Point(lineFeature.getGeometry().getFlatCoordinates().slice(0,2))
+          });
+          
+           var iconStyle = new ol.style.Style( {
+            image : new ol.style.Icon(
+            {
+              anchor : [12, 24],
+              anchorXUnits : 'pixels',
+              anchorYUnits : 'pixels',
+              src : 'resource/mobileedd/images/map-marker-icon.png'
+            })
+          });
+          iconFeature.setStyle(iconStyle);
+         me.pointSource.addFeature(iconFeature);
+        
+        
+      }, this);
+
+      // Send request
+      req.send();
+
+      /**
+      Zoom to location after requests come back
+      */
+
+      // if (index == lines.length - 2)
+
+      // {
+
+      //   me.displayGroupBox.setVisibility("visible");
+
+      //   new qx.event.Timer.once(function()
+
+      //   {
+
+      //     var vecLyr = me.map.getLayersByName('Travel Hazard Forecast')[0];
+
+      //     me.map.raiseLayer(vecLyr, me.map.layers.length);
+
+      //     me.goButton.setIcon("edd/images/car.png");
+
+      //   }, this, 2000);
+
+      // }
+    }
+  }
+});
