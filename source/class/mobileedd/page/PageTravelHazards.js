@@ -30,75 +30,105 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
     _initialize : function()
     {
       this.base(arguments);
+      var spacer = new qx.ui.mobile.container.Composite();
+      spacer.addCssClass("hboxPad");
+      this.getContent().add(spacer)
+      startLabel = new qx.ui.mobile.basic.Label("Origin");
+      startLabel.addCssClass("menuLabels");
+      this.getContent().add(startLabel);
+
+      // START FIELD
+      this.__start = new qx.ui.mobile.form.TextField().set( {
+        placeholder : "Get from map tap or type it"
+      });
+      this.getContent().add(this.__start);
+      var spacer = new qx.ui.mobile.container.Composite();
+      spacer.addCssClass("hboxPad");
+      this.getContent().add(spacer)
+      endLabel = new qx.ui.mobile.basic.Label("Destination");
+      endLabel.addCssClass("menuLabels");
+      this.getContent().add(endLabel);
+      this.__end = new qx.ui.mobile.form.TextField().set( {
+        placeholder : "Get from map tap or type it"
+      });
+      this.getContent().add(this.__end)
+      var spacer = new qx.ui.mobile.container.Composite();
+      spacer.addCssClass("hboxPad");
+      this.getContent().add(spacer)
       var req = new qx.bom.request.Script();
-      req.onload = function()
+
+      // req.onload = function()
+
+      // {
+      this.showPickerButton = new qx.ui.mobile.form.Button("Leave at:", "resource/mobileedd/images/calendar.png");
+      this.showPickerButton.addListener("tap", function(e) {
+        this.__pickerDialog.show();
+      }, this);
+      this._createPicker(this.showPickerButton);
+      this.getContent().add(this.showPickerButton);
+
+      // Use location
+      this.myLocationButton = new qx.ui.mobile.form.Button("Use my location...", "resource/mobileedd/images/map-marker-icon.png");
+      this.myLocationButton.addListener("tap", function(e) {
+        this.setMyLocation();
+      }, this);
+      this.getContent().add(this.myLocationButton);
+
+      // Go button
+      this.goButton = new qx.ui.mobile.form.Button("Go!", "resource/mobileedd/images/greenball.png");
+      this.goButton.addListener("tap", function(e)
       {
-        this.showPickerButton = new qx.ui.mobile.form.Button("Leave at:");
-        this.showPickerButton.addListener("tap", function(e) {
-          this.__pickerDialog.show();
-        }, this);
-        this._createPicker(this.showPickerButton);
-        this.getContent().add(this.showPickerButton);
+        // this.__pickerDialog.show();
+        var th = mobileedd.TravelHazards.getInstance();
+        var geo = new mobileedd.geo.EsriGeo();
 
-        // Use location
-        this.myLocationButton = new qx.ui.mobile.form.Button("Use my location...", "resource/mobileedd/images/map-marker-icon.png");
-        this.myLocationButton.addListener("tap", function(e) {
-          this.setMyLocation();
-        }, this);
-        this.getContent().add(this.myLocationButton);
-
-        // Go button
-        this.goButton = new qx.ui.mobile.form.Button("Go!");
-        this.goButton.addListener("tap", function(e)
+        // Set up the start request listener
+        geo.geoReq.addListenerOnce("success", function(e)
         {
-          // this.__pickerDialog.show();
-          var th = mobileedd.TravelHazards.getInstance();
-          var geo = new mobileedd.geo.EsriGeo();
-
-          // Set up the start request listener
+          // Set the start location lat/lon and make a string for the direction request
+          var response = e.getTarget().getResponse();
+          var lat = response.locations[0].feature.geometry.y;
+          var lon = response.locations[0].feature.geometry.x;
+          th.setStartLocationLL(lat + ',' + lon);
           geo.geoReq.addListenerOnce("success", function(e)
           {
-            // Set the start location lat/lon and make a string for the direction request
             var response = e.getTarget().getResponse();
             var lat = response.locations[0].feature.geometry.y;
             var lon = response.locations[0].feature.geometry.x;
-            th.setStartLocationLL(lat + ',' + lon);
-            geo.geoReq.addListenerOnce("success", function(e)
-            {
-              var response = e.getTarget().getResponse();
-              var lat = response.locations[0].feature.geometry.y;
-              var lon = response.locations[0].feature.geometry.x;
-              th.setEndLocationLL(lat + ',' + lon);
+            th.setEndLocationLL(lat + ',' + lon);
 
-              // *** Make the directions request now that we have start/end lat/lons. ***
-              th.getRoutePoints();  //me.getStartLocationLL(), me.getEndLocationLL());
-              qx.core.Init.getApplication().getRouting().executeGet("/");
-            }, this);
-            geo.geoReq.addListenerOnce("error", function(e)
-            {
-              // qxnws.ui.notification.Manager.getInstance().postWarning("Could not determine end location address.", 15);
-            })
-
-            // Find the end location lat/lon from text entry
-            var endAddress = this.__end.getValue();  //document.getElementById('endLocation-input').value;
-            geo.geoRequest(endAddress);
+            // *** Make the directions request now that we have start/end lat/lons. ***
+            th.getRoutePoints();  //me.getStartLocationLL(), me.getEndLocationLL());
+            qx.core.Init.getApplication().getRouting().executeGet("/");
           }, this);
           geo.geoReq.addListenerOnce("error", function(e)
           {
-            // qxnws.ui.notification.Manager.getInstance().postWarning("Could not determine start location address.", 15);
+            // qxnws.ui.notification.Manager.getInstance().postWarning("Could not determine end location address.", 15);
           })
 
-          // Find the start location lat/lon from text entry
-          var startAddress = this.__start.getValue();  //document.getElementById('startLocation-input').value;
-          geo.geoRequest(startAddress);
+          // Find the end location lat/lon from text entry
+          var endAddress = this.__end.getValue();  //document.getElementById('endLocation-input').value;
+          geo.geoRequest(endAddress);
         }, this);
-        this.getContent().add(this.goButton);
-        this.getSelectedTime();
-      }.bind(this);
-      req.open("GET", "resource/mobileedd/libs/mobileeddlibs.js");
-      req.send();
-      this.__form = this.__createForm();
-      this.getContent().add(new qx.ui.mobile.form.renderer.Single(this.__form));
+        geo.geoReq.addListenerOnce("error", function(e)
+        {
+          // qxnws.ui.notification.Manager.getInstance().postWarning("Could not determine start location address.", 15);
+        })
+
+        // Find the start location lat/lon from text entry
+        var startAddress = this.__start.getValue();  //document.getElementById('startLocation-input').value;
+        geo.geoRequest(startAddress);
+      }, this);
+      this.getContent().add(this.goButton);
+      this.getSelectedTime();
+
+      // }.bind(this);
+
+      // req.open("GET", "resource/mobileedd/libs/mobileeddlibs.js");
+
+      // req.send();
+
+      // this.getContent().add(new qx.ui.mobile.form.renderer.Single(this.__form));
     },
 
     /**
@@ -283,29 +313,6 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
 
       this.__picker.setSelectedIndex(3, dayIndex);
     },
-
-    /**
-        * Creates the form for this showcase.
-        *
-        * @return {qx.ui.mobile.form.Form} the created form.
-        */
-    __createForm : function()
-    {
-      var form = new qx.ui.mobile.form.Form();
-      form.addGroupHeader("Travel Details");
-
-      // START FIELD
-      this.__start = new qx.ui.mobile.form.TextArea().set( {
-        placeholder : "Starting Location"
-      });
-      form.add(this.__start, "Start:");
-      this.__end = new qx.ui.mobile.form.TextArea().set( {
-        placeholder : "Get from map click or type it"
-      });
-      form.add(this.__end, "Destination:");
-      //this.setMyLocation();
-      return form;
-    },
     setMyLocation : function()
     {
       var geo = new mobileedd.geo.EsriGeo();
@@ -341,7 +348,6 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
       geo.reverseGeoRequest(ll[1], ll[0]);
       qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
     },
-    
     setOrigin : function(ll)
     {
       var geo = new mobileedd.geo.EsriGeo();
@@ -362,8 +368,10 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
     },
 
     // overridden
-    _back : function() {
+    _back : function()
+    {
       qx.core.Init.getApplication().getRouting().back();
+      mobileedd.page.Map.getInstance().map.updateSize();
     }
   }
 });

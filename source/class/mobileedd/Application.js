@@ -53,6 +53,11 @@ qx.Class.define("mobileedd.Application",
         Remove or edit the following code to create your application.
       -------------------------------------------------------------------------
       */
+
+      // Get my libs
+      var req = new qx.bom.request.Script();
+      req.open("GET", "resource/mobileedd/libs/mobileeddlibs.js");
+      req.send();
       var map = mobileedd.page.Map.getInstance();
       var hazardtext = mobileedd.page.HazardText.getInstance();
       var travelhazards = mobileedd.page.PageTravelHazards.getInstance();

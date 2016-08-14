@@ -24,7 +24,7 @@
     font-size: 1.3em;
     font-weight: bold;
     padding-top: 0.2em;
-    color: #868686;
+    color: #0f9400;
 }              
 
 .loopLabel{
@@ -78,5 +78,12 @@
     background-image: linear-gradient(#fff, rgb(74, 74, 74));
     padding: 1px;
     border: 1px solid #646464;
+}
+
+.thinseparator{
+    margin: 0px 10px 0px 10px;
+    height: 0px;
+    padding-bottom: 1em;
+    padding-top: 0em;
 }
 

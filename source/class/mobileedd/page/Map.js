@@ -23,12 +23,12 @@ qx.Class.define("mobileedd.page.Map",
   properties :
   {
     jsonpRoot : {
-      init : "https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
+      init : ""  //https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
 
       //init : "https://preview.weather.gov/edd/resource/edd/"
     },
     mapUri : {
-      init : "resource/mobileedd/ol-debug.js"
+      init : ""  //resource/mobileedd/ol-debug.js"
 
       //init : "resource/mobileedd/ol.js"
     },
@@ -48,6 +48,16 @@ qx.Class.define("mobileedd.page.Map",
   {
     this.base(arguments);
     this.setTitle("Mobile EDD");
+    var me = this;
+    if (window.location.hostname.indexOf('preview.w') !== -1)
+    {
+      me.setJsonpRoot("https://preview.weather.gov/edd/resource/edd/");
+      me.setMapUri("resource/mobileedd/ol.js");
+    } else
+    {
+      me.setJsonpRoot("https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/");
+      me.setMapUri("resource/mobileedd/ol-debug.js");
+    }
     this.bus = qx.event.message.Bus.getInstance();
     var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
     this.busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
@@ -55,7 +65,8 @@ qx.Class.define("mobileedd.page.Map",
     {
       "Warning" : "W",
       "Watch" : "A",
-      "Advisory" : "Y"
+      "Advisory" : "Y",
+      "Statement" : "S"
     }
     this.hazardMap =
     {
@@ -139,14 +150,14 @@ qx.Class.define("mobileedd.page.Map",
       this.base(arguments);
       this._loadMapLibrary();
 
-      // Drawer
-      var drawer = new qx.ui.mobile.container.Drawer();
-      drawer.setOrientation("right");
-      drawer.setTapOffset(0);
+      // me.drawer
+      me.drawer = new qx.ui.mobile.container.Drawer();
+      me.drawer.setOrientation("right");
+      me.drawer.setTapOffset(0);
       var scroll = new qx.ui.mobile.container.Scroll();
       var scrollContainer = new qx.ui.mobile.container.Composite();
       scroll.add(scrollContainer);
-      drawer.add(scroll);
+      me.drawer.add(scroll);
 
       /**
        * Radar Container
@@ -295,9 +306,18 @@ qx.Class.define("mobileedd.page.Map",
       me.radarTimeLabel.addCssClass("timeLabel");
       me.radarContainer.add(radarTimeComposite);
       scrollContainer.add(me.radarContainer);
-      var separator = new qx.ui.mobile.form.Button("");
-      separator.addCssClass("separator");
-      scrollContainer.add(separator);
+
+      //   var spacer = new qx.ui.mobile.container.Composite();
+
+      //   spacer.addCssClass("thinseparator");
+
+      // scrollContainer.add(spacer)
+
+      // var separator = new qx.ui.mobile.form.Button("");
+
+      // separator.addCssClass("separator");
+
+      // scrollContainer.add(separator);
 
       /**
       * Hazards Container
@@ -329,10 +349,12 @@ qx.Class.define("mobileedd.page.Map",
         {
           me.hazardRequestTimer.start();
           me.showAllComposite.setVisibility("visible");
+          me.showHazardLabelComposite.setVisibility("visible");
         } else
         {
           me.hazardRequestTimer.stop();
           me.showAllComposite.setVisibility("excluded");
+          me.showHazardLabelComposite.setVisibility("excluded");
         }
       }, this);
       composite.add(me.hazardToggleButton);
@@ -342,7 +364,8 @@ qx.Class.define("mobileedd.page.Map",
            * Longfuse Container
            */
       me.showAllComposite = new qx.ui.mobile.container.Composite();
-      me.showAllComposite.addCssClass("hboxPad");
+
+      // me.showAllComposite.addCssClass("hboxPad");
       me.showAllComposite.setLayout(new qx.ui.mobile.layout.HBox());
       var hazardsLabel = new qx.ui.mobile.basic.Label("Show All: ");
       hazardsLabel.addCssClass("loopLabel");
@@ -363,9 +386,38 @@ qx.Class.define("mobileedd.page.Map",
       }, this);
       me.showAllComposite.add(me.longfuseButton);
       scrollContainer.add(me.showAllComposite);
-      var separator = new qx.ui.mobile.form.Button("");
-      separator.addCssClass("separator");
-      scrollContainer.add(separator);
+
+      //   var spacer = new qx.ui.mobile.container.Composite();
+
+      //   spacer.addCssClass("thinseparator");
+
+      // scrollContainer.add(spacer)
+
+      /**
+        * Longfuse - Show Label
+        */
+      me.showHazardLabelComposite = new qx.ui.mobile.container.Composite();
+
+      //me.showHazardLabelComposite.addCssClass("hboxPad");
+      me.showHazardLabelComposite.setLayout(new qx.ui.mobile.layout.HBox());
+      var showHazardLabel = new qx.ui.mobile.basic.Label("Show Label: ");
+      showHazardLabel.addCssClass("loopLabel");
+      me.showHazardLabelComposite.add(showHazardLabel, {
+        flex : 1
+      });
+
+      // showHazardLabel.addCssClass("menuLabels");
+      me.showLongFuseLabelButton = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
+      me.showLongFuseLabelButton.addListener("changeValue", function(e) {
+        if (me.hazardLayer.getSource() !== null) {
+          me.hazardLayer.getSource().dispatchEvent('change');
+        }
+      }, this);
+      me.showHazardLabelComposite.add(me.showLongFuseLabelButton);
+      scrollContainer.add(me.showHazardLabelComposite);
+      var spacer = new qx.ui.mobile.container.Composite();
+      spacer.addCssClass("thinseparator");
+      scrollContainer.add(spacer)
 
       /**
        * Background
@@ -387,7 +439,7 @@ qx.Class.define("mobileedd.page.Map",
           var selectedItem = evt.getData().item;
           me.setBasemap(selectedItem);
           me.setBasemapByName(selectedItem);
-          drawer.hide();
+          me.drawer.hide();
         }, this);
       }, this);
       scrollContainer.add(bgButton);
@@ -395,11 +447,11 @@ qx.Class.define("mobileedd.page.Map",
       /**
             * Travel Hazards
             */
-      var travelButton = new qx.ui.mobile.form.Button("Map a Route", "mobileedd/images/slipperyroad.png");
+      var travelButton = new qx.ui.mobile.form.Button("Weather Travel Hazards", "mobileedd/images/slipperyroad.png");
       travelButton.addListener("tap", function(e)
       {
         qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
-        drawer.hide();
+        me.drawer.hide();
       }, this);
       scrollContainer.add(travelButton);
 
@@ -438,7 +490,7 @@ qx.Class.define("mobileedd.page.Map",
       var closeButton = new qx.ui.mobile.form.Button("Close");
       closeButton.addListener("tap", function(e)
       {
-        drawer.hide();
+        me.drawer.hide();
         me.map.updateSize();
       }, this);
       scrollContainer.add(closeButton, {
@@ -448,7 +500,7 @@ qx.Class.define("mobileedd.page.Map",
       // Menu Button
       var menuButton = new qx.ui.mobile.navigationbar.Button("Menu");
       menuButton.addListener("tap", function(e) {
-        drawer.show();
+        me.drawer.show();
       }, this);
       this.getRightContainer().add(menuButton);
 
@@ -489,6 +541,8 @@ qx.Class.define("mobileedd.page.Map",
       url += me.longLoop.getValue() ? 'T' : 'F';
       url += '&ah=';
       url += me.longfuseButton.getValue() ? 'T' : 'F';
+      url += '&lh=';
+      url += me.showLongFuseLabelButton.getValue() ? 'T' : 'F';
       url += '&h=';
       url += me.hazardToggleButton.getValue() ? 'T' : 'F';
       url += '&z=';
@@ -530,6 +584,8 @@ qx.Class.define("mobileedd.page.Map",
       me.longLoop.setValue(bool);
       var bool = me.getURLParameter('ah') == "T" ? true : false;
       me.longfuseButton.setValue(bool);
+      var bool = me.getURLParameter('lh') == "T" ? true : false;
+      me.showLongFuseLabelButton.setValue(bool);
       var bool = me.getURLParameter('h') == "T" ? true : false;
       me.hazardToggleButton.setValue(bool);
     },
@@ -733,10 +789,14 @@ qx.Class.define("mobileedd.page.Map",
           controls : ol.control.defaults().extend([new ol.control.ScaleLine()]),
           layers : [me.esridark, me.esridark_reference],
           view : new ol.View( {
-            zoom : 8
+            zoom : 6
           })
         });
-        me.map.on("click", function(e) {
+        me.map.on("click", function(e)
+        {
+          if (me.drawer.getVisibility() == "visible") {
+            return;
+          }
           me.handleMapClick(e);
         });
         var proj1 = ol.proj.get("EPSG:3857");
@@ -851,9 +911,9 @@ qx.Class.define("mobileedd.page.Map",
     {
       var me = this;
       var items = [];
-      
       items.push("Set Origin");
       items.push("Set Destination");
+
       //items.push("Edit Route");
       var hazards = [];
       var travelSegment = [];
@@ -863,7 +923,7 @@ qx.Class.define("mobileedd.page.Map",
         if (layer.get('name') == "Hazards") {
           hazards.push(feature);
         }
-         if (layer.get('name') == "Travel Hazards Segments") {
+        if (layer.get('name') == "Travel Hazards Segments") {
           travelSegment.push(feature);
         }
         if (layer.get('name') == "Travel Hazards Points") {
@@ -884,8 +944,7 @@ qx.Class.define("mobileedd.page.Map",
       travelSegment.forEach(function(obj, index) {
         items.push('Travel Hazard Segment - #' + index);
       })
-      
-       travelPoint.forEach(function(obj, index) {
+      travelPoint.forEach(function(obj, index) {
         items.push('Travel Hazard Point - #' + index);
       })
 
@@ -907,17 +966,19 @@ qx.Class.define("mobileedd.page.Map",
           qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
           return;
         }
-         if (selectedItem == "Set Origin")
+        if (selectedItem == "Set Origin")
         {
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           mobileedd.page.PageTravelHazards.getInstance().setOrigin(ll);
           qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
           return;
         }
-         if (selectedItem == "Edit Route")
+        if (selectedItem == "Edit Route")
         {
-           qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+          qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+
           // var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
+
           // mobileedd.page.PageTravelHazards.getInstance().setDestination(ll);
           return;
         }
@@ -928,7 +989,6 @@ qx.Class.define("mobileedd.page.Map",
           travelSegment.forEach(function(obj, index) {
             if (selectedItem.split('#')[1] == index)
             {
-              
               qx.core.Init.getApplication().getRouting().executeGet("/travelsample");
               var text = new qx.event.message.Message("edd.travelsample");
               text.setData(travelSegment[index]);
@@ -936,8 +996,7 @@ qx.Class.define("mobileedd.page.Map",
             }
           })
         }
-        
-         if (selectedItem.indexOf("Travel Hazard P") != -1) {
+        if (selectedItem.indexOf("Travel Hazard P") != -1) {
           travelPoint.forEach(function(obj, index) {
             if (selectedItem.split('#')[1] == index)
             {
@@ -948,7 +1007,6 @@ qx.Class.define("mobileedd.page.Map",
             }
           })
         }
-        
         var hsplit = selectedItem.split(' - ');
         var htype1 = hsplit[0];
         var hetn = hsplit[1].replace('#', '');
@@ -1028,14 +1086,25 @@ qx.Class.define("mobileedd.page.Map",
           }
 
 
-
+          // Show the hazard text
+          if (me.showLongFuseLabelButton.getValue()) {
+            if (me.longfuseButton.getValue()) {
+              label = feature.get('phenomenon') + '\n' + feature.get('significance');
+            } else {
+              var key = Object.keys(me.hazardMap).filter(function(key) {
+                return me.hazardMap[key] === feature.get('phenomenon')
+              })[0];
+              label = key + '\n' + 'Warning';
+            }
+          }
+          var contrast = getContrast50(color);
           var textStroke = new ol.style.Stroke(
           {
-            color : color,
+            color : contrast,
             width : 5
           });
           var textFill = new ol.style.Fill( {
-            color : fg
+            color : color
           });
           return [new ol.style.Style(
           {
@@ -1046,7 +1115,7 @@ qx.Class.define("mobileedd.page.Map",
             }),
             text : new ol.style.Text(
             {
-              font : '28px Calibri,sans-serif',
+              font : '20px Calibri,sans-serif',
               text : label,
               fill : textFill,
               stroke : textStroke

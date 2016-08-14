@@ -49,7 +49,7 @@ qx.Class.define("mobileedd.TravelHazards",
   {
     var me = this;
     me.base(arguments);
-     var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
+    var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
     this.busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
     me.mapObject = mobileedd.page.Map.getInstance();
     me.map = me.mapObject.getMap();
@@ -211,6 +211,45 @@ qx.Class.define("mobileedd.TravelHazards",
           } else {
             color = "#7bb043";
           }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           return [new ol.style.Style(
           {
             fill : new ol.style.Fill( {
@@ -266,6 +305,13 @@ qx.Class.define("mobileedd.TravelHazards",
               }
             }
 
+
+
+
+
+
+
+
             if (image != "resource/mobileedd/images/grayball.png") {
               anchor = [20, 40];
             }
@@ -276,7 +322,7 @@ qx.Class.define("mobileedd.TravelHazards",
                 anchorXUnits : 'pixels',
                 anchorYUnits : 'pixels',
                 src : image,
-                scale: 0.75
+                scale : 0.75
               })
             })]
           }
@@ -291,9 +337,9 @@ qx.Class.define("mobileedd.TravelHazards",
     plotRoute : function(response)
     {
       var me = this;
-
       var error = false;
-      if (me.thLayer.getSource() !== null) {
+      if (me.thLayer.getSource() !== null)
+      {
         me.thLayer.getSource().clear();
         me.pointLayer.getSource().clear()
       }
@@ -301,7 +347,7 @@ qx.Class.define("mobileedd.TravelHazards",
       // Error checking should go here FIXME
 
       // Get date and time
-      var selectionDateTime = me.getLeaveAt(); 
+      var selectionDateTime = me.getLeaveAt();
       var delta = (selectionDateTime - new Date()) / 1000.0;
       var hoursToAdd = Math.ceil(delta / 3600);
 
@@ -319,12 +365,11 @@ qx.Class.define("mobileedd.TravelHazards",
        * Algorithm to calculate the optimum amount of points to skip to get 1 hour interval travel times
        *  - Should be an even number otherwise the lat/lons get messed up
        */
-      var pointsToSkip = 1000;  
+      var pointsToSkip = 1000;
 
       // For short distances cut value in half
-      if (totalDistanceMiles < 300)
-      {
-        pointsToSkip = 1000 * 0.5; 
+      if (totalDistanceMiles < 300) {
+        pointsToSkip = 1000 * 0.5;
       }
 
       // Pair down giant array
@@ -343,7 +388,6 @@ qx.Class.define("mobileedd.TravelHazards",
       var endLon = lonLatPlotArray[lonLatPlotArray.length - 1][0];
       var endLat = lonLatPlotArray[lonLatPlotArray.length - 1][1];
 
-     
       // // Waypoints
 
       // var sleeper = false;
@@ -510,14 +554,13 @@ qx.Class.define("mobileedd.TravelHazards",
           var c2 = ol.proj.transform(coordinates[i + 1], sourceProj, 'EPSG:4326');
           length += wgs84Sphere.haversineDistance(c1, c2);
         }
-        return (Math.round(length * 100) / 100); // m
+        return (Math.round(length * 100) / 100);  // m
       };
       var distanceTraveled = 0;
       lonLatPlotArray.forEach(function(obj, index)
       {
         var lon = obj[0];
         var lat = obj[1];
-       
         lonLatPointsAll.push([lon, lat]);
         if (index > 0 && index < lonLatPlotArray.length)
         {
@@ -648,14 +691,13 @@ qx.Class.define("mobileedd.TravelHazards",
         "path" : wktLinePath,
         "validTime" : validTime,
         "region" : region,
-        "index": index
+        "index" : index
       });
       req.addListenerOnce("success", function(e)
       {
         var response = e.getTarget().getResponse();
         var lineString = e.getTarget().getRequestData().path;
         var validTime = e.getTarget().getRequestData().validTime;
-        
         var lineFeature = new ol.format.WKT().readFeature(e.getTarget().getRequestData().path);
 
         // Fill variables with response data
@@ -835,41 +877,32 @@ qx.Class.define("mobileedd.TravelHazards",
             "_Total Precipitation" : "\""
           };
         }
-
         me.lineSource.addFeature(lineFeature);
 
         /**
          * Point Values
          * */
-         
-         // Get Geometry from LineFeature
+
+        // Get Geometry from LineFeature
         var iconFeature = new ol.Feature( {
           geometry : new ol.geom.Point(lineFeature.getGeometry().getFlatCoordinates().slice(0, 2))
         });
         iconFeature.setProperties(pointProperties);
         me.pointSource.addFeature(iconFeature);
-        
-        
-                var index = e.getTarget().getRequestData().index;
-        
-          /**
-      Zoom to location after requests come back
-      */
-      if(index == me.lineindex -1){
-        me.map.getView().fit(me.pointSource.getExtent(), me.map.getSize());
-        this.busyPopup.hide();
-      }
-     
+        var index = e.getTarget().getRequestData().index;
 
-        
-        
+        /**
+              Zoom to location after requests come back
+              */
+        if (index == me.lineindex - 1)
+        {
+          me.map.getView().fit(me.pointSource.getExtent(), me.map.getSize());
+          this.busyPopup.hide();
+        }
       }, this);
 
       // Send request
       req.send();
-      
-     
-     
     }
   }
 });
