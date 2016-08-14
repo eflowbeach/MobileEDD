@@ -30,6 +30,12 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
     _initialize : function()
     {
       this.base(arguments);
+      var closeDialogButton1 = new qx.ui.mobile.form.Button("Close");
+      this.__popup = new qx.ui.mobile.dialog.Popup(closeDialogButton1);
+      this.__popup.setTitle("Missing start/end point");
+      closeDialogButton1.addListener("tap", function() {
+        this.__popup.hide();
+      }, this);
       var spacer = new qx.ui.mobile.container.Composite();
       spacer.addCssClass("hboxPad");
       this.getContent().add(spacer)
@@ -108,6 +114,11 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
 
           // Find the end location lat/lon from text entry
           var endAddress = this.__end.getValue();  //document.getElementById('endLocation-input').value;
+          if (endAddress == "")
+          {
+            this.__popup.show();
+            return;
+          }
           geo.geoRequest(endAddress);
         }, this);
         geo.geoReq.addListenerOnce("error", function(e)
@@ -117,6 +128,11 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
 
         // Find the start location lat/lon from text entry
         var startAddress = this.__start.getValue();  //document.getElementById('startLocation-input').value;
+        if (startAddress == "")
+        {
+          this.__popup.show();
+          return;
+        }
         geo.geoRequest(startAddress);
       }, this);
       this.getContent().add(this.goButton);

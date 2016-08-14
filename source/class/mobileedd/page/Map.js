@@ -154,6 +154,12 @@ qx.Class.define("mobileedd.page.Map",
       me.drawer = new qx.ui.mobile.container.Drawer();
       me.drawer.setOrientation("right");
       me.drawer.setTapOffset(0);
+
+      // me.drawer.show();
+      me.ready = false;
+      me.drawer.addListener("changeVisibility", function(e) {
+        me.ready = true;
+      })
       var scroll = new qx.ui.mobile.container.Scroll();
       var scrollContainer = new qx.ui.mobile.container.Composite();
       scroll.add(scrollContainer);
@@ -644,7 +650,7 @@ qx.Class.define("mobileedd.page.Map",
       me.radarLegendContainer = new qx.ui.mobile.container.Composite();
       me.descriptionLabel = new qx.ui.mobile.basic.Label("");
       me.radarLegendContainer.add(me.descriptionLabel);
-      var image = new qx.ui.mobile.basic.Image("https://nowcoast.noaa.gov/images/legends/radar.png");
+      var image = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legend/radar.png");
       me.radarLegendContainer.add(image);
       menuContainer.add(me.radarLegendContainer);
       return menuContainer;
@@ -786,7 +792,9 @@ qx.Class.define("mobileedd.page.Map",
         me.map = new ol.Map(
         {
           target : 'map',
-          controls : ol.control.defaults().extend([new ol.control.ScaleLine()]),
+          controls : ol.control.defaults().extend([new ol.control.ScaleLine( {
+            units : 'us'
+          })]),
           layers : [me.esridark, me.esridark_reference],
           view : new ol.View( {
             zoom : 6
@@ -794,7 +802,8 @@ qx.Class.define("mobileedd.page.Map",
         });
         me.map.on("click", function(e)
         {
-          if (me.drawer.getVisibility() == "visible") {
+          // Default load value is visible, so listen for a change event on drawer visibility then set ready
+          if (me.drawer.getVisibility() == "visible" && me.ready) {
             return;
           }
           me.handleMapClick(e);
@@ -1084,6 +1093,7 @@ qx.Class.define("mobileedd.page.Map",
           } else {
             color = feature.get('color');
           }
+
 
 
           // Show the hazard text

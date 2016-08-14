@@ -1,6 +1,30 @@
  function kt2mph(a){return a*1.15077945;}
  function degToCompass(b){var c=parseInt((b/22.5)+0.5);var a=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];return a[(c%16)]}
  function mph2kt(a){return a*0.868976242;}
+ 
+ // Contrast colors
+ function getContrast50(color)  //contrastingColor(color)
+      {
+        return (luma(color.replace('#', '')) >= 165) ? '#000000' : '#FFFFFF';
+      }
+      function luma(color)  // color can be a hx string or an array of RGB values 0-255
+      {
+        var rgb = (typeof color === 'string') ? hexToRGBArray(color) : color;
+        return (0.2126 * rgb[0]) + (0.7152 * rgb[1]) + (0.0722 * rgb[2]);  // SMPTE C, Rec. 709 weightings
+      }
+      function hexToRGBArray(color)
+      {
+        if (color.length === 3)color = color.charAt(0) + color.charAt(0) + color.charAt(1) + color.charAt(1) + color.charAt(2) + color.charAt(2);
+         else if (color.length !== 6)try {
+          return color.replace(/rgb|\(|\)/g, '').split(',').map(Number);
+        }catch (e) {
+          throw ('Invalid hex color: ' + color);
+        }
+        var rgb = [];
+        for (var i = 0; i <= 2; i++)rgb[i] = parseInt(color.substr(i * 2, 2), 16);
+        return rgb;
+      }
+ 
  // Mapquest
  function decompress(encoded, precision) {
                   precision = Math.pow(10, -precision);
