@@ -718,6 +718,7 @@ qx.Class.define("mobileedd.page.Map",
         {
           me.setReady(true);
           me.setUrlParams();
+          me.hazardRequest.send();
         });
         var attribution = new ol.Attribution( {
           html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer">ArcGIS</a>'
@@ -959,8 +960,6 @@ qx.Class.define("mobileedd.page.Map",
         mobileedd.page.PageTravelHazards.getInstance().waypoints.forEach(function(obj, index) {
           items.push("Set Travel Waypoint #" + (Number(index) + 1));
         })
-      } else {
-        items.push("Set Travel Waypoint #1");
       }
       items.push("Set Travel Destination");
 
@@ -1095,7 +1094,7 @@ qx.Class.define("mobileedd.page.Map",
           } else if (feature.get('phenomenon') == "TO" || me.hazardMap[feature.get('phenomenon')] == "TO" && feature.get('significance') == "Warning") {
             color = 'red';
           } else if (feature.get('phenomenon') == "FF" || me.hazardMap[feature.get('phenomenon')] == "FF" && feature.get('significance') == "Warning") {
-            color = 'green';
+            color = '#0AF330';
           } else if (feature.get('phenomenon') == "MA" || me.hazardMap[feature.get('phenomenon')] == "MA" && feature.get('significance') == "Warning") {
             color = '#29E8EF';
           } else {
