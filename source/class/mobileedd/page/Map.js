@@ -920,10 +920,6 @@ qx.Class.define("mobileedd.page.Map",
     {
       var me = this;
       var items = [];
-      items.push("Set Origin");
-      items.push("Set Destination");
-
-      //items.push("Edit Route");
       var hazards = [];
       var travelSegment = [];
       var travelPoint = [];
@@ -956,34 +952,46 @@ qx.Class.define("mobileedd.page.Map",
       travelPoint.forEach(function(obj, index) {
         items.push('Travel Hazard Point - #' + index);
       })
+      items.push("Set Travel Origin");
+
+      // Handle Waypoints
+      if (typeof mobileedd.page.PageTravelHazards.getInstance().waypoints !== "undefined") {
+        mobileedd.page.PageTravelHazards.getInstance().waypoints.forEach(function(obj, index) {
+          items.push("Set Travel Waypoint #" + (Number(index) + 1));
+        })
+      } else {
+        items.push("Set Travel Waypoint #1");
+      }
+      items.push("Set Travel Destination");
 
       // Cancel
       items.push("Cancel");
       var model = new qx.data.Array(items);
       var menu = new qx.ui.mobile.dialog.Menu(model);
-      if (items.length > 1) {
-        menu.show();
-      }
+      menu.show();
       menu.addListenerOnce("changeSelection", function(evt)
       {
         var selectedIndex = evt.getData().index;
         var selectedItem = evt.getData().item;
-        if (selectedItem == "Set Destination")
+        if (selectedItem == "Set Travel Destination")
         {
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           mobileedd.page.PageTravelHazards.getInstance().setDestination(ll);
           qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
           return;
         }
-        if (selectedItem == "Set Origin")
+        if (selectedItem == "Set Travel Origin")
         {
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           mobileedd.page.PageTravelHazards.getInstance().setOrigin(ll);
           qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
           return;
         }
-        if (selectedItem == "Edit Route")
+        if (selectedItem.indexOf("Set Travel Waypoint") !== -1)
         {
+          var indexToChange = selectedItem.split('#')[1] - 1;
+          var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
+          mobileedd.page.PageTravelHazards.getInstance().setWaypoint(ll, indexToChange);
           qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
 
           // var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');

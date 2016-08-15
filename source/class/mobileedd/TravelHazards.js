@@ -42,6 +42,9 @@ qx.Class.define("mobileedd.TravelHazards",
     },
     route : {
       init : null
+    },
+    waypointString : {
+      init : ''
     }
   },
   type : "singleton",
@@ -51,6 +54,12 @@ qx.Class.define("mobileedd.TravelHazards",
     me.base(arguments);
     var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
     this.busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
+    var closeDialogButton1 = new qx.ui.mobile.form.Button("Close");
+    this.__popup = new qx.ui.mobile.dialog.Popup(closeDialogButton1);
+    this.__popup.setTitle("");
+    closeDialogButton1.addListener("tap", function() {
+      this.__popup.hide();
+    }, this);
     me.mapObject = mobileedd.page.Map.getInstance();
     me.map = me.mapObject.getMap();
     me.bus = qx.event.message.Bus.getInstance();
@@ -62,8 +71,10 @@ qx.Class.define("mobileedd.TravelHazards",
     me.directionService.setCallbackName("renderNarrative");
     me.directionService.setTimeout(10 * 1000);
     var timer = new qx.event.Timer(10 * 1000);
-    timer.addListener("interval", function(e) {
-      // qxnws.ui.notification.Manager.getInstance().postError("Request Timed Out. The server may be busy...");
+    timer.addListener("interval", function(e)
+    {
+      this.__popup.setTitle("Request Timed Out. The server may be busy...");
+      this.__popup.show();
       timer.stop();
     });
     me.directionService.addListener("timeout", function(e) {
@@ -73,41 +84,71 @@ qx.Class.define("mobileedd.TravelHazards",
   },
   members :
   {
-    /**
-    sets a new waypoint so I can get at location information from an address
-    @param value {array} - [ address (str), latitude, longitude]
-    */
-    _setNewWaypoint : function(value)
-    {
-      var me = this;
-      me.waypoints[value[0]] = [value[1], value[2]];
-    },
+    // /**
 
-    /**
-    Add a route marker to the vector layer
-    * @param lon {var}
-         * @param lat {var}
-         * @param start {var} - 0, 1, 2 for start, waypoint, end
-    */
-    addMarker : function(lat, lon, start)
-    {
-      var me = this;
-      var origin = new OpenLayers.Layer.SphericalMercator.forwardMercator(lon, lat);
-      if (me.tfLayer.visibility == false)
-      {
-        me.tfLayer.setVisibility(true);
-        me.linesLayer.setVisibility(true);
-        me.travelforecastWindow.open();
-        edd.view.LegendWindow.getInstance().toggleHtmlLegend("Travel Hazard Forecast", true);
-      }
+    // sets a new waypoint so I can get at location information from an address
 
-      // Make the feature
-      var point = new OpenLayers.Geometry.Point(origin.lon, origin.lat);
-      var pointFeature = new OpenLayers.Feature.Vector(point, {
-        "Route Markers" : start
-      });
-      me.tfLayer.addFeatures([pointFeature]);
-    },
+    // @param value {array} - [ address (str), latitude, longitude]
+
+    // */
+
+    // _setNewWaypoint : function(value)
+
+    // {
+
+    //   var me = this;
+
+    //   me.waypoints[value[0]] = [value[1], value[2]];
+
+    // },
+
+    // /**
+
+    // Add a route marker to the vector layer
+
+    // * @param lon {var}
+
+    //     * @param lat {var}
+
+    //     * @param start {var} - 0, 1, 2 for start, waypoint, end
+
+    // */
+
+    // addMarker : function(lat, lon, start)
+
+    // {
+
+    //   var me = this;
+
+    //   var origin = new OpenLayers.Layer.SphericalMercator.forwardMercator(lon, lat);
+
+    //   if (me.tfLayer.visibility == false)
+
+    //   {
+
+    //     me.tfLayer.setVisibility(true);
+
+    //     me.linesLayer.setVisibility(true);
+
+    //     me.travelforecastWindow.open();
+
+    //     edd.view.LegendWindow.getInstance().toggleHtmlLegend("Travel Hazard Forecast", true);
+
+    //   }
+
+    //   // Make the feature
+
+    //   var point = new OpenLayers.Geometry.Point(origin.lon, origin.lat);
+
+    //   var pointFeature = new OpenLayers.Feature.Vector(point, {
+
+    //     "Route Markers" : start
+
+    //   });
+
+    //   me.tfLayer.addFeatures([pointFeature]);
+
+    // },
 
     /**
      * Adds Layer to the map
@@ -639,35 +680,23 @@ qx.Class.define("mobileedd.TravelHazards",
       var leaveTime = new moment(selectionDateTime).format('HH:mm');
 
       // Waypoints
-      var waypoints = '';
-
-      // me.both.getSelectables().forEach(function(obj) {
-
-      //   if (typeof (obj.getLabel) == "function")
-
-      //   {
-
-      //     var label = obj.getLabel().split('(')[0].replace(/\s+$/g, "");
-
-      //     waypoints += '&to=' + me.waypoints[label].toString();  // label;
-
-      //   }
-
-      // });
+      var waypoints = me.getWaypointString();
 
       // Add destination point to waypoint string
       waypoints += "&to=" + end;
+
+      // The url
       var url = "https://open.mapquestapi.com/directions/v2/route?key=" + me.getMapQuestKey() + "&outFormat=json&routeType=fastest&timeType=2&dateType=0&date=" + leaveDate + "&localTime=" + leaveTime + "&doReverseGeocode=false&enhancedNarrative=false&shapeFormat=cmp&generalize=0&locale=en_US&unit=m&from=" + start + waypoints + "&drivingStyle=2&highwayEfficiency=21.0";
       me.directionService.setUrl(url);
       me.directionService.addListenerOnce("success", function(e)
       {
-        console.log(e.getTarget().getResponse());
         me.setRoute(e.getTarget().getResponse());
         me.plotRoute(e.getTarget().getResponse());
       }, this);
       me.directionService.addListenerOnce("error", function(e)
       {
-        //qxnws.ui.notification.Manager.getInstance().postWarning(me.errorMessage, 15);
+        this.__popup.setTitle("Direction request error.");
+        this.__popup.show();
       }, this);
 
       // Send direction Request
@@ -706,20 +735,17 @@ qx.Class.define("mobileedd.TravelHazards",
         var apparentt = response.apparentt[0];
         var rh = response.rh[0];
         var ws = response.windspd[0];
-
-        // try
-
-        // {
-        ws.min = kt2mph(ws.min);
-        ws.max = kt2mph(ws.max);
-        var wg = response.windgust[0];
-        wg.max = kt2mph(wg.max);
-
-        // }catch (e) {
-
-        //   qxnws.ui.notification.Manager.getInstance().postError("There appears to be a problem with the database. Please try back later.");
-
-        // }
+        try
+        {
+          ws.min = kt2mph(ws.min);
+          ws.max = kt2mph(ws.max);
+          var wg = response.windgust[0];
+          wg.max = kt2mph(wg.max);
+        }catch (e)
+        {
+          this.__popup.setTitle("There appears to be a problem with the database. Please try back later.");
+          this.__popup.show();
+        }
         var winddir = new qx.data.Array();
         var pop12 = (typeof (response.pop12) === "undefined") ? "NA" : response.pop12[0];
         var qpf = (typeof (response.qpf) === "undefined") ? "NA" : response.qpf[0];
