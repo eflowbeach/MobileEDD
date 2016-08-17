@@ -42,6 +42,9 @@ qx.Class.define("mobileedd.page.Map",
     {
       init : null,
       nullable : true
+    },
+    stateBorderColor : {
+      init : "#717171"
     }
   },
   construct : function()
@@ -426,6 +429,89 @@ qx.Class.define("mobileedd.page.Map",
       scrollContainer.add(spacer)
 
       /**
+       * More Layers
+       * */
+      var moreLayersButton = new qx.ui.mobile.form.Button("More Layers...", "mobileedd/images/layers.png");
+      moreLayersButton.addListener("tap", function(e)
+      {
+        var nc = 'https://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/'
+        var layer_list =
+        {
+          "Lightning" :
+          {
+            "source" : nc + "sat_meteo_emulated_imagery_lightningstrikedensity_goes_time/MapServer/export",
+            "layer" : "show:3"
+          },
+          "QPE - 1 hour" :
+          {
+            "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
+            "layer" : "show:3"
+          },
+          "QPE - 3 hour" :
+          {
+            "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
+            "layer" : "show:7"
+          },
+          "QPE - 6 hour" :
+          {
+            "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
+            "layer" : "show:11"
+          },
+          "QPE - 12 hour" :
+          {
+            "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
+            "layer" : "show:15"
+          },
+          "QPE - 24 hour" :
+          {
+            "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
+            "layer" : "show:19"
+          },
+          "QPE - 48 hour" :
+          {
+            "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
+            "layer" : "show:23"
+          },
+          "QPE - 72 hour" :
+          {
+            "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
+            "layer" : "show:27"
+          }
+        };
+
+        // Alphanumeric
+        var reA = /[^a-zA-Z]/g;
+        var reN = /[^0-9]/g;
+        function sortAlphaNum(a, b)
+        {
+          var aA = a.replace(reA, "");
+          var bA = b.replace(reA, "");
+          if (aA === bA)
+          {
+            var aN = parseInt(a.replace(reN, ""), 10);
+            var bN = parseInt(b.replace(reN, ""), 10);
+            return aN === bN ? 0 : aN > bN ? 1 : -1;
+          } else
+          {
+            return aA > bA ? 1 : -1;
+          }
+        }
+
+        //mobileedd.page.Map.getInstance().terrain.get('name')]
+        var model = new qx.data.Array(Object.keys(layer_list).sort(sortAlphaNum));
+        var menu = new qx.ui.mobile.dialog.Menu(model);
+        menu.show();
+        menu.addListener("changeSelection", function(evt)
+        {
+          var selectedItem = evt.getData().item;
+          var layer = layer_list[selectedItem];
+          mobileedd.MoreLayers.getInstance().addRestLayer(selectedItem, layer.source, layer.layer, layer.time);
+          me.drawer.hide();
+        }, this);
+      }, this);
+      scrollContainer.add(moreLayersButton);
+
+      /**
        * Background
        * */
       var bgButton = new qx.ui.mobile.form.Button("Change Background Map", "mobileedd/images/map_icon.png");
@@ -453,7 +539,7 @@ qx.Class.define("mobileedd.page.Map",
       /**
             * Travel Hazards
             */
-      var travelButton = new qx.ui.mobile.form.Button("Weather Travel Hazards", "mobileedd/images/slipperyroad.png");
+      var travelButton = new qx.ui.mobile.form.Button("Weather Travel Hazards", "mobileedd/images/car.png");
       travelButton.addListener("tap", function(e)
       {
         qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
@@ -491,9 +577,38 @@ qx.Class.define("mobileedd.page.Map",
       scrollContainer.add(shareButton);
 
       /**
+       * State border color
+       * */
+      var showPopupButton = new qx.ui.mobile.form.Button("Configure", "resource/mobileedd/images/settings.png");
+      showPopupButton.addListener("tap", function(e)
+      {
+        this.__popup.show();
+        me.drawer.hide();
+      }, this);
+      var composite = new qx.ui.mobile.container.Composite();
+      composite.setLayout(new qx.ui.mobile.layout.VBox());
+      var html = new qx.ui.mobile.embed.Html();
+      html.setHtml('<div id="test"></div>');
+      showPopupButton.addListener("appear", function() {
+        document.getElementById('test').appendChild(document.getElementById('foo'));
+      })
+      var closeDialogButton1 = new qx.ui.mobile.form.Button("Close");
+      composite.add(html);
+      composite.add(closeDialogButton1);
+      this.__popup = new qx.ui.mobile.dialog.Popup(composite);
+      this.__popup.setTitle("State Border Color");
+      closeDialogButton1.addListener("tap", function(e)
+      {
+        this.__popup.hide();
+        e.preventDefault();
+        e.stopPropagation();
+      }, this);
+      scrollContainer.add(showPopupButton);
+
+      /**
       * Close
       * */
-      var closeButton = new qx.ui.mobile.form.Button("Close");
+      var closeButton = new qx.ui.mobile.form.Button("Close", "resource/mobileedd/images/close_black.png");
       closeButton.addListener("tap", function(e)
       {
         me.drawer.hide();
@@ -748,6 +863,71 @@ qx.Class.define("mobileedd.page.Map",
           })
         });
         var attribution = new ol.Attribution( {
+          html : 'Copyright:&copy; 2013 ESRI, i-cubed, GeoEye'
+        });
+        var projection = ol.proj.get('EPSG:4326');
+        var projectionExtent = projection.getExtent();
+
+        // The tile size supported by the ArcGIS tile service.
+        var tileSize = 512;
+
+        // Calculate the resolutions supported by the ArcGIS tile service.
+
+        // There are 16 resolutions, with a factor of 2 between successive
+
+        // resolutions. The max resolution is such that the world (360°)
+
+        // fits into two (512x512 px) tiles.
+        var maxResolution = ol.extent.getWidth(projectionExtent) / (tileSize * 2);
+        var resolutions = new Array(16);
+        var z;
+        for (z = 0; z < 16; ++z) {
+          resolutions[z] = maxResolution / Math.pow(2, z);
+        }
+        var urlTemplate = 'https://services.arcgisonline.com/arcgis/rest/services/ESRI_Imagery_World_2D/MapServer/tile/{z}/{y}/{x}';
+        me.esriimage = new ol.layer.Tile(
+        {
+          name : "ESRI Image",
+
+          /* ol.source.XYZ and ol.tilegrid.XYZ have no resolutions config */
+          source : new ol.source.TileImage(
+          {
+            attributions : [attribution],
+            tileUrlFunction : function(tileCoord, pixelRatio, projection)
+            {
+              var z = tileCoord[0];
+              var x = tileCoord[1];
+              var y = -tileCoord[2] - 1;
+
+              // wrap the world on the X axis
+              var n = Math.pow(2, z + 1);  // 2 tiles at z=0
+              x = x % n;
+              if (x * n < 0) {
+                // x and n differ in sign so add n to wrap the result
+
+                // to the correct sign
+                x = x + n;
+              }
+              return urlTemplate.replace('{z}', z.toString()).replace('{y}', y.toString()).replace('{x}', x.toString());
+            },
+            projection : projection,
+            tileGrid : new ol.tilegrid.TileGrid(
+            {
+              origin : ol.extent.getTopLeft(projectionExtent),
+              resolutions : resolutions,
+              tileSize : 512
+            })
+          })
+
+          // source : new ol.source.TileImage( {
+
+          //   attributions : [attribution],
+
+          //   url : 'https://services.arcgisonline.com/arcgis/rest/services/ESRI_Imagery_World_2D/MapServer/tile/{z}/{y}/{x}'
+
+          // })
+        });
+        var attribution = new ol.Attribution( {
           html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer">ArcGIS</a>'
         });
         me.esrilite_reference = new ol.layer.Tile(
@@ -755,6 +935,42 @@ qx.Class.define("mobileedd.page.Map",
           name : "ESRI Light Gray Reference",
           source : new ol.source.XYZ( {
             url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
+          })
+        });
+        var attribution = new ol.Attribution( {
+          html : 'Tiles &copy; <a href="http://services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer">ArcGIS</a>'
+        });
+        var urlTemplateTopo = 'https://services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer/tile/{z}/{y}/{x}';
+        me.esritopo = new ol.layer.Tile(
+        {
+          name : "ESRI Topo",
+          source : new ol.source.TileImage(
+          {
+            attributions : [attribution],
+            tileUrlFunction : function(tileCoord, pixelRatio, projection)
+            {
+              var z = tileCoord[0];
+              var x = tileCoord[1];
+              var y = -tileCoord[2] - 1;
+
+              // wrap the world on the X axis
+              var n = Math.pow(2, z + 1);  // 2 tiles at z=0
+              x = x % n;
+              if (x * n < 0) {
+                // x and n differ in sign so add n to wrap the result
+
+                // to the correct sign
+                x = x + n;
+              }
+              return urlTemplateTopo.replace('{z}', z.toString()).replace('{y}', y.toString()).replace('{x}', x.toString());
+            },
+            projection : projection,
+            tileGrid : new ol.tilegrid.TileGrid(
+            {
+              origin : ol.extent.getTopLeft(projectionExtent),
+              resolutions : resolutions,
+              tileSize : 512
+            })
           })
         });
         var source = new ol.source.TileJSON(
@@ -772,22 +988,22 @@ qx.Class.define("mobileedd.page.Map",
 
         // {
 
-        //   url : 'https://api.tiles.mapbox.com/v3/mapbox.world-black.json',
+        //   url : 'https://api.tiles.mapbox.com/v3/mapbox.streets-satellite.json',
 
         //   crossOrigin : 'anonymous'
 
         // });
 
-        // me.mapboxWorldDark = new ol.layer.Tile(
+        // me.mapboxImage = new ol.layer.Tile(
 
         // {
 
-        //   name : "Mapbox World Black",
+        //   name : "Mapbox Image",
 
         //   source : source
 
         // });
-        me.BasemapOptions = [me.terrain, me.lite, me.natgeo, me.esridark, me.esrilite, me.mapboxWorldbright];  //, me.mapboxWorldDark];
+        me.BasemapOptions = [me.terrain, me.lite, me.natgeo, me.esridark, me.esrilite, me.mapboxWorldbright, me.esriimage, me.esritopo];
 
         // The map
         me.map = new ol.Map(
@@ -868,14 +1084,7 @@ qx.Class.define("mobileedd.page.Map",
         });
         me.radarToggleButton.setValue(true);
         me.hazardToggleButton.setValue(true);
-        var styleArray = [new ol.style.Style( {
-          stroke : new ol.style.Stroke(
-          {
-            color : '#717171',
-            width : 3
-          })
-        })];
-        var vector = new ol.layer.Vector(
+        me.stateBorder = new ol.layer.Vector(
         {
           name : "U.S. States",
           source : new ol.source.Vector(
@@ -883,11 +1092,19 @@ qx.Class.define("mobileedd.page.Map",
             url : 'resource/mobileedd/data/us-states.json',
             format : new ol.format.TopoJSON()
           }),
-          style : function(feature, resolution) {
+          style : function(feature, resolution)
+          {
+            var styleArray = [new ol.style.Style( {
+              stroke : new ol.style.Stroke(
+              {
+                color : me.getStateBorderColor(),
+                width : 3
+              })
+            })];
             return feature.getId() !== undefined ? styleArray : null;
           }
         });
-        me.map.addLayer(vector);
+        me.map.addLayer(me.stateBorder);
 
         // Add state overlay
 

@@ -10,6 +10,20 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="msapplication-tap-highlight" content="no"/>
 
+<!-- Color picker-->
+<script>
+function updateStateBorder(jscolor) {
+    document.getElementById('rect').style.backgroundColor = '#' + jscolor;
+    var mapClass = mobileedd.page.Map.getInstance();
+    mapClass.setStateBorderColor( '#' + jscolor);
+    mapClass.stateBorder.getSource().dispatchEvent('change');
+}
+</script>
+<script src="resource/mobileedd/libs/jscolor.min.js"></script>
+<input id="foo" class="jscolor {closable:false, closeText:'Close', onFineChange:'updateStateBorder(this)'}" value="717171" style="text-align: center;">
+<p id="rect" style="border:0px; width:0px; height:0px;">
+  
+  
   <script type="text/javascript" src="script/mobileedd.js"></script>
 </head>
 <body>

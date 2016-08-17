@@ -258,6 +258,11 @@ qx.Class.define("mobileedd.Radar",
       me.radarLayers[time].setOpacity(me.getOpacity());
 
       // Silly way to get Vector Layer on top...
+      var statesLayer = me.mapObject.getLayerByName("U.S. States");
+      me.map.removeLayer(statesLayer);
+      me.map.getLayers().setAt(me.map.getLayers().getArray().length, statesLayer);
+
+      // Silly way to get Vector Layer on top...
       var hazardLayer = me.mapObject.getLayerByName('Hazards');
       me.map.removeLayer(hazardLayer);
       me.map.getLayers().setAt(me.map.getLayers().getArray().length, hazardLayer);
