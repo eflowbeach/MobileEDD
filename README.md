@@ -1,9 +1,10 @@
 # MobileEDD
 
-This is a sandbox for developing an [OL3](http://openlayers.org/) and [Qooxdoo](http://qooxdoo.org/) mobile web weather app.
+This is mobile web weather app developed using [OL3](http://openlayers.org/) and [Qooxdoo](http://qooxdoo.org/).
 
 ![Example](https://github.com/eflowbeach/MobileEDD/blob/master/MobileEDD.png?raw=true)
 
+# License
 MIT License
 
 Copyright (c) 2016 Jonathan Wolfe
