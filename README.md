@@ -6,7 +6,7 @@ This is a sandbox for developing an [OL3](http://openlayers.org/) and [Qooxdoo](
 
 MIT License
 
-Copyright (c) [year] [fullname]
+Copyright (c) 2016 Jonathan Wolfe
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,3 +25,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
