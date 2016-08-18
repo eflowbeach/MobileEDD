@@ -442,40 +442,65 @@ qx.Class.define("mobileedd.page.Map",
             "source" : nc + "sat_meteo_emulated_imagery_lightningstrikedensity_goes_time/MapServer/export",
             "layer" : "show:3"
           },
-          "QPE - 1 hour" :
+          "Precipitation - 1 hour QPE" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
             "layer" : "show:3"
           },
-          "QPE - 3 hour" :
+          "Precipitation - 3 hour QPE" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
             "layer" : "show:7"
           },
-          "QPE - 6 hour" :
+          "Precipitation - 6 hour QPE" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
             "layer" : "show:11"
           },
-          "QPE - 12 hour" :
+          "Precipitation - 12 hour QPE" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
             "layer" : "show:15"
           },
-          "QPE - 24 hour" :
+          "Precipitation - 24 hour QPE" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
             "layer" : "show:19"
           },
-          "QPE - 48 hour" :
+          "Precipitation - 48 hour QPE" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
             "layer" : "show:23"
           },
-          "QPE - 72 hour" :
+          "Precipitation - 72 hour QPE" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
             "layer" : "show:27"
+          },
+          "Hurricane Forecast Cones" :
+          {
+            "source" : nc + "wwa_meteocean_tropicalcyclones_trackintensityfcsts_time/MapServer/export",
+            "layer" : "show:1,6"
+          },
+          "Satellite - Visible" :
+          {
+            "source" : nc + "sat_meteo_imagery_goes_time/MapServer/export",
+            "layer" : "show:3"
+          },
+          "Satellite - IR" :
+          {
+            "source" : nc + "sat_meteo_imagery_goes_time/MapServer/export",
+            "layer" : "show:11"
+          },
+          "Satellite - Water Vapor" :
+          {
+            "source" : nc + "sat_meteo_imagery_goes_time/MapServer/export",
+            "layer" : "show:7"
+          },
+          "- Close - " :
+          {
+            "source" : null,
+            "layer" : null
           }
         };
 
@@ -496,11 +521,25 @@ qx.Class.define("mobileedd.page.Map",
             return aA > bA ? 1 : -1;
           }
         }
-
-        //mobileedd.page.Map.getInstance().terrain.get('name')]
-        var model = new qx.data.Array(Object.keys(layer_list).sort(sortAlphaNum));
+        var items = Object.keys(layer_list).sort(sortAlphaNum);
+        var model = new qx.data.Array(items);
         var menu = new qx.ui.mobile.dialog.Menu(model);
         menu.show();
+
+        // Loop through More Layers layers to find which ones are selected then color the background green
+        var mlClass = mobileedd.MoreLayers.getInstance();
+        Object.keys(mlClass.layers).forEach(function(obj, index) {
+          if (mlClass.layers[obj].getVisible()) {
+            new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2) {
+              if (div.innerHTML == obj) {
+                // Divide index2 by 2 as 2 divs comprise a button
+
+                // Select the li tag for styling
+                qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'background-color:#63FF72;')
+              }
+            })
+          }
+        }, this)
         menu.addListener("changeSelection", function(evt)
         {
           var selectedItem = evt.getData().item;
@@ -639,7 +678,7 @@ qx.Class.define("mobileedd.page.Map",
         var myDate = e.getData();
         var dateString = me.formatDate(myDate) + ' ' + weekday[myDate.getDay()] + ' ' + myDate.getMonth() + '/' + myDate.getDate() + '/' + myDate.getFullYear();
         me.radarTimeLabel.setValue('<b>' + dateString + '</b>');
-        me.descriptionLabel.setValue('<b>Radar - ' + dateString + '</b>');
+        me.radarLegendLabel.setValue('<b>Radar - ' + dateString + '</b>');
       }, this);
     },
 
@@ -760,15 +799,33 @@ qx.Class.define("mobileedd.page.Map",
       }
 
       // Radar Label on map
-      var menuContainer = new qx.ui.mobile.container.Composite();
-      menuContainer.setId("mapMenu");
+      me.legendContainer = new qx.ui.mobile.container.Composite();
+      me.legendContainer.setId("mapMenu");
       me.radarLegendContainer = new qx.ui.mobile.container.Composite();
-      me.descriptionLabel = new qx.ui.mobile.basic.Label("");
-      me.radarLegendContainer.add(me.descriptionLabel);
+      me.radarLegendLabel = new qx.ui.mobile.basic.Label("");
+      me.radarLegendContainer.add(me.radarLegendLabel);
       var image = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legend/radar.png");
       me.radarLegendContainer.add(image);
-      menuContainer.add(me.radarLegendContainer);
-      return menuContainer;
+      me.legendContainer.add(me.radarLegendContainer);
+
+      //qpe
+      me.qpeContainer = new qx.ui.mobile.container.Composite();
+      me.qpeContainer.setVisibility('excluded');
+      me.qpeLegendLabel = new qx.ui.mobile.basic.Label("<b>MRMS QPE</b>");
+      var image = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legend/precipitation.png");
+      me.qpeContainer.add(me.qpeLegendLabel);
+      me.qpeContainer.add(image);
+      me.legendContainer.add(me.qpeContainer);
+
+      //lightning
+      me.lightningContainer = new qx.ui.mobile.container.Composite();
+      me.lightningContainer.setVisibility('excluded');
+      me.lightningLegendLabel = new qx.ui.mobile.basic.Label("<b>Lightning Density</b>");
+      var image = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legend/lightningstrikedensity.png");
+      me.lightningContainer.add(me.lightningLegendLabel);
+      me.lightningContainer.add(image);
+      me.legendContainer.add(me.lightningContainer);
+      return me.legendContainer;
     },
 
     /**
