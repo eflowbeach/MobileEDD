@@ -13,15 +13,24 @@
 <!-- Color picker-->
 <script>
 function updateStateBorder(jscolor) {
-    document.getElementById('rect').style.backgroundColor = '#' + jscolor;
+    //document.getElementById('rect').style.backgroundColor = '#' + jscolor;
     var mapClass = mobileedd.page.Map.getInstance();
     mapClass.setStateBorderColor( '#' + jscolor);
     mapClass.stateBorder.getSource().dispatchEvent('change');
 }
+function updateCountyBorder(jscolor) {
+   // document.getElementById('rect').style.backgroundColor = '#' + jscolor;
+    var mapClass = mobileedd.page.Map.getInstance();
+    mapClass.setCountyBorderColor( '#' + jscolor);
+    mapClass.countyBorder.getSource().dispatchEvent('change');
+}
 </script>
 <script src="resource/mobileedd/libs/jscolor.min.js"></script>
-<input id="foo" class="jscolor {closable:false, closeText:'Close', onFineChange:'updateStateBorder(this)'}" value="717171" style="text-align: center;">
-<p id="rect" style="border:0px; width:0px; height:0px;">
+<div style="padding: 10px;" id="foo">State Color<input class="jscolor {closable:false, closeText:'Close', onFineChange:'updateStateBorder(this)'}" value="717171" style="text-align: center;"></div>
+<div style="padding: 10px;" id="foo2">County Color<input class="jscolor {closable:false, closeText:'Close', onFineChange:'updateCountyBorder(this)'}" value="717171" style="text-align: center;"></div>
+<!--<p id="rect" style="border:0px; width:0px; height:0px;">-->
+
+
   
   
   <script type="text/javascript" src="script/mobileedd.js"></script>

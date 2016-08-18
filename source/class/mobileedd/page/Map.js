@@ -45,6 +45,9 @@ qx.Class.define("mobileedd.page.Map",
     },
     stateBorderColor : {
       init : "#717171"
+    },
+    countyBorderColor : {
+      init : "#717171"
     }
   },
   construct : function()
@@ -628,14 +631,31 @@ qx.Class.define("mobileedd.page.Map",
       composite.setLayout(new qx.ui.mobile.layout.VBox());
       var html = new qx.ui.mobile.embed.Html();
       html.setHtml('<div id="test"></div>');
-      showPopupButton.addListener("appear", function() {
+      showPopupButton.addListener("appear", function()
+      {
         document.getElementById('test').appendChild(document.getElementById('foo'));
+        document.getElementById('test').appendChild(document.getElementById('foo2'));
       })
       var closeDialogButton1 = new qx.ui.mobile.form.Button("Close");
+
+      // Add to popup
+      var countyContainer = new qx.ui.mobile.container.Composite();
+      countyContainer.addCssClass("hboxPad");
+      countyContainer.setLayout(new qx.ui.mobile.layout.HBox('left', 'middle'));
+      var countyLabel = new qx.ui.mobile.basic.Label("County Borders");
+      countyContainer.add(countyLabel);
+
+      //countyLabel.addCssClass("menuLabels");
+      me.countyToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
+      me.countyToggleButton.addListener("changeValue", function(e) {
+        me.countyBorder.setVisible(e.getData());
+      })
+      countyContainer.add(me.countyToggleButton);
       composite.add(html);
+      composite.add(countyContainer);
       composite.add(closeDialogButton1);
       this.__popup = new qx.ui.mobile.dialog.Popup(composite);
-      this.__popup.setTitle("State Border Color");
+      this.__popup.setTitle("Configure");
       closeDialogButton1.addListener("tap", function(e)
       {
         this.__popup.hide();
@@ -1141,6 +1161,8 @@ qx.Class.define("mobileedd.page.Map",
         });
         me.radarToggleButton.setValue(true);
         me.hazardToggleButton.setValue(true);
+
+        // State Border
         me.stateBorder = new ol.layer.Vector(
         {
           name : "U.S. States",
@@ -1162,6 +1184,34 @@ qx.Class.define("mobileedd.page.Map",
           }
         });
         me.map.addLayer(me.stateBorder);
+
+        // County Border
+        me.countyBorder = new ol.layer.Vector(
+        {
+          name : "U.S. Counties",
+          visible : false,
+          source : new ol.source.Vector(
+          {
+            url : 'resource/mobileedd/data/us-named.json',
+            format : new ol.format.TopoJSON()
+          }),
+          style : function(feature, resolution)
+          {
+            var styleArray = [new ol.style.Style(
+            {
+              text : new ol.style.Text( {
+                text : ''  //feature.get('name')
+              }),
+              stroke : new ol.style.Stroke(
+              {
+                color : me.getCountyBorderColor(),
+                width : 1
+              })
+            })];
+            return feature.getId() !== undefined ? styleArray : null;
+          }
+        });
+        me.map.addLayer(me.countyBorder);
 
         // Add state overlay
 
