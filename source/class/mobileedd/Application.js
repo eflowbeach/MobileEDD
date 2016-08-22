@@ -62,17 +62,33 @@ qx.Class.define("mobileedd.Application",
       var hazardtext = mobileedd.page.HazardText.getInstance();
       var travelhazards = mobileedd.page.PageTravelHazards.getInstance();
       var travelsample = mobileedd.page.TravelSample.getInstance();
+      var hydrograph = mobileedd.page.Hydrograph.getInstance();
 
       // Add the pages to the page manager.
       var manager = new qx.ui.mobile.page.Manager(false);
-      manager.addDetail([map, hazardtext, travelhazards, travelsample]);
+      manager.addDetail([map, hazardtext, travelhazards, travelsample, hydrograph]);
 
       // Initialize the application routing
       this.getRouting().onGet("/", this._show, map);
       this.getRouting().onGet("/hazardtext", this._show, hazardtext);
       this.getRouting().onGet("/travelhazards", this._show, travelhazards);
       this.getRouting().onGet("/travelsample", this._show, travelsample);
+      this.getRouting().onGet("/hydrograph", this._show, hydrograph);
       this.getRouting().init();
+      var button = new qx.ui.mobile.basic.Image("resource/mobileedd/images/hide.png");
+      button.setId("hideButton");
+      button.addListener("tap", function(e) {
+        if (button.getSource() == "resource/mobileedd/images/hide.png")
+        {
+          button.setSource("resource/mobileedd/images/show.png");
+          mobileedd.page.Map.getInstance().legendContainer.setVisibility("excluded");
+        } else
+        {
+          button.setSource("resource/mobileedd/images/hide.png")
+          mobileedd.page.Map.getInstance().legendContainer.setVisibility("visible");
+        }
+      }, this);
+      this.getRoot().add(button);
     },
 
     /**

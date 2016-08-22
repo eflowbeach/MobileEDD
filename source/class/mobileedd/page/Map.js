@@ -408,18 +408,88 @@ qx.Class.define("mobileedd.page.Map",
       scrollContainer.add(spacer)
 
       /**
+      * River Container
+      */
+      var composite = new qx.ui.mobile.container.Composite();
+      composite.addCssClass("hboxPad");
+      composite.setLayout(new qx.ui.mobile.layout.HBox());
+      var riversLabel = new qx.ui.mobile.basic.Label("Rivers: ");
+      composite.add(riversLabel, {
+        flex : 1
+      });
+      riversLabel.addCssClass("menuLabels");
+      me.riverToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
+      me.riverToggleButton.addListener("changeValue", function(e)
+      {
+        var riverObject = mobileedd.Rivers.getInstance();
+        if (typeof riverObject.riverLayer == "undefined") {
+          riverObject.addLayer();
+        }
+        riverObject.riverLayer.setVisible(e.getData());
+        if (e.getData()) {
+          riverObject.timer.start();
+        } else {
+          riverObject.timer.stop();
+        }
+      }, this);
+      composite.add(me.riverToggleButton);
+      scrollContainer.add(composite);
+
+      /**
        * More Layers
        * */
       var moreLayersButton = new qx.ui.mobile.form.Button("More Layers...", "mobileedd/images/layers.png");
       moreLayersButton.addListener("tap", function(e)
       {
-        var nc = 'https://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/'
+        var nc = 'https://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/';
+        var idp = 'https://idpgis.ncep.noaa.gov/arcgis/rest/services/';
+        var qpf = 'NWS_Forecasts_Guidance_Warnings/wpc_qpf/MapServer/export';
         var layer_list =
         {
           "Lightning" :
           {
             "source" : nc + "sat_meteo_emulated_imagery_lightningstrikedensity_goes_time/MapServer/export",
             "layer" : "show:3"
+          },
+          "Precipitation - Day 1 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:1"
+          },
+          "Precipitation - Day 2 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:2"
+          },
+          "Precipitation - Day 3 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:3"
+          },
+          "Precipitation - Day 4-5 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:4"
+          },
+          "Precipitation - Day 6-7 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:5"
+          },
+          "Precipitation - Day 1-2 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:8"
+          },
+          "Precipitation - Day 1-5 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:9"
+          },
+          "Precipitation - Day 1-7 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:10"
           },
           "Precipitation - 1 hour QPE" :
           {
@@ -708,13 +778,19 @@ qx.Class.define("mobileedd.page.Map",
       url += '&h=';
       url += me.hazardToggleButton.getValue() ? 'T' : 'F';
 
+      // Rivers
+      url += '&riv=';
+      url += me.riverToggleButton.getValue() ? 'T' : 'F';
+
       // Zoom
       url += '&z=';
       url += me.map.getView().getZoom();
 
       // Center
       url += '&ll=';
-      url += ol.proj.transform(me.map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326').toString();
+      var ll = ol.proj.transform(mobileedd.page.Map.getInstance().map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326');
+      url += ll[0].toFixed(4) + ',';
+      url += ll[1].toFixed(4);  //ol.proj.transform(me.map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326').toString();
 
       // Basemap
       url += '&bm=';
@@ -774,6 +850,10 @@ qx.Class.define("mobileedd.page.Map",
       me.hazardToggleButton.setValue(bool);
       var bool = me.getURLParameter('c') == "T" ? true : false;
       me.countyToggleButton.setValue(bool);
+
+      // Rivers
+      var bool = me.getURLParameter('riv') == "T" ? true : false;
+      me.riverToggleButton.setValue(bool);
       me.setStateBorderColor('#' + me.getURLParameter('sc'));
       qx.bom.Selector.query('#foo>input')[0].jscolor.fromString(me.getStateBorderColor());
       me.setCountyBorderColor('#' + me.getURLParameter('cc'));
@@ -847,6 +927,8 @@ qx.Class.define("mobileedd.page.Map",
       me.lightningContainer.add(me.lightningLegendLabel);
       me.lightningContainer.add(image);
       me.legendContainer.add(me.lightningContainer);
+
+      // new qx.ui.mobile.core.Root().add(
       return me.legendContainer;
     },
 
@@ -1232,6 +1314,9 @@ qx.Class.define("mobileedd.page.Map",
       var hazards = [];
       var travelSegment = [];
       var travelPoint = [];
+      var hydrographs = {
+
+      };
       me.map.forEachFeatureAtPixel(e.pixel, function(feature, layer)
       {
         if (layer.get('name') == "Hazards") {
@@ -1242,6 +1327,16 @@ qx.Class.define("mobileedd.page.Map",
         }
         if (layer.get('name') == "Travel Hazards Points") {
           travelPoint.push(feature);
+        }
+        if (layer.get('name') == "Rivers")
+        {
+          var value = 'Hydrograph - ' + feature.get("location");
+          var test = new qx.data.Array(items);
+          if (!test.contains(value))
+          {
+            items.push(value);
+            hydrographs[value] = feature;  //.get('id');
+          }
         }
       });
       hazards.forEach(function(obj)
@@ -1300,6 +1395,15 @@ qx.Class.define("mobileedd.page.Map",
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           mobileedd.page.PageTravelHazards.getInstance().setWaypoint(ll, indexToChange);
           qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+          return;
+        }
+        if (selectedItem.indexOf("Hydrograph") !== -1)
+        {
+          var key = selectedItem;  //.split('Hydrograph - ')[1];
+          var text = new qx.event.message.Message("edd.hydrograph");
+          text.setData(hydrographs[key]);
+          qx.core.Init.getApplication().getRouting().executeGet("/hydrograph");
+          me.bus.dispatch(text);
           return;
         }
         if (selectedItem == "Cancel") {

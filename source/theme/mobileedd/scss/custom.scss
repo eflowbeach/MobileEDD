@@ -87,3 +87,15 @@
     padding-top: 0em;
 }
 
+#hideButton {
+    position: absolute;
+    z-index: 6000;
+    top: 40px;
+    right: -2px;
+    background-color: rgba(0,0,0,0);
+    color: #ffffff;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-top: 5px;
+    border-radius: 5px 0px 0px 5px;
+}
