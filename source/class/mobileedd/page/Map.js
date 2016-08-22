@@ -51,15 +51,15 @@ qx.Class.define("mobileedd.page.Map",
     this.base(arguments);
     this.setTitle("Mobile EDD");
     var me = this;
-    if (window.location.hostname.indexOf('preview.w') !== -1)
-    {
+    // if (window.location.hostname.indexOf('preview.w') == -1)
+    // {
       me.setJsonpRoot("https://preview.weather.gov/edd/resource/edd/");
       me.setMapUri("resource/mobileedd/ol.js");
-    } else
-    {
-      me.setJsonpRoot("https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/");
-      me.setMapUri("resource/mobileedd/ol-debug.js");
-    }
+    // } else
+    // {
+    //   me.setJsonpRoot("https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/");
+    //   me.setMapUri("resource/mobileedd/ol-debug.js");
+    // }
     this.bus = qx.event.message.Bus.getInstance();
     var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
     this.busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
