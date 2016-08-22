@@ -145,7 +145,7 @@ qx.Class.define("mobileedd.MoreLayers",
             'DPI' : 90,
             'time' : time_range
           },
-          url : source  //'https://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/export'
+          url : source
         })
       });
       me.map.addLayer(me.layers[name]);

@@ -23,14 +23,10 @@ qx.Class.define("mobileedd.page.Map",
   properties :
   {
     jsonpRoot : {
-      init : ""  //https://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/"
-
-      //init : "https://preview.weather.gov/edd/resource/edd/"
+      init : ""
     },
     mapUri : {
-      init : ""  //resource/mobileedd/ol-debug.js"
-
-      //init : "resource/mobileedd/ol.js"
+      init : ""
     },
     ready : {
       init : false
@@ -319,18 +315,6 @@ qx.Class.define("mobileedd.page.Map",
       me.radarContainer.add(radarTimeComposite);
       scrollContainer.add(me.radarContainer);
 
-      //   var spacer = new qx.ui.mobile.container.Composite();
-
-      //   spacer.addCssClass("thinseparator");
-
-      // scrollContainer.add(spacer)
-
-      // var separator = new qx.ui.mobile.form.Button("");
-
-      // separator.addCssClass("separator");
-
-      // scrollContainer.add(separator);
-
       /**
       * Hazards Container
       */
@@ -399,12 +383,6 @@ qx.Class.define("mobileedd.page.Map",
       me.showAllComposite.add(me.longfuseButton);
       scrollContainer.add(me.showAllComposite);
 
-      //   var spacer = new qx.ui.mobile.container.Composite();
-
-      //   spacer.addCssClass("thinseparator");
-
-      // scrollContainer.add(spacer)
-
       /**
         * Longfuse - Show Label
         */
@@ -417,8 +395,6 @@ qx.Class.define("mobileedd.page.Map",
       me.showHazardLabelComposite.add(showHazardLabel, {
         flex : 1
       });
-
-      // showHazardLabel.addCssClass("menuLabels");
       me.showLongFuseLabelButton = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
       me.showLongFuseLabelButton.addListener("changeValue", function(e) {
         if (me.hazardLayer.getSource() !== null) {
@@ -507,7 +483,7 @@ qx.Class.define("mobileedd.page.Map",
           }
         };
 
-        // Alphanumeric
+        // Alphanumeric sort
         var reA = /[^a-zA-Z]/g;
         var reN = /[^0-9]/g;
         function sortAlphaNum(a, b)
@@ -712,27 +688,55 @@ qx.Class.define("mobileedd.page.Map",
       if (url.indexOf("?") > -1) {
         url = url.substr(0, url.indexOf("?"));
       }
+
+      // Remove specific page
       url = decodeURIComponent(url).replace('#/', '').replace('#', '');
+
+      // Radar Looping...
       url += '?lr=';
       url += me.loopControl.getValue() ? 'T' : 'F';
       url += '&r=';
       url += me.radarToggleButton.getValue() ? 'T' : 'F';
       url += '&rll=';
       url += me.longLoop.getValue() ? 'T' : 'F';
+
+      // Hazards
       url += '&ah=';
       url += me.longfuseButton.getValue() ? 'T' : 'F';
       url += '&lh=';
       url += me.showLongFuseLabelButton.getValue() ? 'T' : 'F';
       url += '&h=';
       url += me.hazardToggleButton.getValue() ? 'T' : 'F';
+
+      // Zoom
       url += '&z=';
       url += me.map.getView().getZoom();
+
+      // Center
       url += '&ll=';
       url += ol.proj.transform(me.map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326').toString();
+
+      // Basemap
       url += '&bm=';
       url += me.getBasemap()
+
+      // Borders
+
+      // Show counties
+      url += '&c=';
+      url += me.countyToggleButton.getValue() ? 'T' : 'F';
+
+      // colors
+      url += '&sc=';
+      url += me.getStateBorderColor().replace('#', '');
+      url += '&cc=';
+      url += me.getCountyBorderColor().replace('#', '');
       return url;
     },
+
+    /**
+     * Set the URL parameters
+     * */
     setUrlParams : function()
     {
       var me = this;
@@ -768,6 +772,12 @@ qx.Class.define("mobileedd.page.Map",
       me.showLongFuseLabelButton.setValue(bool);
       var bool = me.getURLParameter('h') == "T" ? true : false;
       me.hazardToggleButton.setValue(bool);
+      var bool = me.getURLParameter('c') == "T" ? true : false;
+      me.countyToggleButton.setValue(bool);
+      me.setStateBorderColor('#' + me.getURLParameter('sc'));
+      qx.bom.Selector.query('#foo>input')[0].jscolor.fromString(me.getStateBorderColor());
+      me.setCountyBorderColor('#' + me.getURLParameter('cc'));
+      qx.bom.Selector.query('#foo2>input')[0].jscolor.fromString(me.getCountyBorderColor());
     },
 
     /**
@@ -797,14 +807,6 @@ qx.Class.define("mobileedd.page.Map",
       var mapContainer = new qx.ui.mobile.container.Composite(layout);
       mapContainer.setId("map");
       mapContainer.addCssClass("map");
-
-      //   var travel = new qx.ui.mobile.form.Button("Hello World");
-
-      // //mapContainer.setId("travelButton");
-
-      //   mapContainer.addCssClass("travelButton");
-
-      // mapContainer.add(travel);
       return mapContainer;
     },
 
@@ -995,14 +997,6 @@ qx.Class.define("mobileedd.page.Map",
               tileSize : 512
             })
           })
-
-          // source : new ol.source.TileImage( {
-
-          //   attributions : [attribution],
-
-          //   url : 'https://services.arcgisonline.com/arcgis/rest/services/ESRI_Imagery_World_2D/MapServer/tile/{z}/{y}/{x}'
-
-          // })
         });
         var attribution = new ol.Attribution( {
           html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer">ArcGIS</a>'
@@ -1060,26 +1054,6 @@ qx.Class.define("mobileedd.page.Map",
           name : "Mapbox World Bright",
           source : source
         });
-
-        // var source = new ol.source.TileJSON(
-
-        // {
-
-        //   url : 'https://api.tiles.mapbox.com/v3/mapbox.streets-satellite.json',
-
-        //   crossOrigin : 'anonymous'
-
-        // });
-
-        // me.mapboxImage = new ol.layer.Tile(
-
-        // {
-
-        //   name : "Mapbox Image",
-
-        //   source : source
-
-        // });
         me.BasemapOptions = [me.terrain, me.lite, me.natgeo, me.esridark, me.esrilite, me.mapboxWorldbright, me.esriimage, me.esritopo];
 
         // The map
@@ -1197,10 +1171,20 @@ qx.Class.define("mobileedd.page.Map",
           }),
           style : function(feature, resolution)
           {
+            var countyLabel = '';
+            if (resolution < 1000) {
+              countyLabel = feature.get('name');
+            }
             var styleArray = [new ol.style.Style(
             {
-              text : new ol.style.Text( {
-                text : ''  //feature.get('name')
+              text : new ol.style.Text(
+              {
+                text : countyLabel,
+                stroke : new ol.style.Stroke(
+                {
+                  width : 2,
+                  color : "white"
+                })
               }),
               stroke : new ol.style.Stroke(
               {
@@ -1316,10 +1300,6 @@ qx.Class.define("mobileedd.page.Map",
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           mobileedd.page.PageTravelHazards.getInstance().setWaypoint(ll, indexToChange);
           qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
-
-          // var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
-
-          // mobileedd.page.PageTravelHazards.getInstance().setDestination(ll);
           return;
         }
         if (selectedItem == "Cancel") {
@@ -1403,7 +1383,7 @@ qx.Class.define("mobileedd.page.Map",
       me.hazardLayer = new ol.layer.Vector(
       {
         name : "Hazards",
-        source : null,  // vectorSource,
+        source : null,
         style : function(feature, resolution)
         {
           var color;
@@ -1498,6 +1478,10 @@ qx.Class.define("mobileedd.page.Map",
     getMap : function() {
       return this.map;
     },
+
+    /**
+     * Get the center of the map
+     * */
     getCenter : function() {
       if (typeof ol != "undefined") {
         return ol.proj.transform(this.map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326');
@@ -1505,6 +1489,10 @@ qx.Class.define("mobileedd.page.Map",
         return null;
       }
     },
+
+    /**
+     * Set the basemap
+     * */
     setBasemapByName : function(selectedItem)
     {
       var me = this;
@@ -1537,7 +1525,6 @@ qx.Class.define("mobileedd.page.Map",
             }
           });
           if (!loaded) {
-            //me.map.addLayer()
             layers.insertAt(1, me.esrilite_reference);
           }
           me.esrilite_reference.setVisible(true);
@@ -1554,7 +1541,6 @@ qx.Class.define("mobileedd.page.Map",
       var me = this;
       var match = null;
       me.map.getLayers().getArray().forEach(function(obj) {
-        // console.log(obj.get('name'), name);
         if (obj.get('name') == name) {
           match = obj;
         }
