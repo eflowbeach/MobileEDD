@@ -77,15 +77,48 @@ qx.Class.define("mobileedd.Application",
       this.getRouting().init();
       var button = new qx.ui.mobile.basic.Image("resource/mobileedd/images/hide.png");
       button.setId("hideButton");
+      
+      
+       var slide =
+        {
+          keep : 100,
+          timing : "ease-out",
+          keyFrames :
+          {
+            0 : {
+              translate : ["0px", "0px"]
+            },
+            // 10 : {
+            //   translate : ["10px", "0px"]
+            // },
+            // 30 : {
+            //   translate : ["30px", "0px"]
+            // },
+            // 50 : {
+            //   translate : ["50px", "0px"]
+            // },
+            // 70 : {
+            //   translate : ["80px", "0px"]
+            // },
+            100 : {
+              translate : ["300px", "0px"]
+            }
+          }
+        };
+        
+        
+      
       button.addListener("tap", function(e) {
         if (button.getSource() == "resource/mobileedd/images/hide.png")
         {
           button.setSource("resource/mobileedd/images/show.png");
-          mobileedd.page.Map.getInstance().legendContainer.setVisibility("excluded");
+          qx.bom.element.Animation.animate(mobileedd.page.Map.getInstance().legendContainer.getContentElement(), slide, 300);
+          //mobileedd.page.Map.getInstance().legendContainer.setVisibility("excluded");
         } else
         {
           button.setSource("resource/mobileedd/images/hide.png")
-          mobileedd.page.Map.getInstance().legendContainer.setVisibility("visible");
+          qx.bom.element.Animation.animateReverse(mobileedd.page.Map.getInstance().legendContainer.getContentElement(), slide, 300);
+          //mobileedd.page.Map.getInstance().legendContainer.setVisibility("visible");
         }
       }, this);
       this.getRoot().add(button);
