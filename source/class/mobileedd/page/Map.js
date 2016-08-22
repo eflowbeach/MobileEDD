@@ -53,7 +53,7 @@ qx.Class.define("mobileedd.page.Map",
     var me = this;
     // if (window.location.hostname.indexOf('preview.w') == -1)
     // {
-      me.setJsonpRoot("https://preview.weather.gov/edd/resource/edd/");
+      me.setJsonpRoot("http://preview.weather.gov/edd/resource/edd/");
       me.setMapUri("resource/mobileedd/ol.js");
     // } else
     // {
