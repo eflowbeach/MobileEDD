@@ -49,22 +49,22 @@ qx.Class.define("mobileedd.page.Map",
   construct : function()
   {
     this.base(arguments);
+    this.c = mobileedd.config.Config.getInstance();
     this.setTitle("Mobile EDD");
     var me = this;
 
     // if (window.location.hostname.indexOf('preview.w') == -1)
 
     // {
-    me.setJsonpRoot("http://preview.weather.gov/edd/resource/edd/");
+    me.setJsonpRoot(me.c.getSecure() + "//preview.weather.gov/edd/resource/edd/");
     me.setMapUri("resource/mobileedd/ol.js");
 
     // } else
 
     // {
 
-    //   me.setJsonpRoot("http://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/");
-
-    //   me.setMapUri("resource/mobileedd/ol-debug.js");
+    //   me.setJsonpRoot(me.c.getSecure() + "//dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/");
+    me.setMapUri("resource/mobileedd/ol-debug.js");
 
     // }
     this.bus = qx.event.message.Bus.getInstance();
@@ -415,6 +415,40 @@ qx.Class.define("mobileedd.page.Map",
       scrollContainer.add(spacer)
 
       /**
+           * Observation Container
+           */
+      var composite = new qx.ui.mobile.container.Composite();
+      composite.addCssClass("hboxPad");
+      composite.setLayout(new qx.ui.mobile.layout.HBox());
+      var observationsLabel = new qx.ui.mobile.basic.Label("Observations: ");
+      composite.add(observationsLabel, {
+        flex : 1
+      });
+      observationsLabel.addCssClass("menuLabels");
+      me.observationToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
+      me.observationToggleButton.addListener("changeValue", function(e)
+      {
+        var observationObject = mobileedd.Observations.getInstance();
+        if (typeof observationObject.observationLayer == "undefined")
+        {
+          console.log('undefined');
+          observationObject.addLayer();
+          console.log(typeof observationObject.observationLayer);
+          observationObject.observationLayer.setVisible(true);
+        } else
+        {
+          observationObject.observationLayer.setVisible(e.getData());
+          if (e.getData()) {
+            observationObject.timer.start();
+          } else {
+            observationObject.timer.stop();
+          }
+        }
+      }, this);
+      composite.add(me.observationToggleButton);
+      scrollContainer.add(composite);
+
+      /**
       * River Container
       */
       var composite = new qx.ui.mobile.container.Composite();
@@ -448,8 +482,8 @@ qx.Class.define("mobileedd.page.Map",
       var moreLayersButton = new qx.ui.mobile.form.Button("More Layers...", "mobileedd/images/layers.png");
       moreLayersButton.addListener("tap", function(e)
       {
-        var nc = 'http://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/';
-        var idp = 'http://idpgis.ncep.noaa.gov/arcgis/rest/services/';
+        var nc = me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/rest/services/nowcoast/';
+        var idp = me.c.getSecure() + '//idpgis.ncep.noaa.gov/arcgis/rest/services/';
         var qpf = 'NWS_Forecasts_Guidance_Warnings/wpc_qpf/MapServer/export';
         var layer_list =
         {
@@ -785,6 +819,10 @@ qx.Class.define("mobileedd.page.Map",
       url += '&h=';
       url += me.hazardToggleButton.getValue() ? 'T' : 'F';
 
+      // Observations
+      url += '&obs=';
+      url += me.observationToggleButton.getValue() ? 'T' : 'F';
+
       // Rivers
       url += '&riv=';
       url += me.riverToggleButton.getValue() ? 'T' : 'F';
@@ -857,6 +895,10 @@ qx.Class.define("mobileedd.page.Map",
       me.hazardToggleButton.setValue(bool);
       var bool = me.getURLParameter('c') == "T" ? true : false;
       me.countyToggleButton.setValue(bool);
+
+      // Observations
+      var bool = me.getURLParameter('obs') == "T" ? true : false;
+      me.observationToggleButton.setValue(bool);
 
       // Rivers
       var bool = me.getURLParameter('riv') == "T" ? true : false;
@@ -977,7 +1019,7 @@ qx.Class.define("mobileedd.page.Map",
           })
         });
         var attribution = new ol.Attribution( {
-          html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href=me.c.getSecure() + "//services.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer">ArcGIS</a>'
         });
         me.natgeo = new ol.layer.Tile(
         {
@@ -985,7 +1027,7 @@ qx.Class.define("mobileedd.page.Map",
           source : new ol.source.XYZ(
           {
             attributions : [attribution],
-            url : 'http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}'
+            url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}'
           })
         });
 
@@ -993,7 +1035,7 @@ qx.Class.define("mobileedd.page.Map",
         var source = new ol.source.XYZ(
         {
           attributions : [attribution],
-          url : 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+          url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
         });
 
         // Application ready after tiles load
@@ -1004,7 +1046,7 @@ qx.Class.define("mobileedd.page.Map",
           me.hazardRequest.send();
         });
         var attribution = new ol.Attribution( {
-          html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href=me.c.getSecure() + "//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer">ArcGIS</a>'
         });
         me.esridark = new ol.layer.Tile(
         {
@@ -1012,13 +1054,13 @@ qx.Class.define("mobileedd.page.Map",
           source : source
         });
         var attribution = new ol.Attribution( {
-          html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href=me.c.getSecure() + "//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer">ArcGIS</a>'
         });
         me.esridark_reference = new ol.layer.Tile(
         {
           name : "ESRI Gray Reference",
           source : new ol.source.XYZ( {
-            url : 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
+            url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
           })
         });
         me.esrilite = new ol.layer.Tile(
@@ -1027,7 +1069,7 @@ qx.Class.define("mobileedd.page.Map",
           source : new ol.source.XYZ(
           {
             attributions : [attribution],
-            url : 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+            url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
           })
         });
         var attribution = new ol.Attribution( {
@@ -1052,7 +1094,7 @@ qx.Class.define("mobileedd.page.Map",
         for (z = 0; z < 16; ++z) {
           resolutions[z] = maxResolution / Math.pow(2, z);
         }
-        var urlTemplate = 'http://services.arcgisonline.com/arcgis/rest/services/ESRI_Imagery_World_2D/MapServer/tile/{z}/{y}/{x}';
+        var urlTemplate = me.c.getSecure() + '//services.arcgisonline.com/arcgis/rest/services/ESRI_Imagery_World_2D/MapServer/tile/{z}/{y}/{x}';
         me.esriimage = new ol.layer.Tile(
         {
           name : "ESRI Image",
@@ -1088,19 +1130,19 @@ qx.Class.define("mobileedd.page.Map",
           })
         });
         var attribution = new ol.Attribution( {
-          html : 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href=me.c.getSecure() + "//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer">ArcGIS</a>'
         });
         me.esrilite_reference = new ol.layer.Tile(
         {
           name : "ESRI Light Gray Reference",
           source : new ol.source.XYZ( {
-            url : 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
+            url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
           })
         });
         var attribution = new ol.Attribution( {
-          html : 'Tiles &copy; <a href="http://services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href=me.c.getSecure() + "//services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer">ArcGIS</a>'
         });
-        var urlTemplateTopo = 'http://services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer/tile/{z}/{y}/{x}';
+        var urlTemplateTopo = me.c.getSecure() + '//services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer/tile/{z}/{y}/{x}';
         me.esritopo = new ol.layer.Tile(
         {
           name : "ESRI Topo",
@@ -1135,7 +1177,7 @@ qx.Class.define("mobileedd.page.Map",
         });
         var source = new ol.source.TileJSON(
         {
-          url : 'http://api.tiles.mapbox.com/v3/mapbox.world-bright.json',
+          url : me.c.getSecure() + '//api.tiles.mapbox.com/v3/mapbox.world-bright.json',
           crossOrigin : 'anonymous'
         });
         me.mapboxWorldbright = new ol.layer.Tile(
@@ -1304,7 +1346,7 @@ qx.Class.define("mobileedd.page.Map",
       {
         name : 'US States',
         source : new ol.source.XYZ( {
-          url : 'http://ridgewms.srh.noaa.gov/c/tc.py/1.0.0/state/{z}/{x}/{y}.png'
+          url : me.c.getSecure() + '//ridgewms.srh.noaa.gov/c/tc.py/1.0.0/state/{z}/{x}/{y}.png'
         }),
         opacity : 0.8
       });
@@ -1471,7 +1513,7 @@ qx.Class.define("mobileedd.page.Map",
               var text = new qx.event.message.Message("edd.hazard");
               var html = '';
               if ((phenom == "TO" | phenom == "SV" | phenom == "FF") && sig == 'W') {
-                html += '<img style="width: 100%;" src="http://www.weather.gov/images/crh/impact/K' + wfo + "_" + phenom + "_" + eventid + "_" + feature.get('end') + '.png">';
+                html += '<img style="width: 100%;" src=me.c.getSecure() + "//www.weather.gov/images/crh/impact/K' + wfo + "_" + phenom + "_" + eventid + "_" + feature.get('end') + '.png">';
               }
               html += e.getTarget().getResponse().data[0].report;
               text.setData(html);

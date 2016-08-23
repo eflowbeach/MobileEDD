@@ -52,6 +52,7 @@ qx.Class.define("mobileedd.TravelHazards",
   {
     var me = this;
     me.base(arguments);
+    this.c = mobileedd.config.Config.getInstance();
     var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
     this.busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
     var closeDialogButton1 = new qx.ui.mobile.form.Button("Close");
@@ -84,72 +85,6 @@ qx.Class.define("mobileedd.TravelHazards",
   },
   members :
   {
-    // /**
-
-    // sets a new waypoint so I can get at location information from an address
-
-    // @param value {array} - [ address (str), latitude, longitude]
-
-    // */
-
-    // _setNewWaypoint : function(value)
-
-    // {
-
-    //   var me = this;
-
-    //   me.waypoints[value[0]] = [value[1], value[2]];
-
-    // },
-
-    // /**
-
-    // Add a route marker to the vector layer
-
-    // * @param lon {var}
-
-    //     * @param lat {var}
-
-    //     * @param start {var} - 0, 1, 2 for start, waypoint, end
-
-    // */
-
-    // addMarker : function(lat, lon, start)
-
-    // {
-
-    //   var me = this;
-
-    //   var origin = new OpenLayers.Layer.SphericalMercator.forwardMercator(lon, lat);
-
-    //   if (me.tfLayer.visibility == false)
-
-    //   {
-
-    //     me.tfLayer.setVisibility(true);
-
-    //     me.linesLayer.setVisibility(true);
-
-    //     me.travelforecastWindow.open();
-
-    //     edd.view.LegendWindow.getInstance().toggleHtmlLegend("Travel Hazard Forecast", true);
-
-    //   }
-
-    //   // Make the feature
-
-    //   var point = new OpenLayers.Geometry.Point(origin.lon, origin.lat);
-
-    //   var pointFeature = new OpenLayers.Feature.Vector(point, {
-
-    //     "Route Markers" : start
-
-    //   });
-
-    //   me.tfLayer.addFeatures([pointFeature]);
-
-    // },
-
     /**
      * Adds Layer to the map
      */
@@ -686,7 +621,7 @@ qx.Class.define("mobileedd.TravelHazards",
       waypoints += "&to=" + end;
 
       // The url
-      var url = "http://open.mapquestapi.com/directions/v2/route?key=" + me.getMapQuestKey() + "&outFormat=json&routeType=fastest&timeType=2&dateType=0&date=" + leaveDate + "&localTime=" + leaveTime + "&doReverseGeocode=false&enhancedNarrative=false&shapeFormat=cmp&generalize=0&locale=en_US&unit=m&from=" + start + waypoints + "&drivingStyle=2&highwayEfficiency=21.0";
+      var url = me.c.getSecure() + "//open.mapquestapi.com/directions/v2/route?key=" + me.getMapQuestKey() + "&outFormat=json&routeType=fastest&timeType=2&dateType=0&date=" + leaveDate + "&localTime=" + leaveTime + "&doReverseGeocode=false&enhancedNarrative=false&shapeFormat=cmp&generalize=0&locale=en_US&unit=m&from=" + start + waypoints + "&drivingStyle=2&highwayEfficiency=21.0";
       me.directionService.setUrl(url);
       me.directionService.addListenerOnce("success", function(e)
       {

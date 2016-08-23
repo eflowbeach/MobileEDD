@@ -21,6 +21,7 @@ qx.Class.define("mobileedd.Rivers",
   {
     var me = this;
     me.base(arguments);
+    this.c = mobileedd.config.Config.getInstance();
     me.bus = qx.event.message.Bus.getInstance();
     me.mapObject = mobileedd.page.Map.getInstance();
     me.map = me.mapObject.getMap();
@@ -40,7 +41,6 @@ qx.Class.define("mobileedd.Rivers",
     */
     addLayer : function()
     {
-      var me = this;
       var me = this;
       me.riverLayer = new ol.layer.Vector(
       {

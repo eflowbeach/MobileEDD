@@ -35,6 +35,9 @@ qx.Class.define("mobileedd.Application",
         location.hash = '';
       }
 
+      // Detect if page is secure
+      mobileedd.config.Config.getInstance().setSecure(document.location.protocol);
+
       // Enable logging in debug variant
       if (qx.core.Environment.get("qx.debug"))
       {

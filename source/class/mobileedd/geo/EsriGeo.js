@@ -11,6 +11,7 @@ qx.Class.define("mobileedd.geo.EsriGeo",
   {
     var me = this;
     me.base(arguments);
+    this.c = mobileedd.config.Config.getInstance();
 
     // Geocode
     me.geoReq = new qx.io.request.Jsonp();
@@ -26,7 +27,7 @@ qx.Class.define("mobileedd.geo.EsriGeo",
     reverseGeoRequest : function(lat, lon)
     {
       var me = this;
-      me.reverseGeocodeReq.setUrl("http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?location=" + lon + "," + lat + "&distance=2000&outSR=&f=pjson");
+      me.reverseGeocodeReq.setUrl(me.c.getSecure() + "//geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?location=" + lon + "," + lat + "&distance=2000&outSR=&f=pjson");
       me.reverseGeocodeReq.send();
     },
 
@@ -36,7 +37,7 @@ qx.Class.define("mobileedd.geo.EsriGeo",
     geoRequest : function(address)
     {
       var me = this;
-      me.geoReq.setUrl("http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find?text=" + address + "&f=pjson");
+      me.geoReq.setUrl(me.c.getSecure() + "//geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find?text=" + address + "&f=pjson");
       me.geoReq.send();
     },
 

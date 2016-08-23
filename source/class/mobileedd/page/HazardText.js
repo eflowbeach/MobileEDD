@@ -5,7 +5,7 @@
    License:
 
    Authors:
-me.imageurl = "http://www.weather.gov/images/crh/impact/" + f.office + "_" + wtype + "_" + eventid + "_" + f.end + ".png";
+me.imageurl = me.c.getSecure() + "//www.weather.gov/images/crh/impact/" + f.office + "_" + wtype + "_" + eventid + "_" + f.end + ".png";
 ************************************************************************ */
 
 /*global qx*/
@@ -19,6 +19,7 @@ qx.Class.define("mobileedd.page.HazardText",
   construct : function()
   {
     this.base(arguments);
+    this.c = mobileedd.config.Config.getInstance();
     this.bus = qx.event.message.Bus.getInstance();
     this.setTitle("Hazard Text");
     this.setShowBackButton(true);

@@ -5,7 +5,7 @@
    License:
 
    Authors:
-me.imageurl = "http://www.weather.gov/images/crh/impact/" + f.office + "_" + wtype + "_" + eventid + "_" + f.end + ".png";
+me.imageurl = me.c.getSecure() + "//www.weather.gov/images/crh/impact/" + f.office + "_" + wtype + "_" + eventid + "_" + f.end + ".png";
 ************************************************************************ */
 
 /*global qx*/
@@ -19,6 +19,7 @@ qx.Class.define("mobileedd.page.Hydrograph",
   construct : function()
   {
     this.base(arguments);
+    this.c = mobileedd.config.Config.getInstance();
     this.bus = qx.event.message.Bus.getInstance();
     this.setTitle("Hydrograph");
     this.setShowBackButton(true);
@@ -81,7 +82,7 @@ qx.Class.define("mobileedd.page.Hydrograph",
         /**
         Hydrograph
         */
-        html += '<img width="100%;" src="http://water.weather.gov/resources/hydrographs/' + feature.get('id').toLowerCase() + '_hg.png"><br>';
+        html += '<img width="100%;" src=me.c.getSecure() + "//water.weather.gov/resources/hydrographs/' + feature.get('id').toLowerCase() + '_hg.png"><br>';
 
         /**
         Table
@@ -92,7 +93,7 @@ qx.Class.define("mobileedd.page.Hydrograph",
         html += '<tr style="color:#FF9900;"><td nowrap="" scope="col">&nbsp;&nbsp;&nbsp;Flood Stage:</td><td scope="col">' + feature.get('flood') + '</td></tr> ';
         html += '<tr style="color:#CACA2F;" ><td nowrap="" scope="col">&nbsp;&nbsp;&nbsp;Action Stage:</td><td scope="col">' + feature.get('action') + '</td></tr> ';
         html += '</b></table>';
-        this.label.setValue(html);  //<img style="width: 100%;" src="http://water.weather.gov/resources/hydrographs/' + feature.getValue('id').toLowerCase() + '_hg.png">');
+        this.label.setValue(html);  //<img style="width: 100%;" src=me.c.getSecure() + "//water.weather.gov/resources/hydrographs/' + feature.getValue('id').toLowerCase() + '_hg.png">');
       }, this);
     },
 
