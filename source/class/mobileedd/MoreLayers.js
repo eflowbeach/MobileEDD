@@ -31,7 +31,7 @@ qx.Class.define("mobileedd.MoreLayers",
     // Set up the query timestamp request
 
     // Just query 1 hr...it should be close enough
-    me.ltgReq = new qx.io.request.Jsonp("https://nowcoast.noaa.gov/layerinfo?request=timestops&service=sat_meteo_emulated_imagery_lightningstrikedensity_goes_time&layers=3&format=jsonp");
+    me.ltgReq = new qx.io.request.Jsonp("http://nowcoast.noaa.gov/layerinfo?request=timestops&service=sat_meteo_emulated_imagery_lightningstrikedensity_goes_time&layers=3&format=jsonp");
 
     // Request Succeeded
     me.ltgReq.addListener("success", function(e)
@@ -96,7 +96,7 @@ qx.Class.define("mobileedd.MoreLayers",
       if (name.indexOf("QPE") !== -1)
       {
         var layerValue = layer.split(':')[1];
-        me.qpeReq.setUrl("https://nowcoast.noaa.gov/layerinfo?request=timestops&service=analysis_meteohydro_sfc_qpe_time&layers=" + layerValue + "&format=jsonp")
+        me.qpeReq.setUrl("http://nowcoast.noaa.gov/layerinfo?request=timestops&service=analysis_meteohydro_sfc_qpe_time&layers=" + layerValue + "&format=jsonp")
         me.qpeReq.send();
         me.mapObject.qpeContainer.setVisibility('visible')
       }

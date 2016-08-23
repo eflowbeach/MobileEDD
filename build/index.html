@@ -13,13 +13,11 @@
 <!-- Color picker-->
 <script>
 function updateStateBorder(jscolor) {
-    //document.getElementById('rect').style.backgroundColor = '#' + jscolor;
     var mapClass = mobileedd.page.Map.getInstance();
     mapClass.setStateBorderColor( '#' + jscolor);
     mapClass.stateBorder.getSource().dispatchEvent('change');
 }
 function updateCountyBorder(jscolor) {
-   // document.getElementById('rect').style.backgroundColor = '#' + jscolor;
     var mapClass = mobileedd.page.Map.getInstance();
     mapClass.setCountyBorderColor( '#' + jscolor);
     mapClass.countyBorder.getSource().dispatchEvent('change');

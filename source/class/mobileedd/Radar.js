@@ -54,7 +54,7 @@ qx.Class.define("mobileedd.Radar",
     });
 
     // Set up the query timestamp request
-    me.timesReq = new qx.io.request.Jsonp("https://nowcoast.noaa.gov/layerinfo?request=timestops&service=radar_meteo_imagery_nexrad_time&layers=3&format=jsonp");
+    me.timesReq = new qx.io.request.Jsonp("http://nowcoast.noaa.gov/layerinfo?request=timestops&service=radar_meteo_imagery_nexrad_time&layers=3&format=jsonp");
 
     // Request Succeeded
     me.timesReq.addListener("success", function(e)
@@ -250,7 +250,7 @@ qx.Class.define("mobileedd.Radar",
             'DPI' : 90,
             'time' : time_range
           },
-          url : 'https://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/export'
+          url : 'http://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/export'
         })
       });
       me.map.addLayer(me.radarLayers[time]);
