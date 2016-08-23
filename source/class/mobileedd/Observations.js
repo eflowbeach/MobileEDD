@@ -41,6 +41,9 @@ qx.Class.define("mobileedd.Observations",
     }.bind(this);
     req.open("GET", "resource/mobileedd/libs/geojsonlibs.js");
     req.send();
+    var req = new qx.bom.request.Script();
+    req.open("GET", "resource/mobileedd/libs/flot/flot-combo.js");
+    req.send();
   },
   members :
   {

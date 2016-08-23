@@ -1,6 +1,16 @@
- function kt2mph(a){return a*1.15077945;}
- function degToCompass(b){var c=parseInt((b/22.5)+0.5);var a=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];return a[(c%16)]}
- function mph2kt(a){return a*0.868976242;}
+function kt2mph(a){return a*1.15077945;}
+function degToCompass(b){var c=parseInt((b/22.5)+0.5);var a=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];return a[(c%16)]}
+function mph2kt(a){return a*0.868976242;}
+// Heat Index
+function heatIndex(tempF, RH) {
+return Math.round(-42.379 + 2.04901523 * tempF + 10.14333127 * RH + -0.22475541 * tempF * RH + -.00683783 * Math.pow(tempF, 2) + -.05481717 * Math.pow(RH, 2) + .00122874 * Math.pow(tempF, 2) * RH + .00085282 * tempF * Math.pow(RH, 2) + -.00000199 * Math.pow(tempF, 2) * Math.pow(RH, 2));
+};
+
+// Wind Chill
+function windChill(tempF, windKT){
+var windMPH = windKT * 1.15077945;
+return Math.round(35.74 + 0.6215 * tempF - 35.75 * Math.pow(windMPH, 0.16) + 0.4275 * tempF * Math.pow(windMPH, 0.16));
+};
  
  // Contrast colors
  function getContrast50(color)  //contrastingColor(color)

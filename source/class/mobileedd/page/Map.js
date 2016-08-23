@@ -1366,6 +1366,9 @@ qx.Class.define("mobileedd.page.Map",
       var hydrographs = {
 
       };
+      var observations = {
+
+      };
       me.map.forEachFeatureAtPixel(e.pixel, function(feature, layer)
       {
         if (layer.get('name') == "Hazards") {
@@ -1386,6 +1389,12 @@ qx.Class.define("mobileedd.page.Map",
             items.push(value);
             hydrographs[value] = feature;  //.get('id');
           }
+        }
+        if (layer.get('name') == "Observations")
+        {
+          var value = 'Ob - ' + feature.get("NAME");
+          items.push(value);
+          observations[value] = feature;  //.get('id');
         }
       });
       hazards.forEach(function(obj)
@@ -1452,6 +1461,15 @@ qx.Class.define("mobileedd.page.Map",
           var text = new qx.event.message.Message("edd.hydrograph");
           text.setData(hydrographs[key]);
           qx.core.Init.getApplication().getRouting().executeGet("/hydrograph");
+          me.bus.dispatch(text);
+          return;
+        }
+        if (selectedItem.indexOf("Ob - ") !== -1)
+        {
+          var key = selectedItem;  //.split('Hydrograph - ')[1];
+          var text = new qx.event.message.Message("edd.observation");
+          text.setData(observations[key]);
+          qx.core.Init.getApplication().getRouting().executeGet("/observation");
           me.bus.dispatch(text);
           return;
         }

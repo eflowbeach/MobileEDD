@@ -66,10 +66,11 @@ qx.Class.define("mobileedd.Application",
       var travelhazards = mobileedd.page.PageTravelHazards.getInstance();
       var travelsample = mobileedd.page.TravelSample.getInstance();
       var hydrograph = mobileedd.page.Hydrograph.getInstance();
+      var observation = mobileedd.page.Observation.getInstance();
 
       // Add the pages to the page manager.
       var manager = new qx.ui.mobile.page.Manager(false);
-      manager.addDetail([map, hazardtext, travelhazards, travelsample, hydrograph]);
+      manager.addDetail([map, hazardtext, travelhazards, travelsample, hydrograph, observation]);
 
       // Initialize the application routing
       this.getRouting().onGet("/", this._show, map);
@@ -77,6 +78,7 @@ qx.Class.define("mobileedd.Application",
       this.getRouting().onGet("/travelhazards", this._show, travelhazards);
       this.getRouting().onGet("/travelsample", this._show, travelsample);
       this.getRouting().onGet("/hydrograph", this._show, hydrograph);
+      this.getRouting().onGet("/observation", this._show, observation);
       this.getRouting().init();
       var button = new qx.ui.mobile.basic.Image("resource/mobileedd/images/hide.png");
       button.setId("hideButton");
