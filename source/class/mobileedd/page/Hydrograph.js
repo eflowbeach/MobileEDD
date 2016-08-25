@@ -82,7 +82,7 @@ qx.Class.define("mobileedd.page.Hydrograph",
         /**
         Hydrograph
         */
-        html += '<img width="100%;" src=me.c.getSecure() + "//water.weather.gov/resources/hydrographs/' + feature.get('id').toLowerCase() + '_hg.png"><br>';
+        html += '<img width="100%;" src="' + this.c.getSecure() + '//water.weather.gov/resources/hydrographs/' + feature.get('id').toLowerCase() + '_hg.png"><br>';
 
         /**
         Table
@@ -101,6 +101,7 @@ qx.Class.define("mobileedd.page.Hydrograph",
     _back : function()
     {
       qx.core.Init.getApplication().getRouting().back();
+      new qx.bom.Selector.query('#hideButton')[0].style.visibility = "visible";
       mobileedd.page.Map.getInstance().map.updateSize();
     }
   }

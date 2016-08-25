@@ -23,7 +23,7 @@ qx.Class.define("mobileedd.Observations",
 
       // Timer
       me.timer = new qx.event.Timer(0);
-      var refreshRate = 10;  //120;
+      var refreshRate = 10;
       me.timer.addListener("interval", function(e)
       {
         me.timer.setInterval(1000 * refreshRate);
@@ -93,7 +93,9 @@ qx.Class.define("mobileedd.Observations",
               anchorXUnits : 'pixels',
               anchorYUnits : 'pixels',
               src : imageUrl,
-              scale : 1  //0.75
+              size : [72, 72]
+
+              //scale : 1  //0.75
             })
           })]
         }
@@ -141,6 +143,12 @@ qx.Class.define("mobileedd.Observations",
 
           // strategy : ol.loadingstrategy.bbox
         }));
+        if (typeof me.observationLayer == "undefined")
+        {
+          me.timer.stop();
+          console.log('could not find layer so stopping timer.');
+          return;
+        }
         if (me.observationLayer.getSource() !== null) {
           me.observationLayer.getSource().clear();
         }

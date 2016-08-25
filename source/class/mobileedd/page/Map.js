@@ -429,21 +429,21 @@ qx.Class.define("mobileedd.page.Map",
       me.observationToggleButton.addListener("changeValue", function(e)
       {
         var observationObject = mobileedd.Observations.getInstance();
-        if (typeof observationObject.observationLayer == "undefined")
+        if (typeof observationObject.observationLayer == "undefined" && e.getData())
         {
-          console.log('undefined');
           observationObject.addLayer();
-          console.log(typeof observationObject.observationLayer);
           observationObject.observationLayer.setVisible(true);
-        } else
-        {
+        } else if (typeof observationObject.observationLayer == "undefined" && !e.getData()) {
+          return;
+        } else {
           observationObject.observationLayer.setVisible(e.getData());
           if (e.getData()) {
-            observationObject.timer.start();
+            observationObject.timer.restartWith(0);
           } else {
             observationObject.timer.stop();
           }
         }
+
       }, this);
       composite.add(me.observationToggleButton);
       scrollContainer.add(composite);
@@ -485,11 +485,27 @@ qx.Class.define("mobileedd.page.Map",
         var nc = me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/rest/services/nowcoast/';
         var idp = me.c.getSecure() + '//idpgis.ncep.noaa.gov/arcgis/rest/services/';
         var qpf = 'NWS_Forecasts_Guidance_Warnings/wpc_qpf/MapServer/export';
+        var spc = 'NWS_Forecasts_Guidance_Warnings/SPC_wx_outlks/MapServer/export'
         var layer_list =
         {
           "Lightning" :
           {
             "source" : nc + "sat_meteo_emulated_imagery_lightningstrikedensity_goes_time/MapServer/export",
+            "layer" : "show:3"
+          },
+          "Convective Outlook - Day 1" :
+          {
+            "source" : idp + spc,
+            "layer" : "show:1"
+          },
+          "Convective Outlook - Day 2" :
+          {
+            "source" : idp + spc,
+            "layer" : "show:2"
+          },
+          "Convective Outlook - Day 3" :
+          {
+            "source" : idp + spc,
             "layer" : "show:3"
           },
           "Precipitation - Day 1 QPF" :
@@ -570,7 +586,7 @@ qx.Class.define("mobileedd.page.Map",
           "Hurricane Forecast Cones" :
           {
             "source" : nc + "wwa_meteocean_tropicalcyclones_trackintensityfcsts_time/MapServer/export",
-            "layer" : "show:1,6"
+            "layer" : "show:2,3,4,5,7,8,9"
           },
           "Satellite - Visible" :
           {
@@ -650,14 +666,20 @@ qx.Class.define("mobileedd.page.Map",
         me.BasemapOptions.forEach(function(obj) {
           option_names.push(obj.get('name'));
         });
+        var options = option_names.sort();
+        options.push('Cancel');
 
         //mobileedd.page.Map.getInstance().terrain.get('name')]
-        var model = new qx.data.Array(option_names.sort());
+        var model = new qx.data.Array(options);
         var menu = new qx.ui.mobile.dialog.Menu(model);
         menu.show();
         menu.addListener("changeSelection", function(evt)
         {
           var selectedItem = evt.getData().item;
+          if (selectedItem == "Cancel") {
+            return;
+          }
+          console.log('yow');
           me.setBasemap(selectedItem);
           me.setBasemapByName(selectedItem);
           me.drawer.hide();
@@ -771,6 +793,16 @@ qx.Class.define("mobileedd.page.Map",
       }, this);
       this.getRightContainer().add(menuButton);
 
+      // Reset Button
+      var resetButton = new qx.ui.mobile.navigationbar.Button("Reset");
+      resetButton.addListener("tap", function(e)
+      {
+        me.reset();
+
+        //me.drawer.show();
+      }, this);
+      this.getLeftContainer().add(resetButton);
+
       // Radar Time
       var weekday = new Array(7);
       weekday[0] = "Sun";
@@ -787,6 +819,39 @@ qx.Class.define("mobileedd.page.Map",
         me.radarTimeLabel.setValue('<b>' + dateString + '</b>');
         me.radarLegendLabel.setValue('<b>Radar - ' + dateString + '</b>');
       }, this);
+    },
+
+    /**
+        * Generate a url
+        */
+    reset : function()
+    {
+      var me = this;
+      me.loopControl.setValue(false);
+      me.radarToggleButton.setValue(false);
+      me.longLoop.setValue(false);
+
+      // Hazards
+      me.longfuseButton.setValue(false);
+      me.showLongFuseLabelButton.setValue(false);
+      me.hazardToggleButton.setValue(false);
+
+      // Observations
+      me.observationToggleButton.setValue(false);
+
+      // Rivers
+      me.riverToggleButton.setValue(false);
+      me.countyToggleButton.setValue(false);
+
+      // Toggle all other layer visibilities off
+      me.map.getLayers().getArray().forEach(function(obj) {
+        if (obj.getVisible() && obj.get('type') !== "base" && obj.get('name') != "U.S. States" && obj.get('name') != "Marker") {
+          obj.setVisible(false);
+        }
+      })
+
+      // More Layers
+      mobileedd.MoreLayers.getInstance().showLegendVisibilityOfAll(false);
     },
 
     /**
@@ -977,6 +1042,14 @@ qx.Class.define("mobileedd.page.Map",
       me.lightningContainer.add(image);
       me.legendContainer.add(me.lightningContainer);
 
+      // Scroll
+      me.dynamicLegendScrollContainer = new qx.ui.mobile.container.Scroll();
+      me.dynamicLegendContainer = new qx.ui.mobile.container.Composite();
+      me.dynamicLegendScrollContainer.add(me.dynamicLegendContainer);
+      me.legendContainer.add(me.dynamicLegendScrollContainer);
+
+      //me.dynamicLegendScrollContainer.addCssClass('white');
+
       // new qx.ui.mobile.core.Root().add(
       return me.legendContainer;
     },
@@ -1007,6 +1080,7 @@ qx.Class.define("mobileedd.page.Map",
         me.terrain = new ol.layer.Tile(
         {
           name : "Stamen Terrain",
+          type : 'base',
           source : new ol.source.Stamen( {
             layer : 'terrain'
           })
@@ -1014,6 +1088,7 @@ qx.Class.define("mobileedd.page.Map",
         me.lite = new ol.layer.Tile(
         {
           name : "Stamen Lite",
+          type : 'base',
           source : new ol.source.Stamen( {
             layer : 'toner-lite'
           })
@@ -1024,12 +1099,55 @@ qx.Class.define("mobileedd.page.Map",
         me.natgeo = new ol.layer.Tile(
         {
           name : "ESRI Nat Geo",
+          type : 'base',
           source : new ol.source.XYZ(
           {
             attributions : [attribution],
             url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}'
           })
         });
+
+        // Try someday...
+
+        // new ol.layer.Group({
+
+        //                         title: 'Satellite and labels',
+
+        //                         type: 'base',
+
+        //                         combine: true,
+
+        //                         visible: false,
+
+        //                         layers: [
+
+        //                             new ol.layer.Tile({
+
+        //                                 source: new ol.source.BingMaps({
+
+        //                                     // Get your own key at https://www.bingmapsportal.com/
+
+        //                                     key: 'Ahd_32h3fT3C7xFHrqhpKzoixGJGHvOlcvXWy6k2RRYARRsrfu7KDctzDT2ei9xB',
+
+        //                                     imagerySet: 'Aerial'
+
+        //                                 })
+
+        //                             }),
+
+        //                             new ol.layer.Tile({
+
+        //                                 source: new ol.source.Stamen({
+
+        //                                     layer: 'terrain-labels'
+
+        //                                 })
+
+        //                             })
+
+        //                         ]
+
+        //                     })
 
         // ESRI Dark
         var source = new ol.source.XYZ(
@@ -1051,6 +1169,7 @@ qx.Class.define("mobileedd.page.Map",
         me.esridark = new ol.layer.Tile(
         {
           name : "ESRI Gray",
+          type : 'base',
           source : source
         });
         var attribution = new ol.Attribution( {
@@ -1059,6 +1178,7 @@ qx.Class.define("mobileedd.page.Map",
         me.esridark_reference = new ol.layer.Tile(
         {
           name : "ESRI Gray Reference",
+          type : 'base',
           source : new ol.source.XYZ( {
             url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
           })
@@ -1066,6 +1186,7 @@ qx.Class.define("mobileedd.page.Map",
         me.esrilite = new ol.layer.Tile(
         {
           name : "ESRI Light Gray",
+          type : 'base',
           source : new ol.source.XYZ(
           {
             attributions : [attribution],
@@ -1098,6 +1219,7 @@ qx.Class.define("mobileedd.page.Map",
         me.esriimage = new ol.layer.Tile(
         {
           name : "ESRI Image",
+          type : 'base',
 
           /* ol.source.XYZ and ol.tilegrid.XYZ have no resolutions config */
           source : new ol.source.TileImage(
@@ -1135,6 +1257,7 @@ qx.Class.define("mobileedd.page.Map",
         me.esrilite_reference = new ol.layer.Tile(
         {
           name : "ESRI Light Gray Reference",
+          type : 'base',
           source : new ol.source.XYZ( {
             url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
           })
@@ -1146,6 +1269,7 @@ qx.Class.define("mobileedd.page.Map",
         me.esritopo = new ol.layer.Tile(
         {
           name : "ESRI Topo",
+          type : 'base',
           source : new ol.source.TileImage(
           {
             attributions : [attribution],
@@ -1359,7 +1483,7 @@ qx.Class.define("mobileedd.page.Map",
     handleMapClick : function(e)
     {
       var me = this;
-      var items = [];
+      var items = ['Get Forecast For This Point...'];
       var hazards = [];
       var travelSegment = [];
       var travelPoint = [];
@@ -1429,10 +1553,65 @@ qx.Class.define("mobileedd.page.Map",
       var model = new qx.data.Array(items);
       var menu = new qx.ui.mobile.dialog.Menu(model);
       menu.show();
+
+      // Parse for hazards and highlight
+      new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2)
+      {
+        if (div.innerHTML.indexOf("Warning") !== -1) {
+          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'background-color:#FF5D5D;')
+        }
+        if (div.innerHTML.indexOf("Watch") !== -1) {
+          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'background-color:#FEBB39;')
+        }
+        if (div.innerHTML.indexOf("Advisory") !== -1) {
+          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'background-color:#FDF028;')
+        }
+      })
+
+      // Get address
+      var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
+      var geo = new mobileedd.geo.EsriGeo();
+      geo.reverseGeocodeReq.addListenerOnce("success", function(e)
+      {
+        var response = e.getTarget().getResponse();
+        try
+        {
+          var address = response.address.City + ', ' + response.address.Region;  //Match_addr;
+
+          //     this.__start.setValue(address)
+          new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2) {
+            if (div.innerHTML == 'Get Forecast For This Point...')
+            {
+              div.innerHTML = 'Get Forecast For ' + address;  // This Point...'
+
+              // Divide index2 by 2 as 2 divs comprise a button
+
+              // Select the li tag for styling
+
+              //qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'background-color:#63FF72;')
+            }
+          })
+        }catch (e) {
+          return;
+        }
+      }, this)
+      geo.reverseGeoRequest(ll[1], ll[0]);
+
+      // Handle selection
       menu.addListenerOnce("changeSelection", function(evt)
       {
         var selectedIndex = evt.getData().index;
         var selectedItem = evt.getData().item;
+        if (selectedItem.indexOf("Get Forecast For") !== -1)
+        {
+          var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
+          mobileedd.page.Forecast.getInstance();
+          var text = new qx.event.message.Message("edd.forecast");
+          text.setData(ll);
+          qx.core.Init.getApplication().getRouting().executeGet("/forecast");
+          me.bus.dispatch(text);
+          return;
+        }
         if (selectedItem == "Set Travel Destination")
         {
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
@@ -1531,7 +1710,7 @@ qx.Class.define("mobileedd.page.Map",
               var text = new qx.event.message.Message("edd.hazard");
               var html = '';
               if ((phenom == "TO" | phenom == "SV" | phenom == "FF") && sig == 'W') {
-                html += '<img style="width: 100%;" src=me.c.getSecure() + "//www.weather.gov/images/crh/impact/K' + wfo + "_" + phenom + "_" + eventid + "_" + feature.get('end') + '.png">';
+                html += '<img style="width: 100%;" src="' + me.c.getSecure() + '//www.weather.gov/images/crh/impact/K' + wfo + "_" + phenom + "_" + eventid + "_" + feature.get('end') + '.png">';
               }
               html += e.getTarget().getResponse().data[0].report;
               text.setData(html);

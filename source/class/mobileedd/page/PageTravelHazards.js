@@ -494,6 +494,7 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
     _back : function()
     {
       qx.core.Init.getApplication().getRouting().back();
+      new qx.bom.Selector.query('#hideButton')[0].style.visibility = "visible";
       mobileedd.page.Map.getInstance().map.updateSize();
     }
   }

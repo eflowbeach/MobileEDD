@@ -171,10 +171,7 @@ qx.Class.define("mobileedd.page.Observation",
               }
             }]
           });
-          
-         
 
-  
           // Wind
           $.plot("#windgraph", [
           {
@@ -450,6 +447,7 @@ qx.Class.define("mobileedd.page.Observation",
     _back : function()
     {
       qx.core.Init.getApplication().getRouting().back();
+      new qx.bom.Selector.query('#hideButton')[0].style.visibility = "visible";
       mobileedd.page.Map.getInstance().map.updateSize();
     }
   }

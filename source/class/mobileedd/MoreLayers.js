@@ -28,6 +28,17 @@ qx.Class.define("mobileedd.MoreLayers",
     me.layers = {
 
     };
+    me.html = {
+
+    }
+
+    // Use for legends
+    var req = new qx.bom.request.Script();
+    req.open("GET", "resource/mobileedd/libs/d3.min.js");
+    req.send();
+    var req = new qx.bom.request.Script();
+    req.open("GET", "resource/mobileedd/libs/x2js.js");
+    req.send();
 
     // Set up the query timestamp request
 
@@ -82,13 +93,56 @@ qx.Class.define("mobileedd.MoreLayers",
     }, this);
     me.timer.start();
   },
-  members : {
+  members :
+  {
+    showLegendVisibilityOfAll : function(bool)
+    {
+      var me = this;
+      Object.keys(me.layers).forEach(function(obj)
+      {
+        me.html[obj].setVisibility('excluded');  //le(bool);
+      })
+      if (bool) {
+        me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
+      } else {
+        me.mapObject.dynamicLegendScrollContainer.removeCssClass('white');
+      }
+    },
+
     /**
     * Add a new radar Layer
     */
     addRestLayer : function(name, source, layer, time)
     {
       var me = this;
+
+      // A way to get at the timestamp for idp services.
+
+      // var req = new qx.io.request.Xhr();
+
+      // req.setUrl(this.c.getSecure() + '//idpgis.ncep.noaa.gov/arcgis/services/NWS_Forecasts_Guidance_Warnings/SPC_wx_outlks/MapServer/WFSServer?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=SPC_wx_outlks:Day_1_Convective_Outlook&SRSNAME=EPSG%3A4326');
+
+      // req.addListener("success", function(e)
+
+      // {
+
+      //   var req = e.getTarget();
+
+      //   var x2js = new X2JS();
+
+      //   // Response parsed according to the server's
+
+      //   // response content type, e.g. JSON
+
+      //   var json = x2js.xml_str2json(req.getResponse());
+
+      //   console.log(new moment.utc(json.FeatureCollection.featureMember[1].Day_1_Convective_Outlook.valid.__text, "YYYYMMDDHHmm").local().format("HHmm a MM/DD/YYYY"));
+
+      // }, this);
+
+      // // Send request
+
+      // req.send();
       if (name == "Lightning")
       {
         me.ltgReq.send();
@@ -101,7 +155,6 @@ qx.Class.define("mobileedd.MoreLayers",
         me.qpeReq.send();
         me.mapObject.qpeContainer.setVisibility('visible')
       }
-      console.log(name, source, layer, time);
       var time_range = time + ',' + time;
       if (typeof me.map == "undefined") {
         return;
@@ -109,6 +162,18 @@ qx.Class.define("mobileedd.MoreLayers",
       if (typeof this.layers[name] !== "undefined") {
         if (this.layers[name].getVisible())
         {
+          me.html[name].setVisibility('excluded');
+
+          // Hide legend if all containers are hidden
+          var remove = true;
+          Object.keys(me.html).forEach(function(obj) {
+            if (me.html[obj].getVisibility() == "visible") {
+              remove = false;
+            }
+          })
+          if (remove) {
+            me.mapObject.dynamicLegendScrollContainer.removeCssClass('white');
+          }
           if (name == "Lightning") {
             me.mapObject.lightningContainer.setVisibility('excluded');
           } else if (name.indexOf("QPE") !== -1) {
@@ -119,6 +184,10 @@ qx.Class.define("mobileedd.MoreLayers",
           return;
         } else
         {
+          me.html[name].setVisibility('visible');
+
+          // Ensure legend is shown
+          me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
           if (name == "Lightning") {
             me.mapObject.lightningContainer.setVisibility('visible');
           } else if (name.indexOf("QPE") !== -1) {
@@ -136,7 +205,7 @@ qx.Class.define("mobileedd.MoreLayers",
         {
           params :
           {
-            'LAYERS' : layer,  //'show:3',
+            'LAYERS' : layer,
             'F' : 'image',
             'FORMAT' : 'PNG8',
             'TRANSPARENT' : 'true',
@@ -150,14 +219,52 @@ qx.Class.define("mobileedd.MoreLayers",
         })
       });
       me.map.addLayer(me.layers[name]);
-
-      //me.layers[time].setVisible(false);
       me.layers[name].setOpacity(me.getOpacity());
 
       // Silly way to get Vector Layer on top...
       var statesLayer = me.mapObject.getLayerByName("U.S. States");
       me.map.removeLayer(statesLayer);
       me.map.getLayers().setAt(me.map.getLayers().getArray().length, statesLayer);
+
+      // Generate the Legend
+      if (name == "Lightning") {
+        return;
+      }
+      me.reqArcGIS = new qx.io.request.Jsonp(source.replace('export', 'legend') + "?f=json", "GET", "application/json");
+      me.reqArcGIS.setCache(false);
+      me.reqArcGIS.addListenerOnce("success", function(e)
+      {
+        var response = e.getTarget();
+        var data = response.getResponse();
+        var html = '';
+
+        // split the layer call apart show:1,2,3 becomes [1,2,3] (qooxdoo array used for contains()
+        var test = new qx.data.Array(layer.split(':')[1].split(','))
+        if (typeof (data.layers) != "undefined") {
+          data.layers.forEach(function(obj, index) {
+            // if lyr_id is just show or blank: they are requesting all of the layers
+            if (test.contains(obj.layerId + '') || test.toArray()[0] == "" || layer == "show:")
+            {
+              if (typeof (obj.layerName) !== "undefined") {
+                html += '<b>' + obj.layerName + '</b><br>';
+              } else {
+                html += 'Could not find legend data.<br>';
+              }
+              if (typeof (obj.legend) !== "undefined") {
+                obj.legend.forEach(function(obj2, index2) {
+                  html += '<img style="position: relative; top: 8px;" src="data:image/png;base64,' + obj2.imageData + '"/>' + obj2.label.replace('0000001', '') + '<br>';
+                });
+              }
+            }
+          });
+        } else {
+          html += "Layer legend could not be found.";
+        }
+        me.html[name] = new qx.ui.mobile.embed.Html(html);
+        me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
+        me.mapObject.dynamicLegendContainer.add(me.html[name]);
+      }, this);
+      me.reqArcGIS.send();
     }
   }
 });

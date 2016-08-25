@@ -44,6 +44,7 @@ qx.Class.define("mobileedd.page.HazardText",
     _back : function()
     {
       qx.core.Init.getApplication().getRouting().back();
+      new qx.bom.Selector.query('#hideButton')[0].style.visibility = "visible";
       mobileedd.page.Map.getInstance().map.updateSize();
     }
   }

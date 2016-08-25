@@ -67,10 +67,11 @@ qx.Class.define("mobileedd.Application",
       var travelsample = mobileedd.page.TravelSample.getInstance();
       var hydrograph = mobileedd.page.Hydrograph.getInstance();
       var observation = mobileedd.page.Observation.getInstance();
+      var forecast = mobileedd.page.Forecast.getInstance();
 
       // Add the pages to the page manager.
       var manager = new qx.ui.mobile.page.Manager(false);
-      manager.addDetail([map, hazardtext, travelhazards, travelsample, hydrograph, observation]);
+      manager.addDetail([map, hazardtext, travelhazards, travelsample, hydrograph, observation, forecast]);
 
       // Initialize the application routing
       this.getRouting().onGet("/", this._show, map);
@@ -79,8 +80,9 @@ qx.Class.define("mobileedd.Application",
       this.getRouting().onGet("/travelsample", this._show, travelsample);
       this.getRouting().onGet("/hydrograph", this._show, hydrograph);
       this.getRouting().onGet("/observation", this._show, observation);
+      this.getRouting().onGet("/forecast", this._show, forecast);
       this.getRouting().init();
-      var button = new qx.ui.mobile.basic.Image("resource/mobileedd/images/hide.png");
+      var button = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legendOn.png");
       button.setId("hideButton");
       var slide =
       {
@@ -121,15 +123,15 @@ qx.Class.define("mobileedd.Application",
         }
       };
       button.addListener("tap", function(e) {
-        if (button.getSource() == "resource/mobileedd/images/hide.png")
+        if (button.getSource() == "resource/mobileedd/images/legendOn.png")
         {
-          button.setSource("resource/mobileedd/images/show.png");
+          button.setSource("resource/mobileedd/images/legendOff.png");
           qx.bom.element.Animation.animate(mobileedd.page.Map.getInstance().legendContainer.getContentElement(), slide, 300);
 
           //mobileedd.page.Map.getInstance().legendContainer.setVisibility("excluded");
         } else
         {
-          button.setSource("resource/mobileedd/images/hide.png")
+          button.setSource("resource/mobileedd/images/legendOn.png")
           qx.bom.element.Animation.animateReverse(mobileedd.page.Map.getInstance().legendContainer.getContentElement(), slide, 300);
 
           //mobileedd.page.Map.getInstance().legendContainer.setVisibility("visible");
@@ -142,7 +144,14 @@ qx.Class.define("mobileedd.Application",
      * Default behaviour when a route matches. Displays the corresponding page on screen.
      * @param data {Map} the animation properties
      */
-    _show : function(data) {
+    _show : function(data)
+    {
+      try {
+        new qx.bom.Selector.query('#hideButton')[0].style.visibility = "hidden";
+      }catch (e)
+      {
+        // not ready yet
+      }
       this.show(data.customData);
     }
   }
