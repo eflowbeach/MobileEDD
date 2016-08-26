@@ -74,9 +74,7 @@ qx.Class.define("mobileedd.MoreLayers",
     me.timer.addListener("interval", function(e)
     {
       me.timer.setInterval(1000 * refreshRate);
-      Object.keys(me.layers).forEach(function(obj)
-      {
-        console.log(obj);
+      Object.keys(me.layers).forEach(function(obj) {
         if (this.layers[obj].getVisible())
         {
           if (obj == "Lightning") {
@@ -98,23 +96,28 @@ qx.Class.define("mobileedd.MoreLayers",
     showLegendVisibilityOfAll : function(bool)
     {
       var me = this;
-      Object.keys(me.layers).forEach(function(obj)
-      {
-        me.html[obj].setVisibility('excluded');  //le(bool);
+      Object.keys(me.layers).forEach(function(obj) {
+        me.html[obj].setVisibility('excluded');
       })
       if (bool) {
         me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
       } else {
         me.mapObject.dynamicLegendScrollContainer.removeCssClass('white');
       }
+      me.mapObject.qpeContainer.setVisibility('excluded');
     },
 
     /**
     * Add a new radar Layer
     */
-    addRestLayer : function(name, source, layer, time)
+    addRestLayer : function(params)
     {
       var me = this;
+      var name = params.name;
+      var source = params.source;
+      var layer = params.layer;
+      var time = params.time;
+      var group = params.group;
 
       // A way to get at the timestamp for idp services.
 
@@ -154,6 +157,9 @@ qx.Class.define("mobileedd.MoreLayers",
         me.qpeReq.setUrl(me.c.getSecure() + "//nowcoast.noaa.gov/layerinfo?request=timestops&service=analysis_meteohydro_sfc_qpe_time&layers=" + layerValue + "&format=jsonp")
         me.qpeReq.send();
         me.mapObject.qpeContainer.setVisibility('visible')
+      }
+      if (typeof time == "undefined") {
+        time = new Date().getTime();
       }
       var time_range = time + ',' + time;
       if (typeof me.map == "undefined") {
@@ -207,7 +213,7 @@ qx.Class.define("mobileedd.MoreLayers",
           {
             'LAYERS' : layer,
             'F' : 'image',
-            'FORMAT' : 'PNG8',
+            'FORMAT' : (name == "Observations") ? 'PNG32' : 'PNG8',
             'TRANSPARENT' : 'true',
             'BBOXSR' : '3857',
             'IMAGESR' : '3857',
@@ -220,14 +226,21 @@ qx.Class.define("mobileedd.MoreLayers",
       });
       me.map.addLayer(me.layers[name]);
       me.layers[name].setOpacity(me.getOpacity());
+      me.layers[name].group = group;
 
       // Silly way to get Vector Layer on top...
       var statesLayer = me.mapObject.getLayerByName("U.S. States");
       me.map.removeLayer(statesLayer);
       me.map.getLayers().setAt(me.map.getLayers().getArray().length, statesLayer);
 
-      // Generate the Legend
-      if (name == "Lightning") {
+      /**
+       * Generate the Legend
+       */
+
+      // For lightning ignore
+      if (name == "Lightning")
+      {
+        me.html[name] = new qx.ui.mobile.embed.Html('');
         return;
       }
       me.reqArcGIS = new qx.io.request.Jsonp(source.replace('export', 'legend') + "?f=json", "GET", "application/json");

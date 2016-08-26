@@ -1,3 +1,6 @@
+function isCluster(feature) {
+  return !feature || !feature.get('features');
+}
 function kt2mph(a){return a*1.15077945;}
 function degToCompass(b){var c=parseInt((b/22.5)+0.5);var a=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];return a[(c%16)]}
 function mph2kt(a){return a*0.868976242;}

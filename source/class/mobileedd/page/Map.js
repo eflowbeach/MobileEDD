@@ -394,8 +394,6 @@ qx.Class.define("mobileedd.page.Map",
         * Longfuse - Show Label
         */
       me.showHazardLabelComposite = new qx.ui.mobile.container.Composite();
-
-      //me.showHazardLabelComposite.addCssClass("hboxPad");
       me.showHazardLabelComposite.setLayout(new qx.ui.mobile.layout.HBox());
       var showHazardLabel = new qx.ui.mobile.basic.Label("Show Label: ");
       showHazardLabel.addCssClass("loopLabel");
@@ -444,9 +442,111 @@ qx.Class.define("mobileedd.page.Map",
           }
         }
 
+        //Hide show option containers
+        if (e.getData())
+        {
+          me.obDisplayFieldContainer.setVisibility('visible');
+          me.obPeriodContainer.setVisibility('visible');
+
+          //me.obBusyIndicator.setVisibility('visible');
+        } else
+        {
+          me.obPeriodContainer.setVisibility('excluded');
+          me.obDisplayFieldContainer.setVisibility('excluded');
+          me.obBusyIndicator.setVisibility('excluded');
+        }
       }, this);
       composite.add(me.observationToggleButton);
       scrollContainer.add(composite);
+      me.obBusyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
+      me.obBusyIndicator.setVisibility('excluded');
+      qx.bom.element.Style.setCss(me.obBusyIndicator.getContainerElement(), 'background-color:#bbbbbb;');
+      scrollContainer.add(me.obBusyIndicator);
+
+      /**
+       * Observation display field
+       * */
+      me.obDisplayFieldContainer = new qx.ui.mobile.container.Composite();
+      me.obDisplayFieldContainer.setVisibility('excluded');
+      me.obDisplayFieldContainer.setLayout(new qx.ui.mobile.layout.HBox());
+      var obDisplayFieldLabel = new qx.ui.mobile.basic.Label("Displayed Field:");
+      obDisplayFieldLabel.addCssClass("loopLabel");
+      me.obDisplayFieldContainer.add(obDisplayFieldLabel, {
+        flex : 1
+      });
+
+      // // fieldDisplayED MENU POPUP
+      me.obDisplayButton = new qx.ui.mobile.form.Button("Temperature");
+      me.obDisplayButton.addListener("tap", function(e) {
+        this.__fieldDisplayMenu.show();
+      }, this);
+      var fieldDisplayMenuModel = new qx.data.Array(["Temperature", "Dew Point", "RH", "Heat Index", "Wind Speed", "Wind Gust", "Precipitation", "Meteorological Ob", "Wave Height", "Primary Swell", "Visibility"]);
+      this.__fieldDisplayMenu = new qx.ui.mobile.dialog.Menu(fieldDisplayMenuModel, me.obDisplayButton);
+      this.__fieldDisplayMenu.setTitle("Field");
+      this.__fieldDisplayMenu.addListener("changeSelection", function(e)
+      {
+        console.log("Received <b>changeSelection</b> from Menu Dialog. [index: " + e.getData().index + "] [item: " + e.getData().item + "]");
+        if (e.getData().item == "Precipitation") {
+          me.obPeriodContainer.setVisibility('visible');
+        } else {
+          me.obPeriodContainer.setVisibility('excluded');
+        }
+        me.obDisplayButton.setValue(e.getData().item);
+        mobileedd.Observations.getInstance().setDisplayField(e.getData().item);
+      }, this);
+      me.obDisplayFieldContainer.add(me.obDisplayButton);
+      scrollContainer.add(me.obDisplayFieldContainer);
+
+      /**
+       * Observation Period
+       * */
+      me.obPeriodContainer = new qx.ui.mobile.container.Composite();
+      me.obPeriodContainer.setVisibility('excluded');
+
+      // me.obPeriod.addCssClass("hboxPad");
+      me.obPeriodContainer.setLayout(new qx.ui.mobile.layout.HBox());
+      var obPeriodLabel = new qx.ui.mobile.basic.Label("Ob Period (hours):");
+      obPeriodLabel.addCssClass("loopLabel");
+      me.obPeriodContainer.add(obPeriodLabel, {
+        flex : 1
+      });
+      me.obPeriodButton = new qx.ui.mobile.form.Button("1");
+      me.obPeriodButton.addListener("tap", function(e) {
+        this.__obPeriodMenu.show();
+      }, this);
+      var obPeriodMenuModel = new qx.data.Array(["1", "2", "3", "6", "12", "24", "48"]);
+      this.__obPeriodMenu = new qx.ui.mobile.dialog.Menu(obPeriodMenuModel, me.obPeriodButton);
+      this.__obPeriodMenu.setTitle("Last X hours");
+      this.__obPeriodMenu.addListener("changeSelection", function(e)
+      {
+        console.log("Received <b>changeSelection</b> from Menu Dialog. [index: " + e.getData().index + "] [item: " + e.getData().item + "]");
+        me.obPeriodButton.setValue(e.getData().item);
+        mobileedd.Observations.getInstance().setPeriod(e.getData().item);
+      }, this);
+      me.obPeriodContainer.add(me.obPeriodButton);
+      scrollContainer.add(me.obPeriodContainer);
+
+      // var form = new qx.ui.mobile.form.Form();
+
+      // this.__slider = new qx.ui.mobile.form.Slider();
+
+      // this.__slider.setDisplayValue("value");
+
+      // this.__slider.setMaximum(500);
+
+      // form.add(this.__slider,"Move slider:");
+
+      // this.__dataLabel = new qx.ui.mobile.form.TextField();
+
+      // this.__dataLabel.setValue("0");
+
+      // this.__dataLabel.setReadOnly(true);
+
+      // form.add(this.__dataLabel, " Slider value: ");
+
+      // this.__dataLabel.bind("value", this.__slider, "value");
+
+      // this.__slider.bind("value", this.__dataLabel, "value");
 
       /**
       * River Container
@@ -493,148 +593,162 @@ qx.Class.define("mobileedd.page.Map",
             "source" : nc + "sat_meteo_emulated_imagery_lightningstrikedensity_goes_time/MapServer/export",
             "layer" : "show:3"
           },
-          "Convective Outlook - Day 1" :
-          {
-            "source" : idp + spc,
-            "layer" : "show:1"
+
+          //   "Observations" :
+
+          // {
+
+          //   "source" : nc + "obs_meteocean_insitu_sfc_time/MapServer/export",
+
+          //   "layer" : "show:0"
+
+          // },
+          "Fire" : {
+            "group" : {
+              "Active Fire Perimeters" :
+              {
+                "source" : me.c.getSecure() + "//tmservices1.esri.com/arcgis/rest/services/LiveFeeds/Wildfire_Activity/MapServer/export",
+                "layer" : "show:2"
+              }
+            }
           },
-          "Convective Outlook - Day 2" :
-          {
-            "source" : idp + spc,
-            "layer" : "show:2"
+          "Convective Outlooks" : {
+            "group" :
+            {
+              "Convective Outlook - Day 1" :
+              {
+                "source" : idp + spc,
+                "layer" : "show:1"
+              },
+              "Convective Outlook - Day 2" :
+              {
+                "source" : idp + spc,
+                "layer" : "show:2"
+              },
+              "Convective Outlook - Day 3" :
+              {
+                "source" : idp + spc,
+                "layer" : "show:3"
+              }
+            }
           },
-          "Convective Outlook - Day 3" :
-          {
-            "source" : idp + spc,
-            "layer" : "show:3"
-          },
-          "Precipitation - Day 1 QPF" :
-          {
-            "source" : idp + qpf,
-            "layer" : "show:1"
-          },
-          "Precipitation - Day 2 QPF" :
-          {
-            "source" : idp + qpf,
-            "layer" : "show:2"
-          },
-          "Precipitation - Day 3 QPF" :
-          {
-            "source" : idp + qpf,
-            "layer" : "show:3"
-          },
-          "Precipitation - Day 4-5 QPF" :
-          {
-            "source" : idp + qpf,
-            "layer" : "show:4"
-          },
-          "Precipitation - Day 6-7 QPF" :
-          {
-            "source" : idp + qpf,
-            "layer" : "show:5"
-          },
-          "Precipitation - Day 1-2 QPF" :
-          {
-            "source" : idp + qpf,
-            "layer" : "show:8"
-          },
-          "Precipitation - Day 1-5 QPF" :
-          {
-            "source" : idp + qpf,
-            "layer" : "show:9"
-          },
-          "Precipitation - Day 1-7 QPF" :
-          {
-            "source" : idp + qpf,
-            "layer" : "show:10"
-          },
-          "Precipitation - 1 hour QPE" :
-          {
-            "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
-            "layer" : "show:3"
-          },
-          "Precipitation - 3 hour QPE" :
-          {
-            "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
-            "layer" : "show:7"
-          },
-          "Precipitation - 6 hour QPE" :
-          {
-            "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
-            "layer" : "show:11"
-          },
-          "Precipitation - 12 hour QPE" :
-          {
-            "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
-            "layer" : "show:15"
-          },
-          "Precipitation - 24 hour QPE" :
-          {
-            "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
-            "layer" : "show:19"
-          },
-          "Precipitation - 48 hour QPE" :
-          {
-            "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
-            "layer" : "show:23"
-          },
-          "Precipitation - 72 hour QPE" :
-          {
-            "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
-            "layer" : "show:27"
+          "Precipitation" : {
+            "group" :
+            {
+              "Precipitation - Day 1 QPF" :
+              {
+                "source" : idp + qpf,
+                "layer" : "show:1"
+              },
+              "Precipitation - Day 2 QPF" :
+              {
+                "source" : idp + qpf,
+                "layer" : "show:2"
+              },
+              "Precipitation - Day 3 QPF" :
+              {
+                "source" : idp + qpf,
+                "layer" : "show:3"
+              },
+              "Precipitation - Day 4-5 QPF" :
+              {
+                "source" : idp + qpf,
+                "layer" : "show:4"
+              },
+              "Precipitation - Day 6-7 QPF" :
+              {
+                "source" : idp + qpf,
+                "layer" : "show:5"
+              },
+              "Precipitation - Day 1-2 QPF" :
+              {
+                "source" : idp + qpf,
+                "layer" : "show:8"
+              },
+              "Precipitation - Day 1-5 QPF" :
+              {
+                "source" : idp + qpf,
+                "layer" : "show:9"
+              },
+              "Precipitation - Day 1-7 QPF" :
+              {
+                "source" : idp + qpf,
+                "layer" : "show:10"
+              },
+              "Precipitation - 1 hour QPE" :
+              {
+                "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
+                "layer" : "show:3"
+              },
+              "Precipitation - 3 hour QPE" :
+              {
+                "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
+                "layer" : "show:7"
+              },
+              "Precipitation - 6 hour QPE" :
+              {
+                "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
+                "layer" : "show:11"
+              },
+              "Precipitation - 12 hour QPE" :
+              {
+                "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
+                "layer" : "show:15"
+              },
+              "Precipitation - 24 hour QPE" :
+              {
+                "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
+                "layer" : "show:19"
+              },
+              "Precipitation - 48 hour QPE" :
+              {
+                "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
+                "layer" : "show:23"
+              },
+              "Precipitation - 72 hour QPE" :
+              {
+                "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
+                "layer" : "show:27"
+              }
+            }
           },
           "Hurricane Forecast Cones" :
           {
             "source" : nc + "wwa_meteocean_tropicalcyclones_trackintensityfcsts_time/MapServer/export",
             "layer" : "show:2,3,4,5,7,8,9"
           },
-          "Satellite - Visible" :
-          {
-            "source" : nc + "sat_meteo_imagery_goes_time/MapServer/export",
-            "layer" : "show:3"
-          },
-          "Satellite - IR" :
-          {
-            "source" : nc + "sat_meteo_imagery_goes_time/MapServer/export",
-            "layer" : "show:11"
-          },
-          "Satellite - Water Vapor" :
-          {
-            "source" : nc + "sat_meteo_imagery_goes_time/MapServer/export",
-            "layer" : "show:7"
-          },
-          "- Close - " :
-          {
-            "source" : null,
-            "layer" : null
+          "Satellite" : {
+            "group" :
+            {
+              "Satellite - Visible" :
+              {
+                "source" : nc + "sat_meteo_imagery_goes_time/MapServer/export",
+                "layer" : "show:3"
+              },
+              "Satellite - IR" :
+              {
+                "source" : nc + "sat_meteo_imagery_goes_time/MapServer/export",
+                "layer" : "show:11"
+              },
+              "Satellite - Water Vapor" :
+              {
+                "source" : nc + "sat_meteo_imagery_goes_time/MapServer/export",
+                "layer" : "show:7"
+              }
+            }
           }
         };
-
-        // Alphanumeric sort
-        var reA = /[^a-zA-Z]/g;
-        var reN = /[^0-9]/g;
-        function sortAlphaNum(a, b)
-        {
-          var aA = a.replace(reA, "");
-          var bA = b.replace(reA, "");
-          if (aA === bA)
-          {
-            var aN = parseInt(a.replace(reN, ""), 10);
-            var bN = parseInt(b.replace(reN, ""), 10);
-            return aN === bN ? 0 : aN > bN ? 1 : -1;
-          } else
-          {
-            return aA > bA ? 1 : -1;
-          }
-        }
-        var items = Object.keys(layer_list).sort(sortAlphaNum);
+        var items = Object.keys(layer_list).sort(me.sortAlphaNum);
+        items.push('Cancel');
         var model = new qx.data.Array(items);
         var menu = new qx.ui.mobile.dialog.Menu(model);
         menu.show();
 
         // Loop through More Layers layers to find which ones are selected then color the background green
         var mlClass = mobileedd.MoreLayers.getInstance();
-        Object.keys(mlClass.layers).forEach(function(obj, index) {
+        Object.keys(mlClass.layers).forEach(function(obj, index)
+        {
+          console.log(obj);
           if (mlClass.layers[obj].getVisible()) {
             new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2) {
               if (div.innerHTML == obj) {
@@ -649,8 +763,61 @@ qx.Class.define("mobileedd.page.Map",
         menu.addListener("changeSelection", function(evt)
         {
           var selectedItem = evt.getData().item;
+          if (selectedItem == 'Cancel') {
+            return;
+          }
+          me.group = selectedItem;
           var layer = layer_list[selectedItem];
-          mobileedd.MoreLayers.getInstance().addRestLayer(selectedItem, layer.source, layer.layer, layer.time);
+          if (layer.group)
+          {
+            var subitems = Object.keys(layer.group).sort(me.sortAlphaNum);
+            subitems.push('Cancel');
+            var submodel = new qx.data.Array(subitems);
+            var submenu = new qx.ui.mobile.dialog.Menu(submodel);
+            submenu.show();
+
+            // Loop through More Layers layers to find which ones are selected then color the background green
+            var mlClass = mobileedd.MoreLayers.getInstance();
+            Object.keys(mlClass.layers).forEach(function(obj, index) {
+              if (mlClass.layers[obj].getVisible()) {
+                new qx.bom.Selector.query('li>div>div', submenu.getContainerElement()).forEach(function(div, index2) {
+                  if (div.innerHTML == obj) {
+                    // Divide index2 by 2 as 2 divs comprise a button
+
+                    // Select the li tag for styling
+                    qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', submenu.getContainerElement())[index2 / 2], 'background-color:#63FF72;')
+                  }
+                })
+              }
+            }, this)
+            submenu.addListener("changeSelection", function(evt)
+            {
+              var selectedItem = evt.getData().item;
+              if (selectedItem == 'Cancel') {
+                return;
+              }
+              var layer = layer_list[me.group].group[selectedItem];
+              var params =
+              {
+                "name" : selectedItem,
+                "source" : layer.source,
+                "layer" : layer.layer,
+                "time" : layer.time,
+                "group" : me.group
+              };
+              mobileedd.MoreLayers.getInstance().addRestLayer(params);
+              me.drawer.hide();
+            }, this);
+            return;
+          }
+          var params =
+          {
+            "name" : selectedItem,
+            "source" : layer.source,
+            "layer" : layer.layer,
+            "time" : layer.time
+          };
+          mobileedd.MoreLayers.getInstance().addRestLayer(params);
           me.drawer.hide();
         }, this);
       }, this);
@@ -679,7 +846,6 @@ qx.Class.define("mobileedd.page.Map",
           if (selectedItem == "Cancel") {
             return;
           }
-          console.log('yow');
           me.setBasemap(selectedItem);
           me.setBasemapByName(selectedItem);
           me.drawer.hide();
@@ -819,6 +985,24 @@ qx.Class.define("mobileedd.page.Map",
         me.radarTimeLabel.setValue('<b>' + dateString + '</b>');
         me.radarLegendLabel.setValue('<b>Radar - ' + dateString + '</b>');
       }, this);
+    },
+
+    // Alphanumeric sort
+    sortAlphaNum : function(a, b)
+    {
+      var reA = /[^a-zA-Z]/g;
+      var reN = /[^0-9]/g;
+      var aA = a.replace(reA, "");
+      var bA = b.replace(reA, "");
+      if (aA === bA)
+      {
+        var aN = parseInt(a.replace(reN, ""), 10);
+        var bN = parseInt(b.replace(reN, ""), 10);
+        return aN === bN ? 0 : aN > bN ? 1 : -1;
+      } else
+      {
+        return aA > bA ? 1 : -1;
+      }
     },
 
     /**
@@ -1516,9 +1700,14 @@ qx.Class.define("mobileedd.page.Map",
         }
         if (layer.get('name') == "Observations")
         {
-          var value = 'Ob - ' + feature.get("NAME");
-          items.push(value);
-          observations[value] = feature;  //.get('id');
+          var features = feature.get('features');
+          var features = feature.get('features');
+          for (var i = 0; i < features.length; i++)
+          {
+            var value = 'Ob - ' + features[i].get("NAME");
+            items.push(value);
+            observations[value] = features[i];  //.get('id');
+          }
         }
       });
       hazards.forEach(function(obj)
