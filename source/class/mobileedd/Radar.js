@@ -86,8 +86,10 @@ qx.Class.define("mobileedd.Radar",
               var radarLoopSlider = mapClass.radarLoopSlider;
               radarLoopSlider.setValue(radarLoopSlider.getMaximum() - 1);
 
-              // Show latest
-              radarLoopSlider.setValue(radarLoopSlider.getMaximum());
+              // Show latest - wait a 1/2 second so listeners get initialized
+              new qx.event.Timer.once(function() {
+                radarLoopSlider.setValue(radarLoopSlider.getMaximum());
+              }, this, 500);
             }
           }
         }

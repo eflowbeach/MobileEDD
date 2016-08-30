@@ -50,26 +50,188 @@ qx.Class.define("mobileedd.page.Map",
   {
     this.base(arguments);
     this.c = mobileedd.config.Config.getInstance();
+    this.bus = qx.event.message.Bus.getInstance();
     this.setTitle("Mobile EDD");
     var me = this;
 
-    // if (window.location.hostname.indexOf('preview.w') == -1)
-
-    // {
+    // Set the service root
     me.setJsonpRoot(me.c.getSecure() + "//preview.weather.gov/edd/resource/edd/");
-    me.setMapUri("resource/mobileedd/ol.js");
 
-    // } else
+    /**
+     * Mapping Library
+     * */
 
-    // {
-
-    //   me.setJsonpRoot(me.c.getSecure() + "//dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/");
+    //me.setMapUri("resource/mobileedd/ol.js");
     me.setMapUri("resource/mobileedd/ol-debug.js");
 
-    // }
-    this.bus = qx.event.message.Bus.getInstance();
+    // Busy indicator
     var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
     this.busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
+
+    /**
+     * Set up common urls for "More Layers"
+     * */
+    var msExport = '/MapServer/export';
+    var nc = me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/rest/services/nowcoast/';
+    var idp = me.c.getSecure() + '//idpgis.ncep.noaa.gov/arcgis/rest/services/';
+    var qpf = 'NWS_Forecasts_Guidance_Warnings/wpc_qpf' + msExport;
+    var spc = 'NWS_Forecasts_Guidance_Warnings/SPC_wx_outlks' + msExport;
+    this.layer_list =
+    {
+      "Lightning" :
+      {
+        "source" : nc + "sat_meteo_emulated_imagery_lightningstrikedensity_goes_time" + msExport,
+        "layer" : "show:3"
+      },
+      "Observations" :
+      {
+        "source" : nc + "obs_meteocean_insitu_sfc_time" + msExport,
+        "layer" : "show:0"
+      },
+      "Hydrology" : {
+        "group" : {
+          "National Water Model" :
+          {
+            "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/river_network" + msExport,
+            "layer" : "show:0,1,2,3"
+          }
+        }
+      },
+      "Fire" : {
+        "group" : {
+          "Active Fire Perimeters" :
+          {
+            "source" : me.c.getSecure() + "//tmservices1.esri.com/arcgis/rest/services/LiveFeeds/Wildfire_Activity" + msExport,
+            "layer" : "show:2"
+          }
+        }
+      },
+      "Convective Outlooks" : {
+        "group" :
+        {
+          "Convective Outlook - Day 1" :
+          {
+            "source" : idp + spc,
+            "layer" : "show:1"
+          },
+          "Convective Outlook - Day 2" :
+          {
+            "source" : idp + spc,
+            "layer" : "show:2"
+          },
+          "Convective Outlook - Day 3" :
+          {
+            "source" : idp + spc,
+            "layer" : "show:3"
+          }
+        }
+      },
+      "Precipitation" : {
+        "group" :
+        {
+          "Precipitation - Day 1 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:1"
+          },
+          "Precipitation - Day 2 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:2"
+          },
+          "Precipitation - Day 3 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:3"
+          },
+          "Precipitation - Day 4-5 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:4"
+          },
+          "Precipitation - Day 6-7 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:5"
+          },
+          "Precipitation - Day 1-2 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:8"
+          },
+          "Precipitation - Day 1-5 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:9"
+          },
+          "Precipitation - Day 1-7 QPF" :
+          {
+            "source" : idp + qpf,
+            "layer" : "show:10"
+          },
+          "Precipitation - 1 hour QPE" :
+          {
+            "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
+            "layer" : "show:3"
+          },
+          "Precipitation - 3 hour QPE" :
+          {
+            "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
+            "layer" : "show:7"
+          },
+          "Precipitation - 6 hour QPE" :
+          {
+            "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
+            "layer" : "show:11"
+          },
+          "Precipitation - 12 hour QPE" :
+          {
+            "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
+            "layer" : "show:15"
+          },
+          "Precipitation - 24 hour QPE" :
+          {
+            "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
+            "layer" : "show:19"
+          },
+          "Precipitation - 48 hour QPE" :
+          {
+            "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
+            "layer" : "show:23"
+          },
+          "Precipitation - 72 hour QPE" :
+          {
+            "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
+            "layer" : "show:27"
+          }
+        }
+      },
+      "Hurricane Forecast Cones" :
+      {
+        "source" : nc + "wwa_meteocean_tropicalcyclones_trackintensityfcsts_time" + msExport,
+        "layer" : "show:2,3,4,5,7,8,9"
+      },
+      "Satellite" : {
+        "group" :
+        {
+          "Satellite - Visible" :
+          {
+            "source" : nc + "sat_meteo_imagery_goes_time" + msExport,
+            "layer" : "show:3"
+          },
+          "Satellite - IR" :
+          {
+            "source" : nc + "sat_meteo_imagery_goes_time" + msExport,
+            "layer" : "show:11"
+          },
+          "Satellite - Water Vapor" :
+          {
+            "source" : nc + "sat_meteo_imagery_goes_time" + msExport,
+            "layer" : "show:7"
+          }
+        }
+      }
+    };
     this.sigMap =
     {
       "Warning" : "W",
@@ -166,6 +328,7 @@ qx.Class.define("mobileedd.page.Map",
 
       // me.drawer.show();
       me.ready = false;
+      me.optionReady = true;
       me.drawer.addListener("changeVisibility", function(e) {
         me.ready = true;
       })
@@ -582,163 +745,7 @@ qx.Class.define("mobileedd.page.Map",
       var moreLayersButton = new qx.ui.mobile.form.Button("More Layers...", "mobileedd/images/layers.png");
       moreLayersButton.addListener("tap", function(e)
       {
-        var nc = me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/rest/services/nowcoast/';
-        var idp = me.c.getSecure() + '//idpgis.ncep.noaa.gov/arcgis/rest/services/';
-        var qpf = 'NWS_Forecasts_Guidance_Warnings/wpc_qpf/MapServer/export';
-        var spc = 'NWS_Forecasts_Guidance_Warnings/SPC_wx_outlks/MapServer/export'
-        var layer_list =
-        {
-          "Lightning" :
-          {
-            "source" : nc + "sat_meteo_emulated_imagery_lightningstrikedensity_goes_time/MapServer/export",
-            "layer" : "show:3"
-          },
-
-          //   "Observations" :
-
-          // {
-
-          //   "source" : nc + "obs_meteocean_insitu_sfc_time/MapServer/export",
-
-          //   "layer" : "show:0"
-
-          // },
-          "Fire" : {
-            "group" : {
-              "Active Fire Perimeters" :
-              {
-                "source" : me.c.getSecure() + "//tmservices1.esri.com/arcgis/rest/services/LiveFeeds/Wildfire_Activity/MapServer/export",
-                "layer" : "show:2"
-              }
-            }
-          },
-          "Convective Outlooks" : {
-            "group" :
-            {
-              "Convective Outlook - Day 1" :
-              {
-                "source" : idp + spc,
-                "layer" : "show:1"
-              },
-              "Convective Outlook - Day 2" :
-              {
-                "source" : idp + spc,
-                "layer" : "show:2"
-              },
-              "Convective Outlook - Day 3" :
-              {
-                "source" : idp + spc,
-                "layer" : "show:3"
-              }
-            }
-          },
-          "Precipitation" : {
-            "group" :
-            {
-              "Precipitation - Day 1 QPF" :
-              {
-                "source" : idp + qpf,
-                "layer" : "show:1"
-              },
-              "Precipitation - Day 2 QPF" :
-              {
-                "source" : idp + qpf,
-                "layer" : "show:2"
-              },
-              "Precipitation - Day 3 QPF" :
-              {
-                "source" : idp + qpf,
-                "layer" : "show:3"
-              },
-              "Precipitation - Day 4-5 QPF" :
-              {
-                "source" : idp + qpf,
-                "layer" : "show:4"
-              },
-              "Precipitation - Day 6-7 QPF" :
-              {
-                "source" : idp + qpf,
-                "layer" : "show:5"
-              },
-              "Precipitation - Day 1-2 QPF" :
-              {
-                "source" : idp + qpf,
-                "layer" : "show:8"
-              },
-              "Precipitation - Day 1-5 QPF" :
-              {
-                "source" : idp + qpf,
-                "layer" : "show:9"
-              },
-              "Precipitation - Day 1-7 QPF" :
-              {
-                "source" : idp + qpf,
-                "layer" : "show:10"
-              },
-              "Precipitation - 1 hour QPE" :
-              {
-                "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
-                "layer" : "show:3"
-              },
-              "Precipitation - 3 hour QPE" :
-              {
-                "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
-                "layer" : "show:7"
-              },
-              "Precipitation - 6 hour QPE" :
-              {
-                "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
-                "layer" : "show:11"
-              },
-              "Precipitation - 12 hour QPE" :
-              {
-                "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
-                "layer" : "show:15"
-              },
-              "Precipitation - 24 hour QPE" :
-              {
-                "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
-                "layer" : "show:19"
-              },
-              "Precipitation - 48 hour QPE" :
-              {
-                "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
-                "layer" : "show:23"
-              },
-              "Precipitation - 72 hour QPE" :
-              {
-                "source" : nc + "analysis_meteohydro_sfc_qpe_time/MapServer/export",
-                "layer" : "show:27"
-              }
-            }
-          },
-          "Hurricane Forecast Cones" :
-          {
-            "source" : nc + "wwa_meteocean_tropicalcyclones_trackintensityfcsts_time/MapServer/export",
-            "layer" : "show:2,3,4,5,7,8,9"
-          },
-          "Satellite" : {
-            "group" :
-            {
-              "Satellite - Visible" :
-              {
-                "source" : nc + "sat_meteo_imagery_goes_time/MapServer/export",
-                "layer" : "show:3"
-              },
-              "Satellite - IR" :
-              {
-                "source" : nc + "sat_meteo_imagery_goes_time/MapServer/export",
-                "layer" : "show:11"
-              },
-              "Satellite - Water Vapor" :
-              {
-                "source" : nc + "sat_meteo_imagery_goes_time/MapServer/export",
-                "layer" : "show:7"
-              }
-            }
-          }
-        };
-        var items = Object.keys(layer_list).sort(me.sortAlphaNum);
+        var items = Object.keys(me.layer_list).sort(me.sortAlphaNum);
         items.push('Cancel');
         var model = new qx.data.Array(items);
         var menu = new qx.ui.mobile.dialog.Menu(model);
@@ -767,7 +774,7 @@ qx.Class.define("mobileedd.page.Map",
             return;
           }
           me.group = selectedItem;
-          var layer = layer_list[selectedItem];
+          var layer = me.layer_list[selectedItem];
           if (layer.group)
           {
             var subitems = Object.keys(layer.group).sort(me.sortAlphaNum);
@@ -796,7 +803,7 @@ qx.Class.define("mobileedd.page.Map",
               if (selectedItem == 'Cancel') {
                 return;
               }
-              var layer = layer_list[me.group].group[selectedItem];
+              var layer = me.layer_list[me.group].group[selectedItem];
               var params =
               {
                 "name" : selectedItem,
@@ -1029,7 +1036,7 @@ qx.Class.define("mobileedd.page.Map",
 
       // Toggle all other layer visibilities off
       me.map.getLayers().getArray().forEach(function(obj) {
-        if (obj.getVisible() && obj.get('type') !== "base" && obj.get('name') != "U.S. States" && obj.get('name') != "Marker") {
+        if (obj.getVisible() && obj.get('type') !== "base" && obj.get('name') != "U.S. States" && obj.get('name') != "Location Marker") {
           obj.setVisible(false);
         }
       })
@@ -1101,6 +1108,39 @@ qx.Class.define("mobileedd.page.Map",
       url += me.getStateBorderColor().replace('#', '');
       url += '&cc=';
       url += me.getCountyBorderColor().replace('#', '');
+
+      // More Layers
+      var layers = mobileedd.MoreLayers.getInstance().layers;
+      var ml = '';
+      Object.keys(layers).forEach(function(obj) {
+        if (layers[obj].getVisible()) {
+          ml += obj + '|' + layers[obj].group + '|' + layers[obj].get('opacity') + ',';
+        }
+      }, this)
+
+      // Remove trailing comma and encode
+      ml = encodeURIComponent(ml.slice(0, -1));
+      url += '&ml=' + ml;
+
+      // var layer = layer_list[me.group].group[selectedItem];
+
+      //       var params =
+
+      //       {
+
+      //         "name" : selectedItem,
+
+      //         "source" : layer.source,
+
+      //         "layer" : layer.layer,
+
+      //         "time" : layer.time,
+
+      //         "group" : me.group
+
+      //       };
+
+      //       mobileedd.MoreLayers.getInstance().addRestLayer(params);
       return url;
     },
 
@@ -1152,6 +1192,45 @@ qx.Class.define("mobileedd.page.Map",
       // Rivers
       var bool = me.getURLParameter('riv') == "T" ? true : false;
       me.riverToggleButton.setValue(bool);
+
+      // More Layers
+      var ml = me.getURLParameter('ml');
+      ml = decodeURIComponent(ml);
+      ml.split(',').forEach(function(obj)
+      {
+        var mlLayer = obj.split('|');
+        var name = mlLayer[0];
+        var group = mlLayer[1];
+        var opacity = mlLayer[2];
+        if (group == "undefined")
+        {
+          var layer = me.layer_list[name];
+          var params =
+          {
+            "name" : name,
+            "source" : layer.source,
+            "layer" : layer.layer,
+            "time" : layer.time,
+            "opacity" : opacity
+          };
+          mobileedd.MoreLayers.getInstance().addRestLayer(params);
+        } else
+        {
+          var layer = me.layer_list[group].group[name];
+          var params =
+          {
+            "name" : name,
+            "source" : layer.source,
+            "layer" : layer.layer,
+            "time" : layer.time,
+            "group" : group,
+            "opacity" : opacity
+          };
+          mobileedd.MoreLayers.getInstance().addRestLayer(params);
+        }
+      });
+
+      // Border colors
       me.setStateBorderColor('#' + me.getURLParameter('sc'));
       qx.bom.Selector.query('#foo>input')[0].jscolor.fromString(me.getStateBorderColor());
       me.setCountyBorderColor('#' + me.getURLParameter('cc'));
@@ -1513,6 +1592,9 @@ qx.Class.define("mobileedd.page.Map",
           if (me.drawer.getVisibility() == "visible" && me.ready) {
             return;
           }
+          if (!me.optionReady) {
+            return;
+          }
           me.handleMapClick(e);
         });
         var proj1 = ol.proj.get("EPSG:3857");
@@ -1552,7 +1634,7 @@ qx.Class.define("mobileedd.page.Map",
           });
           var vectorLayer = new ol.layer.Vector(
           {
-            name : "Marker",
+            name : "Location Marker",
             source : vectorSource
           });
           me.map.addLayer(vectorLayer);
@@ -1736,6 +1818,7 @@ qx.Class.define("mobileedd.page.Map",
         })
       }
       items.push("Set Travel Destination");
+      items.push("Layer Options");
 
       // Cancel
       items.push("Cancel");
@@ -1839,6 +1922,79 @@ qx.Class.define("mobileedd.page.Map",
           text.setData(observations[key]);
           qx.core.Init.getApplication().getRouting().executeGet("/observation");
           me.bus.dispatch(text);
+          return;
+        }
+        if (selectedItem == "Layer Options")
+        {
+          // FIXME - Clicks were getting propagated through the menu, so added a boolean to check to see if the menu is visible.
+          me.optionReady = false;
+          var items = [];
+          var found = false;
+          me.map.getLayers().getArray().forEach(function(obj) {
+            if (obj.getVisible() && obj.get('type') != "base") {
+              if (obj.get('name').indexOf("MRMS -") !== -1)
+              {
+                if (!found) {
+                  items.push('Radar');
+                }
+                found = true;
+              } else
+              {
+                items.push(obj.get('name'));
+              }
+            }
+          })
+          items = items.sort(me.sortAlphaNum);
+          items.push('Cancel');
+          var model = new qx.data.Array(items);
+          var menu = new qx.ui.mobile.dialog.Menu(model);
+          menu.show();
+          menu.addListener("changeSelection", function(evt)
+          {
+            var selectedItem = evt.getData().item;
+            if (selectedItem == "Cancel")
+            {
+              me.optionReady = true;
+              return;
+            }
+            me.opacityName = selectedItem;
+            var buttonsWidget = new qx.ui.mobile.container.Composite(new qx.ui.mobile.layout.VBox());
+            var cancelButton = new qx.ui.mobile.form.Button("Close");
+            var slider = new qx.ui.mobile.form.Slider().set(
+            {
+              minimum : 0,
+              maximum : 100
+            });
+            if (me.opacityName == "Radar")
+            {
+              slider.setValue(mobileedd.Radar.getInstance().getOpacity() * 100);
+              slider.addListener("changeValue", function(e) {
+                mobileedd.Radar.getInstance().setOpacity(e.getData() / 100);
+              }, this);
+            } else
+            {
+              slider.setValue(me.getLayerByName(me.opacityName).get('opacity') * 100);
+              slider.addListener("changeValue", function(e) {
+                me.getLayerByName(me.opacityName).setOpacity(e.getData() / 100);
+              }, this);
+            }
+            buttonsWidget.add(slider, {
+              flex : 1
+            });
+            buttonsWidget.add(cancelButton);
+            var popup = new qx.ui.mobile.dialog.Popup(buttonsWidget);
+            popup.setTitle("Change Opacity");
+            popup.show();
+            cancelButton.addListener("tap", function()
+            {
+              popup.hide();
+
+              // Wait a second before allowing map clicks
+              new qx.event.Timer.once(function() {
+                me.optionReady = true;
+              }, this, 500);
+            }, this);
+          });
           return;
         }
         if (selectedItem == "Cancel") {

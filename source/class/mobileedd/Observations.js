@@ -34,8 +34,8 @@ qx.Class.define("mobileedd.Observations",
     {
       var graph_domain = [-30, 120];
       me.scale_x = d3.scaleLinear().domain(graph_domain).range([0, 1]);
-      var breakpoints = [me.scale_x(-10), me.scale_x(15), me.scale_x(32), me.scale_x(45), me.scale_x(60), me.scale_x(80), me.scale_x(95)];
-      var curve = ['#b2182b', '#ef8a62', '#fddbc7', '#f7f7f7', '#d1e5f0', '#67a9cf', '#2166ac']
+      var breakpoints = [me.scale_x(-10), me.scale_x(15), me.scale_x(32), me.scale_x(45), me.scale_x(60), me.scale_x(70), me.scale_x(80), me.scale_x(90), me.scale_x(100), me.scale_x(110)];
+      var curve = ['#67001f', '#b2182b', '#d6604d', '#f4a582', '#fddbc7', '#d1e5f0', '#92c5de', '#4393c3', '#2166ac', '#053061'];
       me.threshold_x = d3.scaleThreshold().domain(breakpoints).range(curve.reverse());
     }
     req.open("GET", "resource/mobileedd/libs/d3.min.js");
@@ -88,8 +88,8 @@ qx.Class.define("mobileedd.Observations",
       {
         var graph_domain = [-30, 120];
         me.scale_x = d3.scaleLinear().domain(graph_domain).range([0, 1]);
-        var breakpoints = [me.scale_x(-10), me.scale_x(15), me.scale_x(32), me.scale_x(45), me.scale_x(60), me.scale_x(80), me.scale_x(95)];
-        var curve = ['#b2182b', '#ef8a62', '#fddbc7', '#f7f7f7', '#d1e5f0', '#67a9cf', '#2166ac'];
+        var breakpoints = [me.scale_x(-10), me.scale_x(15), me.scale_x(32), me.scale_x(45), me.scale_x(60), me.scale_x(70), me.scale_x(80), me.scale_x(90), me.scale_x(100), me.scale_x(110)];
+        var curve = ['#67001f', '#b2182b', '#d6604d', '#f4a582', '#fddbc7', '#d1e5f0', '#92c5de', '#4393c3', '#2166ac', '#053061'];
         me.threshold_x = d3.scaleThreshold().domain(breakpoints).range(curve.reverse());
       } else if (me.getDisplayField() == "RH")
       {

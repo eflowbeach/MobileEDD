@@ -118,6 +118,7 @@ qx.Class.define("mobileedd.MoreLayers",
       var layer = params.layer;
       var time = params.time;
       var group = params.group;
+      var opacity = params.opacity;
 
       // A way to get at the timestamp for idp services.
 
@@ -225,7 +226,7 @@ qx.Class.define("mobileedd.MoreLayers",
         })
       });
       me.map.addLayer(me.layers[name]);
-      me.layers[name].setOpacity(me.getOpacity());
+      me.layers[name].setOpacity((typeof opacity == "undefined") ? me.getOpacity() : opacity);
       me.layers[name].group = group;
 
       // Silly way to get Vector Layer on top...
@@ -259,7 +260,11 @@ qx.Class.define("mobileedd.MoreLayers",
             if (test.contains(obj.layerId + '') || test.toArray()[0] == "" || layer == "show:")
             {
               if (typeof (obj.layerName) !== "undefined") {
-                html += '<b>' + obj.layerName + '</b><br>';
+                if (obj.layerName == "Image") {
+                  html += '<b>' + name + '</b><br>';
+                } else {
+                  html += '<b>' + obj.layerName + '</b><br>';
+                }
               } else {
                 html += 'Could not find legend data.<br>';
               }
