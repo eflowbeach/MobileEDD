@@ -37,6 +37,9 @@ qx.Class.define("mobileedd.Observations",
       var breakpoints = [me.scale_x(-10), me.scale_x(15), me.scale_x(32), me.scale_x(45), me.scale_x(60), me.scale_x(70), me.scale_x(80), me.scale_x(90), me.scale_x(100), me.scale_x(110)];
       var curve = ['#67001f', '#b2182b', '#d6604d', '#f4a582', '#fddbc7', '#d1e5f0', '#92c5de', '#4393c3', '#2166ac', '#053061'];
       me.threshold_x = d3.scaleThreshold().domain(breakpoints).range(curve.reverse());
+
+      // Get the default field from url if exists
+      me.setDisplayField(me.c.getObDisplayedField());
     }
     req.open("GET", "resource/mobileedd/libs/d3.min.js");
     req.send();
@@ -49,8 +52,8 @@ qx.Class.define("mobileedd.Observations",
       me.setupobservationRequest();
 
       // Timer
-      me.timer = new qx.event.Timer(0);
       var refreshRate = 60;
+      me.timer = new qx.event.Timer(1000);  //1000 * refreshRate);//0);
       me.timer.addListener("interval", function(e)
       {
         me.timer.setInterval(1000 * refreshRate);
@@ -63,7 +66,7 @@ qx.Class.define("mobileedd.Observations",
       me.map.getView().on('change:resolution', function(evt) {
         if (me.observationLayer.getVisible())
         {
-          if (evt.target.get('resolution') < 1000) {
+          if (evt.target.get('resolution') < 1500) {
             me.setNetworks('');
           } else {
             me.setNetworks('1,14,96');
@@ -127,7 +130,8 @@ qx.Class.define("mobileedd.Observations",
         var curve = ['#edf8e9', '#c7e9c0', '#a1d99b', '#74c476', '#41ab5d', '#238b45', '#005a32'];
         me.threshold_x = d3.scaleThreshold().domain(breakpoints).range(curve);
         me.getUpdatedServiceUrl();
-        me.observationReq.send();
+
+        // me.observationReq.send();
       }
 
 
@@ -139,7 +143,14 @@ qx.Class.define("mobileedd.Observations",
         me.getUpdatedServiceUrl();
         me.observationReq.send();
       }
-      this.observationLayer.getSource().dispatchEvent('change');
+      if (value == "Observations" && !old == "Observations")
+      {
+        me.getUpdatedServiceUrl();
+        me.observationReq.send();
+      }
+      if (this.observationLayer.getSource() != null) {
+        this.observationLayer.getSource().dispatchEvent('change');
+      }
     },
     addLayer : function()
     {
@@ -157,6 +168,8 @@ qx.Class.define("mobileedd.Observations",
           var set_name = '_value_1';
           var value_type = 'value';
           var features = feature.get('features');
+          var maxPrecip = 0;
+          var traceFlag = false;
           for (var i = 0; i < features.length; i++)
           {
             var data = features[i].get(service_type);
@@ -198,10 +211,20 @@ qx.Class.define("mobileedd.Observations",
               var label = (wg !== undefined ? '' + Math.round(wg[value_type]) : '');
             } else if (me.getDisplayField() == "Precipitation")
             {
-              var label = (precip !== undefined ? '' + Number(precip).toFixed(2) : '');
-              if (precip == "T 0") {
-                label = "0";
+              if (precip !== undefined)
+              {
+                if (precip == "T 0")
+                {
+                  value = 0;
+                  traceFlag = true;
+                }
+                if (precip > maxPrecip) {
+                  maxPrecip = precip;
+                }
               }
+              var label = maxPrecip.toFixed(2);
+
+              //? '' + Number(precip).toFixed(2) : '');
             } else
             {
               // Ob
@@ -238,45 +261,55 @@ qx.Class.define("mobileedd.Observations",
             if (label == '' && i != features.length - 1) {
               continue;
             }
-            var radius = 6;
-            if (label == '') {
-              var color = '#797979';
-            } else {
-              var color = me.threshold_x(me.scale_x(label));
-            }
-            var contrast = getContrast50(color);
-            var textStroke = new ol.style.Stroke(
-            {
-              color : contrast,
-              width : 3
-            });
-            var textFill = new ol.style.Fill( {
-              color : color
-            });
-            return [new ol.style.Style(
-            {
-              image : new ol.style.Circle(
-              {
-                fill : new ol.style.Fill( {
-                  color : color
-                }),
-                stroke : new ol.style.Stroke(
-                {
-                  color : 'black',
-                  width : 2
-                }),
-                radius : radius
-              }),
-              text : new ol.style.Text(
-              {
-                font : '20px Calibri,sans-serif',
-                text : label,
-                fill : textFill,
-                stroke : textStroke,
-                offsetY : -20
-              })
-            })];
           }
+          var radius = 6;
+          if (label == '') {
+            var color = '#797979';
+          } else if (me.getDisplayField() == "Precipitation" && (label == '0.00' || label == '0')) {
+            var color = '#7B7B7B';
+          } else {
+            var color = me.threshold_x(me.scale_x(label));
+          }
+
+          var contrast = getContrast50(color);
+          if (me.getDisplayField() == "Precipitation" && (label == '0.00' || label == '0'))
+          {
+            var contrast = 'black';
+            if (traceFlag) {
+              label = "T";
+            }
+          }
+          var textStroke = new ol.style.Stroke(
+          {
+            color : contrast,
+            width : 3
+          });
+          var textFill = new ol.style.Fill( {
+            color : color
+          });
+          return [new ol.style.Style(
+          {
+            image : new ol.style.Circle(
+            {
+              fill : new ol.style.Fill( {
+                color : color
+              }),
+              stroke : new ol.style.Stroke(
+              {
+                color : 'black',
+                width : 2
+              }),
+              radius : radius
+            }),
+            text : new ol.style.Text(
+            {
+              font : '20px Calibri,sans-serif',
+              text : label,
+              fill : textFill,
+              stroke : textStroke,
+              offsetY : -20
+            })
+          })];
         }
       });
       me.map.addLayer(me.observationLayer);
@@ -288,11 +321,24 @@ qx.Class.define("mobileedd.Observations",
       me.getUpdatedServiceUrl();
       me.observationReq.setCallbackParam("callback");
       me.observationReq.setCache(false);
-      me.observationReq.addListener("readyStateChange", function(e)
-      {
+      me.observationReq.addListener("readyStateChange", function(e) {
         me.mapObject.obBusyIndicator.setVisibility('visible');
-
-        // me.statusIcon.setIcon("edd/images/ajax-loader_16px.gif");
+      });
+      me.vectorSource = new ol.source.Vector((
+      {
+        projection : 'EPSG:3857',
+        strategy : ol.loadingstrategy.bbox,
+        loader : function(extent, resolution, projection)
+        {
+          me.getUpdatedServiceUrl();
+          me.observationReq.send();
+        }
+      }));
+      me.clusterSource = new ol.source.Cluster(
+      {
+        distance : 30,
+        projection : 'EPSG:3857',
+        source : me.vectorSource
       });
       me.observationReq.addListener("success", function(e)
       {
@@ -304,17 +350,6 @@ qx.Class.define("mobileedd.Observations",
         var features = new ol.format.GeoJSON().readFeatures(data, {
           featureProjection : 'EPSG:3857'
         });
-        var vectorSource = new ol.source.Vector((
-        {
-          projection : 'EPSG:3857',
-          features : features
-        }));
-        var clusterSource = new ol.source.Cluster(
-        {
-          distance : 30,
-          projection : 'EPSG:3857',
-          source : vectorSource
-        });
         if (typeof me.observationLayer == "undefined")
         {
           me.timer.stop();
@@ -324,7 +359,8 @@ qx.Class.define("mobileedd.Observations",
         if (me.observationLayer.getSource() !== null) {
           me.observationLayer.getSource().clear();
         }
-        me.observationLayer.setSource(clusterSource);
+        me.vectorSource.addFeatures(features);
+        me.observationLayer.setSource(me.clusterSource);
         me.timer.restart();
 
         // Silly way to get Vector Layer on top...

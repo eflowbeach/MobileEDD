@@ -643,12 +643,12 @@ qx.Class.define("mobileedd.page.Map",
       me.obDisplayButton.addListener("tap", function(e) {
         this.__fieldDisplayMenu.show();
       }, this);
-      var fieldDisplayMenuModel = new qx.data.Array(["Temperature", "Dew Point", "RH", "Heat Index", "Wind Speed", "Wind Gust", "Precipitation", "Meteorological Ob", "Wave Height", "Primary Swell", "Visibility"]);
+      var fields = ["Temperature", "Dew Point", "RH", "Heat Index", "Wind Speed", "Wind Gust", "Precipitation", "Meteorological Ob", "Wave Height", "Primary Swell", "Visibility"]
+      var fieldDisplayMenuModel = new qx.data.Array(fields.sort());
       this.__fieldDisplayMenu = new qx.ui.mobile.dialog.Menu(fieldDisplayMenuModel, me.obDisplayButton);
       this.__fieldDisplayMenu.setTitle("Field");
       this.__fieldDisplayMenu.addListener("changeSelection", function(e)
       {
-        console.log("Received <b>changeSelection</b> from Menu Dialog. [index: " + e.getData().index + "] [item: " + e.getData().item + "]");
         if (e.getData().item == "Precipitation") {
           me.obPeriodContainer.setVisibility('visible');
         } else {
@@ -656,6 +656,7 @@ qx.Class.define("mobileedd.page.Map",
         }
         me.obDisplayButton.setValue(e.getData().item);
         mobileedd.Observations.getInstance().setDisplayField(e.getData().item);
+        me.c.setObDisplayedField(e.getData().item);
       }, this);
       me.obDisplayFieldContainer.add(me.obDisplayButton);
       scrollContainer.add(me.obDisplayFieldContainer);
@@ -688,28 +689,6 @@ qx.Class.define("mobileedd.page.Map",
       }, this);
       me.obPeriodContainer.add(me.obPeriodButton);
       scrollContainer.add(me.obPeriodContainer);
-
-      // var form = new qx.ui.mobile.form.Form();
-
-      // this.__slider = new qx.ui.mobile.form.Slider();
-
-      // this.__slider.setDisplayValue("value");
-
-      // this.__slider.setMaximum(500);
-
-      // form.add(this.__slider,"Move slider:");
-
-      // this.__dataLabel = new qx.ui.mobile.form.TextField();
-
-      // this.__dataLabel.setValue("0");
-
-      // this.__dataLabel.setReadOnly(true);
-
-      // form.add(this.__dataLabel, " Slider value: ");
-
-      // this.__dataLabel.bind("value", this.__slider, "value");
-
-      // this.__slider.bind("value", this.__dataLabel, "value");
 
       /**
       * River Container
@@ -1078,6 +1057,7 @@ qx.Class.define("mobileedd.page.Map",
       // Observations
       url += '&obs=';
       url += me.observationToggleButton.getValue() ? 'T' : 'F';
+      url += '&obfield=' + me.c.getObDisplayedField();
 
       // Rivers
       url += '&riv=';
@@ -1121,26 +1101,6 @@ qx.Class.define("mobileedd.page.Map",
       // Remove trailing comma and encode
       ml = encodeURIComponent(ml.slice(0, -1));
       url += '&ml=' + ml;
-
-      // var layer = layer_list[me.group].group[selectedItem];
-
-      //       var params =
-
-      //       {
-
-      //         "name" : selectedItem,
-
-      //         "source" : layer.source,
-
-      //         "layer" : layer.layer,
-
-      //         "time" : layer.time,
-
-      //         "group" : me.group
-
-      //       };
-
-      //       mobileedd.MoreLayers.getInstance().addRestLayer(params);
       return url;
     },
 
@@ -1188,6 +1148,12 @@ qx.Class.define("mobileedd.page.Map",
       // Observations
       var bool = me.getURLParameter('obs') == "T" ? true : false;
       me.observationToggleButton.setValue(bool);
+      var field = me.getURLParameter('obfield');
+      if (field != null)
+      {
+        me.c.setObDisplayedField(field);
+        me.obDisplayButton.setValue(field);
+      }
 
       // Rivers
       var bool = me.getURLParameter('riv') == "T" ? true : false;
@@ -1195,46 +1161,53 @@ qx.Class.define("mobileedd.page.Map",
 
       // More Layers
       var ml = me.getURLParameter('ml');
-      ml = decodeURIComponent(ml);
-      ml.split(',').forEach(function(obj)
+      if (ml != null)
       {
-        var mlLayer = obj.split('|');
-        var name = mlLayer[0];
-        var group = mlLayer[1];
-        var opacity = mlLayer[2];
-        if (group == "undefined")
+        ml = decodeURIComponent(ml);
+        ml.split(',').forEach(function(obj)
         {
-          var layer = me.layer_list[name];
-          var params =
+          var mlLayer = obj.split('|');
+          var name = mlLayer[0];
+          var group = mlLayer[1];
+          var opacity = mlLayer[2];
+          if (typeof (group) == "undefined" || group == "undefined")
           {
-            "name" : name,
-            "source" : layer.source,
-            "layer" : layer.layer,
-            "time" : layer.time,
-            "opacity" : opacity
-          };
-          mobileedd.MoreLayers.getInstance().addRestLayer(params);
-        } else
-        {
-          var layer = me.layer_list[group].group[name];
-          var params =
+            var layer = me.layer_list[name];
+            var params =
+            {
+              "name" : name,
+              "source" : layer.source,
+              "layer" : layer.layer,
+              "time" : layer.time,
+              "opacity" : opacity
+            };
+            mobileedd.MoreLayers.getInstance().addRestLayer(params);
+          } else
           {
-            "name" : name,
-            "source" : layer.source,
-            "layer" : layer.layer,
-            "time" : layer.time,
-            "group" : group,
-            "opacity" : opacity
-          };
-          mobileedd.MoreLayers.getInstance().addRestLayer(params);
-        }
-      });
+            var layer = me.layer_list[group].group[name];
+            var params =
+            {
+              "name" : name,
+              "source" : layer.source,
+              "layer" : layer.layer,
+              "time" : layer.time,
+              "group" : group,
+              "opacity" : opacity
+            };
+            mobileedd.MoreLayers.getInstance().addRestLayer(params);
+          }
+        });
+      }
 
       // Border colors
       me.setStateBorderColor('#' + me.getURLParameter('sc'));
       qx.bom.Selector.query('#foo>input')[0].jscolor.fromString(me.getStateBorderColor());
       me.setCountyBorderColor('#' + me.getURLParameter('cc'));
       qx.bom.Selector.query('#foo2>input')[0].jscolor.fromString(me.getCountyBorderColor());
+      var mqk = me.getURLParameter('mqk');
+      if (typeof mqk !== "undefined" && mqk != null) {
+        me.c.setMapQuestKey(mqk);
+      }
     },
 
     /**
@@ -1846,21 +1819,13 @@ qx.Class.define("mobileedd.page.Map",
       geo.reverseGeocodeReq.addListenerOnce("success", function(e)
       {
         var response = e.getTarget().getResponse();
+        var address = response.address.City + ', ' + response.address.Region; 
         try
         {
-          var address = response.address.City + ', ' + response.address.Region;  //Match_addr;
-
-          //     this.__start.setValue(address)
           new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2) {
             if (div.innerHTML == 'Get Forecast For This Point...')
             {
               div.innerHTML = 'Get Forecast For ' + address;  // This Point...'
-
-              // Divide index2 by 2 as 2 divs comprise a button
-
-              // Select the li tag for styling
-
-              //qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'background-color:#63FF72;')
             }
           })
         }catch (e) {
@@ -1959,6 +1924,7 @@ qx.Class.define("mobileedd.page.Map",
             }
             me.opacityName = selectedItem;
             var buttonsWidget = new qx.ui.mobile.container.Composite(new qx.ui.mobile.layout.VBox());
+            var toTopButton = new qx.ui.mobile.form.Button("Move To Top");
             var cancelButton = new qx.ui.mobile.form.Button("Close");
             var slider = new qx.ui.mobile.form.Slider().set(
             {
@@ -1981,10 +1947,18 @@ qx.Class.define("mobileedd.page.Map",
             buttonsWidget.add(slider, {
               flex : 1
             });
+            buttonsWidget.add(toTopButton);
             buttonsWidget.add(cancelButton);
             var popup = new qx.ui.mobile.dialog.Popup(buttonsWidget);
             popup.setTitle("Change Opacity");
             popup.show();
+            toTopButton.addListener("tap", function()
+            {
+              // Silly way to get Vector Layer on top...
+              var layer = me.getLayerByName(me.opacityName);
+              me.map.removeLayer(layer);
+              me.map.getLayers().setAt(me.map.getLayers().getArray().length, layer);
+            }, this);
             cancelButton.addListener("tap", function()
             {
               popup.hide();

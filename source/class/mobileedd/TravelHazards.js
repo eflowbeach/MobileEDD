@@ -8,9 +8,6 @@ qx.Class.define("mobileedd.TravelHazards",
   extend : qx.core.Object,
   properties :
   {
-    mapQuestKey : {
-      init : "6hcuidlVtrh41AFzsdKyGxUfuuzz1LAu"
-    },
     leaveAt : {
       init : new Date()
     },
@@ -514,7 +511,7 @@ qx.Class.define("mobileedd.TravelHazards",
 
       /**
       * Format length output.
-      * @param {ol.geom.LineString} line The line.
+      * @param line {ol.geom.LineString} The line.
       * @return {string} The formatted length.
       */
       var wgs84Sphere = new ol.Sphere(6378137);
@@ -523,7 +520,7 @@ qx.Class.define("mobileedd.TravelHazards",
         var length;
         var coordinates = line.getCoordinates();
         length = 0;
-        var sourceProj = mobileedd.page.Map.getInstance().getMap().getView().getProjection();
+        var sourceProj = me.map.getView().getProjection();
         for (var i = 0, ii = coordinates.length - 1; i < ii; ++i)
         {
           var c1 = ol.proj.transform(coordinates[i], sourceProj, 'EPSG:4326');
@@ -621,7 +618,7 @@ qx.Class.define("mobileedd.TravelHazards",
       waypoints += "&to=" + end;
 
       // The url
-      var url = me.c.getSecure() + "//open.mapquestapi.com/directions/v2/route?key=" + me.getMapQuestKey() + "&outFormat=json&routeType=fastest&timeType=2&dateType=0&date=" + leaveDate + "&localTime=" + leaveTime + "&doReverseGeocode=false&enhancedNarrative=false&shapeFormat=cmp&generalize=0&locale=en_US&unit=m&from=" + start + waypoints + "&drivingStyle=2&highwayEfficiency=21.0";
+      var url = me.c.getSecure() + "//open.mapquestapi.com/directions/v2/route?key=" + me.c.getMapQuestKey() + "&outFormat=json&routeType=fastest&timeType=2&dateType=0&date=" + leaveDate + "&localTime=" + leaveTime + "&doReverseGeocode=false&enhancedNarrative=false&shapeFormat=cmp&generalize=0&locale=en_US&unit=m&from=" + start + waypoints + "&drivingStyle=2&highwayEfficiency=21.0";
       me.directionService.setUrl(url);
       me.directionService.addListenerOnce("success", function(e)
       {
@@ -647,7 +644,7 @@ qx.Class.define("mobileedd.TravelHazards",
 
       // Instantiate request
       var req = new qx.io.request.Jsonp()
-      req.setUrl(mobileedd.page.Map.getInstance().getJsonpRoot() + "travelforecast/getNdfdDataPath.php");
+      req.setUrl(me.mapObject.getJsonpRoot() + "travelforecast/getNdfdDataPath.php");
 
       // Set request data. Accepts String, Map or qooxdoo Object.
       req.setRequestData(
@@ -657,6 +654,12 @@ qx.Class.define("mobileedd.TravelHazards",
         "region" : region,
         "index" : index
       });
+      req.addListenerOnce("fail", function(e)
+      {
+        this.__popup.setTitle("Forecast retrieval error.");
+        this.__popup.show();
+        this.busyPopup.hide();
+      }, this);
       req.addListenerOnce("success", function(e)
       {
         var response = e.getTarget().getResponse();
