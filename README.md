@@ -2,7 +2,9 @@
 
 This is mobile web weather app developed using [OL3](http://openlayers.org/) and [Qooxdoo](http://qooxdoo.org/).
 
-![Example](https://github.com/eflowbeach/MobileEDD/blob/master/MobileEDD.png?raw=true)
+![Example](https://github.com/eflowbeach/MobileEDD/blob/master/screenshots/MobileEDD.png?raw=true)
+![Example](https://github.com/eflowbeach/MobileEDD/blob/master/screenshots/MobileEDD_1.png?raw=true)
+![Example](https://github.com/eflowbeach/MobileEDD/blob/master/screenshots/MobileEDDTablet.png?raw=true)
 
 # License
 MIT License
