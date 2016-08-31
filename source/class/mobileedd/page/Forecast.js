@@ -46,7 +46,7 @@ qx.Class.define("mobileedd.page.Forecast",
         ndfdReq.addListener("success", function(e)
         {
           var response = e.getTarget().getResponse();
-          if (typeof ($) == "undefined")
+          if (typeof ($) == "undefined" || typeof ($.plot) == "undefined")
           {
             var req = new qx.bom.request.Script();
             req.onload = function() {
