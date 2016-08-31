@@ -93,30 +93,6 @@ qx.Class.define("mobileedd.Application",
           0 : {
             translate : ["0px", "0px"]
           },
-
-          // 10 : {
-
-          //   translate : ["10px", "0px"]
-
-          // },
-
-          // 30 : {
-
-          //   translate : ["30px", "0px"]
-
-          // },
-
-          // 50 : {
-
-          //   translate : ["50px", "0px"]
-
-          // },
-
-          // 70 : {
-
-          //   translate : ["80px", "0px"]
-
-          // },
           100 : {
             translate : ["300px", "0px"]
           }
@@ -127,14 +103,10 @@ qx.Class.define("mobileedd.Application",
         {
           button.setSource("resource/mobileedd/images/legendOff.png");
           qx.bom.element.Animation.animate(mobileedd.page.Map.getInstance().legendContainer.getContentElement(), slide, 300);
-
-          //mobileedd.page.Map.getInstance().legendContainer.setVisibility("excluded");
         } else
         {
           button.setSource("resource/mobileedd/images/legendOn.png")
           qx.bom.element.Animation.animateReverse(mobileedd.page.Map.getInstance().legendContainer.getContentElement(), slide, 300);
-
-          //mobileedd.page.Map.getInstance().legendContainer.setVisibility("visible");
         }
       }, this);
       this.getRoot().add(button);

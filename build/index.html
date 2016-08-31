@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Mobile EDD v1.6</title>
+  <title>Mobile EDD v1.7</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -28,6 +28,8 @@ function updateCountyBorder(jscolor) {
 <!-- Did not work after page load, so forcing it here -->
 <div style="padding: 10px;" id="foo">State Color<input class="jscolor {closable:false, closeText:'Close', onFineChange:'updateStateBorder(this)'}" value="717171" style="text-align: center;"></div>
 <div style="padding: 10px;" id="foo2">County Color<input class="jscolor {closable:false, closeText:'Close', onFineChange:'updateCountyBorder(this)'}" value="717171" style="text-align: center;"></div>
+
+<img id="geolocation_marker" src="resource/mobileedd/images/geolocation_marker_heading.png" />
 
 <script type="text/javascript" src="script/mobileedd.js"></script>
 </head>

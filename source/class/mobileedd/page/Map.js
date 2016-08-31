@@ -55,14 +55,16 @@ qx.Class.define("mobileedd.page.Map",
     var me = this;
 
     // Set the service root
+
+    // preview does not have https - either way it gets blocked...
     me.setJsonpRoot(me.c.getSecure() + "//preview.weather.gov/edd/resource/edd/");
 
     /**
      * Mapping Library
      * */
+    me.setMapUri("resource/mobileedd/ol.js");
 
-    //me.setMapUri("resource/mobileedd/ol.js");
-    me.setMapUri("resource/mobileedd/ol-debug.js");
+    //me.setMapUri("resource/mobileedd/ol-debug.js");
 
     // Busy indicator
     var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
@@ -123,6 +125,21 @@ qx.Class.define("mobileedd.page.Map",
           {
             "source" : idp + spc,
             "layer" : "show:3"
+          },
+          "Hail Outlook - Day 1" :
+          {
+            "source" : idp + spc,
+            "layer" : "show:5"
+          },
+          "Tornado Outlook - Day 1" :
+          {
+            "source" : idp + spc,
+            "layer" : "show:6"
+          },
+          "Wind Outlook - Day 1" :
+          {
+            "source" : idp + spc,
+            "layer" : "show:7"
           }
         }
       },
@@ -290,7 +307,7 @@ qx.Class.define("mobileedd.page.Map",
       "Marine Dense Fog" : "MF",
       "Radiological Hazard" : "RH",
       "Red Flag" : "FW",
-      "Rip Currents" : "RP",
+      "Rip Current" : "RP",
       "Severe Thunderstorm" : "SV",
       "Sleet" : "IP",
       "Small Craft" : "SC",
@@ -1280,6 +1297,9 @@ qx.Class.define("mobileedd.page.Map",
 
       // Scroll
       me.dynamicLegendScrollContainer = new qx.ui.mobile.container.Scroll();
+
+      // Ensure contents do not get too big
+      qx.bom.element.Style.setCss(me.dynamicLegendScrollContainer.getContainerElement(), 'width:250px;');
       me.dynamicLegendContainer = new qx.ui.mobile.container.Composite();
       me.dynamicLegendScrollContainer.add(me.dynamicLegendContainer);
       me.legendContainer.add(me.dynamicLegendScrollContainer);
@@ -1438,13 +1458,12 @@ qx.Class.define("mobileedd.page.Map",
         // The tile size supported by the ArcGIS tile service.
         var tileSize = 512;
 
-        // Calculate the resolutions supported by the ArcGIS tile service.
-
-        // There are 16 resolutions, with a factor of 2 between successive
-
-        // resolutions. The max resolution is such that the world (360°)
-
-        // fits into two (512x512 px) tiles.
+        /**
+         * Calculate the resolutions supported by the ArcGIS tile service.
+         * There are 16 resolutions, with a factor of 2 between successive
+         * resolutions. The max resolution is such that the world (360°)
+         * fits into two (512x512 px) tiles.
+         */
         var maxResolution = ol.extent.getWidth(projectionExtent) / (tileSize * 2);
         var resolutions = new Array(16);
         var z;
@@ -1559,59 +1578,190 @@ qx.Class.define("mobileedd.page.Map",
             zoom : 6
           })
         });
+
+        // The map click listener
         me.map.on("click", function(e)
         {
           // Default load value is visible, so listen for a change event on drawer visibility then set ready
           if (me.drawer.getVisibility() == "visible" && me.ready) {
             return;
           }
+
+          // The option menu is up
           if (!me.optionReady) {
             return;
           }
           me.handleMapClick(e);
         });
-        var proj1 = ol.proj.get("EPSG:3857");
-        var geolocation = new ol.Geolocation(
-        {
-          projection : proj1,
-          tracking : true
-        });
 
-        // Handle geolocation error.
-        geolocation.on('error', function(error) {
-          me.map.setView(me.defaultView);
+        /**
+         * Geolocation
+         * */
+
+        // Geolocation marker
+        var markerEl = document.getElementById('geolocation_marker');
+        var marker = new ol.Overlay(
+        {
+          positioning : 'center-center',
+          element : markerEl,
+          stopEvent : false
         });
-        geolocation.on('change', function(evt) {
-          me.setMyPosition(geolocation.getPosition());
-        });
+        me.map.addOverlay(marker);
+
+        // LineString to store the different geolocation positions. This LineString is time aware.
+
+        // The Z dimension is actually used to store the rotation (heading). /** @type {ol.geom.GeometryLayout} */
+        var positions = new ol.geom.LineString([], ('XYZM'));
+
+        // Geolocation Control
+
+        /** @type {olx.GeolocationOptions} */
+        var geolocation = new ol.Geolocation((
+        {
+          projection : me.map.getView().getProjection(),  //me.defaultView.getProjection(),
+          trackingOptions :
+          {
+            maximumAge : 10000,
+            enableHighAccuracy : true,
+            timeout : 600000
+          }
+        }));
+        var deltaMean = 500;  // the geolocation sampling period mean in ms
         geolocation.once('change', function(evt)
         {
-          me.map.getView().setCenter(me.getMyPosition());
+          console.log('once');
+          me.map.getView().setCenter(geolocation.getPosition());
+        })
 
-          // add Icon
-          var iconFeature = new ol.Feature( {
-            geometry : new ol.geom.Point(geolocation.getPosition())
-          });
-          var iconStyle = new ol.style.Style( {
-            image : new ol.style.Icon(
-            {
-              anchor : [12, 24],
-              anchorXUnits : 'pixels',
-              anchorYUnits : 'pixels',
-              src : 'resource/mobileedd/images/map-marker-icon.png'
-            })
-          });
-          iconFeature.setStyle(iconStyle);
-          var vectorSource = new ol.source.Vector( {
-            features : [iconFeature]
-          });
-          var vectorLayer = new ol.layer.Vector(
-          {
-            name : "Location Marker",
-            source : vectorSource
-          });
-          me.map.addLayer(vectorLayer);
+        // Listen to position changes
+        geolocation.on('change', function()
+        {
+          console.log('change');
+          var position = geolocation.getPosition();
+          me.setMyPosition(position);
+          var accuracy = geolocation.getAccuracy();
+          var heading = geolocation.getHeading() || 0;
+          var speed = geolocation.getSpeed() || 0;
+          var m = Date.now();
+          addPosition(position, heading, m, speed);
+          qx.bom.element.Style.setCss(qx.bom.Selector.query('#geolocation_marker')[0], 'transform:rotate(' + Math.round(radToDeg(heading)) + 'deg)')
         });
+
+        // FIXME we should remove the coordinates in positions
+        geolocation.on('error', function(error)
+        {
+          //var closeDialogButton1 = new qx.ui.mobile.form.Button("Close");
+          var html = new qx.ui.mobile.embed.Html();
+          html.setHtml(error.message.match(/.{1,36}/g).join('<br>'));
+          var popup = new qx.ui.mobile.dialog.Popup(html);
+          popup.setTitle('Geolocation Error');
+          popup.addListener("tap", function(e)
+          {
+            popup.hide();
+            e.preventDefault();
+            e.stopPropagation();
+          }, this);
+          popup.show();
+          qx.event.Timer.once(function() {
+            popup.hide();
+          }, this, 5000)
+
+          // Show default view
+          me.map.setView(me.defaultView);
+        });
+
+        // convert radians to degrees
+        function radToDeg(rad) {
+          return rad * 360 / (Math.PI * 2);
+        }
+
+        // convert degrees to radians
+        function degToRad(deg) {
+          return deg * Math.PI * 2 / 360;
+        }
+
+        // modulo for negative values
+        function mod(n) {
+          return ((n % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
+        }
+        function addPosition(position, heading, m, speed)
+        {
+          var x = position[0];
+          var y = position[1];
+          var fCoords = positions.getCoordinates();
+          var previous = fCoords[fCoords.length - 1];
+          var prevHeading = previous && previous[2];
+          if (prevHeading)
+          {
+            var headingDiff = heading - mod(prevHeading);
+
+            // force the rotation change to be less than 180°
+            if (Math.abs(headingDiff) > Math.PI)
+            {
+              var sign = (headingDiff >= 0) ? 1 : -1;
+              headingDiff = -sign * (2 * Math.PI - Math.abs(headingDiff));
+            }
+            heading = prevHeading + headingDiff;
+          }
+          positions.appendCoordinate([x, y, heading, m]);
+
+          // only keep the 20 last coordinates
+          positions.setCoordinates(positions.getCoordinates().slice(-20));
+
+          // FIXME use speed instead
+
+          // if (heading && speed) {
+
+          //   markerEl.src = 'resource/mobileedd/images/geolocation_marker_heading.png';
+
+          // } else
+
+          // {
+
+          //   markerEl.src = 'resource/mobileedd/images/geolocation_marker_heading.png';
+
+          //   //markerEl.src = 'resource/mobileedd/images/geolocation_marker.png';
+
+          // }
+        }
+        var previousM = 0;
+
+        // change center and rotation before render
+        me.map.beforeRender(function(map, frameState)
+        {
+          if (frameState !== null)
+          {
+            // use sampling period to get a smooth transition
+            var m = frameState.time - deltaMean * 1.5;
+            m = Math.max(m, previousM);
+            previousM = m;
+
+            // interpolate position along positions LineString
+            var c = positions.getCoordinateAtM(m, true);
+
+            // var view = frameState.viewState;
+            if (c) {
+              // view.center = getCenterWithHeading(c, -c[2], view.resolution);
+
+              // view.rotation = -c[2];
+              marker.setPosition(c);
+            }
+          }
+
+          // return true;  // Force animation to continue
+        });
+
+        // postcompose callback
+        function render() {
+          me.map.render();
+        }
+
+        /**
+         * Start position tracking
+         * */
+        geolocation.setTracking(true);
+        me.map.on('postcompose', render);
+        me.map.render();
 
         // Orientation
         var deviceOrientation = new ol.DeviceOrientation();
@@ -1627,6 +1777,8 @@ qx.Class.define("mobileedd.page.Map",
           center[1] += resolution * beta * 25;
           view.setCenter(view.constrainCenter(center));
         });
+
+        // Turn on radar and hazards
         me.radarToggleButton.setValue(true);
         me.hazardToggleButton.setValue(true);
 
@@ -1717,7 +1869,7 @@ qx.Class.define("mobileedd.page.Map",
     },
 
     /**
-     * Handle the hazard click
+     * Handle the map click
      */
     handleMapClick : function(e)
     {
@@ -1732,6 +1884,8 @@ qx.Class.define("mobileedd.page.Map",
       var observations = {
 
       };
+
+      // Drill through all of the layers
       me.map.forEachFeatureAtPixel(e.pixel, function(feature, layer)
       {
         if (layer.get('name') == "Hazards") {
@@ -1750,7 +1904,7 @@ qx.Class.define("mobileedd.page.Map",
           if (!test.contains(value))
           {
             items.push(value);
-            hydrographs[value] = feature;  //.get('id');
+            hydrographs[value] = feature;
           }
         }
         if (layer.get('name') == "Observations")
@@ -1761,7 +1915,7 @@ qx.Class.define("mobileedd.page.Map",
           {
             var value = 'Ob - ' + features[i].get("NAME");
             items.push(value);
-            observations[value] = features[i];  //.get('id');
+            observations[value] = features[i];
           }
         }
       });
@@ -1819,9 +1973,8 @@ qx.Class.define("mobileedd.page.Map",
       geo.reverseGeocodeReq.addListenerOnce("success", function(e)
       {
         var response = e.getTarget().getResponse();
-        var address = response.address.City + ', ' + response.address.Region; 
-        try
-        {
+        var address = response.address.City + ', ' + response.address.Region;
+        try {
           new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2) {
             if (div.innerHTML == 'Get Forecast For This Point...')
             {
@@ -2049,10 +2202,13 @@ qx.Class.define("mobileedd.page.Map",
     addHazardsLayer : function()
     {
       var me = this;
+      me.hazardVectorSource = new ol.source.Vector(( {
+        projection : 'EPSG:3857'
+      }));
       me.hazardLayer = new ol.layer.Vector(
       {
         name : "Hazards",
-        source : null,
+        source : me.hazardVectorSource,
         style : function(feature, resolution)
         {
           var color;
@@ -2129,16 +2285,68 @@ qx.Class.define("mobileedd.page.Map",
         var features = new ol.format.GeoJSON().readFeatures(data, {
           featureProjection : 'EPSG:3857'
         });
-        var vectorSource = new ol.source.Vector((
-        {
-          projection : 'EPSG:3857',
-          features : features
-        }));
-        if (me.hazardLayer.getSource() !== null) {
-          me.hazardLayer.getSource().clear();
-        }
-        me.hazardLayer.setSource(vectorSource);
+
+        // if ( me.hazardVectorSource !== null) {
+        me.hazardVectorSource.clear();
+
+        // }
+        me.hazardVectorSource.addFeatures(features);
+        me.checkWwaAtLocation();
+
+        // me.hazardLayer.setSource(vectorSource);
       }, this);
+      me.cycleWwaTimer = new qx.event.Timer(3000);
+      me.cycleCount = 0;
+      me.cycleWwaTimer.addListener("interval", function(e)
+      {
+        var feature = me.hazardsAtMyPosition[me.cycleCount];  //.forEach(function(obj, index){
+        var htype = feature.get('warn_type');
+        var hsig = 'Warning';
+        if (typeof htype == "undefined")
+        {
+          htype = feature.get('phenomenon');
+          hsig = feature.get('significance');
+        }
+        qx.bom.Selector.query('.navigationbar>h1')[0].innerHTML = htype + ' ' + hsig;
+        var color = "#646464";
+        if (hsig == "Warning") {
+          color = "#dc2d2d"
+        } else if (hsig == "Watch") {
+          color = "#ffa500"
+        } else if (hsig == "Advisory") {
+          color = "#ffeb00"
+        }
+
+
+        qx.bom.element.Style.setCss(qx.bom.Selector.query('.navigationbar')[0], 'background-image: linear-gradient(' + color + ',#383838)');
+        me.cycleCount++;
+        if (me.cycleCount >= me.hazardsAtMyPosition.length) {
+          me.cycleCount = 0;
+        }
+      })
+    },
+    checkWwaAtLocation : function(features)
+    {
+      var me = this;
+      var myPosition = me.getMyPosition();
+
+      // var myPosition = ol.proj.transform([-93.26, 37.19], 'EPSG:4326', 'EPSG:3857');
+
+      //var myPosition = ol.proj.transform([-112.94, 40.54], 'EPSG:4326', 'EPSG:3857');
+      var myPosition = ol.proj.transform([-82.9, 29.28], 'EPSG:4326', 'EPSG:3857');
+      if (myPosition != null)
+      {
+        me.hazardsAtMyPosition = me.hazardVectorSource.getFeaturesAtCoordinate(myPosition);
+        if (me.hazardsAtMyPosition.length >= 1) {
+          me.cycleWwaTimer.start();
+        } else {
+          me.cycleWwaTimer.stop();
+
+          // Reset to original
+          qx.bom.element.Style.setCss(qx.bom.Selector.query('.navigationbar')[0], 'background-image: linear-gradient(#646464,#383838)');
+          qx.bom.Selector.query('.navigationbar>h1')[0].innerHTML = 'Mobile EDD';
+        }
+      }
     },
 
     /**
