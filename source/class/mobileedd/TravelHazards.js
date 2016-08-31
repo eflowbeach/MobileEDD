@@ -561,9 +561,8 @@ qx.Class.define("mobileedd.TravelHazards",
 
           // Use departed at time for minute calculation
           var roundHour = (departedAt.clone().add(timeTraveled, 'hours').format('m') < 30) ? 0 : 1;
-
-          // FIXME
-          var region = "conus";
+          var mercatorLL = ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857');
+          var region = mobileedd.page.Map.getInstance().getNdfdRegion(mercatorLL);
 
           //var region = me.dataStore.getNdfdRegionFromPoint(lat, lon);
 
@@ -849,7 +848,7 @@ qx.Class.define("mobileedd.TravelHazards",
 
         // Get Geometry from LineFeature
         var iconFeature = new ol.Feature( {
-          geometry : new ol.geom.Point(lineFeature.getGeometry().getFlatCoordinates().slice(0, 2))
+          geometry : new ol.geom.Point(lineFeature.getGeometry().getCoordinates()[0])
         });
         iconFeature.setProperties(pointProperties);
         me.pointSource.addFeature(iconFeature);

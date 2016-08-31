@@ -71,6 +71,17 @@ return Math.round(35.74 + 0.6215 * tempF - 35.75 * Math.pow(windMPH, 0.16) + 0.4
                   return array;
               }
           
+          
+// Turf - https://turfjs-builder.herokuapp.com/
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.turf = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+function inRing(n,r){for(var t=!1,e=0,i=r.length-1;e<r.length;i=e++){var o=r[e][0],a=r[e][1],g=r[i][0],v=r[i][1],f=a>n[1]!=v>n[1]&&n[0]<(g-o)*(n[1]-a)/(v-a)+o;f&&(t=!t)}return t}var invariant=require("turf-invariant");module.exports=function(n,r){var t=invariant.getCoord(n),e=r.geometry.coordinates;"Polygon"===r.geometry.type&&(e=[e]);for(var i=0,o=!1;i<e.length&&!o;i++)if(inRing(t,e[i][0])){for(var a=!1,g=1;g<e[i].length&&!a;)inRing(t,e[i][g])&&(a=!0),g++;a||(o=!0)}return o};
+},{"turf-invariant":2}],2:[function(require,module,exports){
+function getCoord(e){if(Array.isArray(e)&&"number"==typeof e[0]&&"number"==typeof e[1])return e;if(e){if("Feature"===e.type&&e.geometry&&"Point"===e.geometry.type&&Array.isArray(e.geometry.coordinates))return e.geometry.coordinates;if("Point"===e.type&&Array.isArray(e.coordinates))return e.coordinates}throw new Error("A coordinate, feature, or point geometry is required")}function geojsonType(e,r,t){if(!r||!t)throw new Error("type and name required");if(!e||e.type!==r)throw new Error("Invalid input to "+t+": must be a "+r+", given "+e.type)}function featureOf(e,r,t){if(!t)throw new Error(".featureOf() requires a name");if(!e||"Feature"!==e.type||!e.geometry)throw new Error("Invalid input to "+t+", Feature with geometry required");if(!e.geometry||e.geometry.type!==r)throw new Error("Invalid input to "+t+": must be a "+r+", given "+e.geometry.type)}function collectionOf(e,r,t){if(!t)throw new Error(".collectionOf() requires a name");if(!e||"FeatureCollection"!==e.type)throw new Error("Invalid input to "+t+", FeatureCollection required");for(var o=0;o<e.features.length;o++){var n=e.features[o];if(!n||"Feature"!==n.type||!n.geometry)throw new Error("Invalid input to "+t+", Feature with geometry required");if(!n.geometry||n.geometry.type!==r)throw new Error("Invalid input to "+t+": must be a "+r+", given "+n.geometry.type)}}module.exports.geojsonType=geojsonType,module.exports.collectionOf=collectionOf,module.exports.featureOf=featureOf,module.exports.getCoord=getCoord;
+},{}],3:[function(require,module,exports){
+module.exports={inside:require("turf-inside")};
+},{"turf-inside":1}]},{},[3])(3)
+});          
+          
 //! moment.js
 //! version : 2.14.1
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors

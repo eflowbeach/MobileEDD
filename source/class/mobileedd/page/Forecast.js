@@ -37,8 +37,39 @@ qx.Class.define("mobileedd.page.Forecast",
       this.bus.subscribe("edd.forecast", function(e)
       {
         var ll = e.getData();
+        var mercatorLL = ol.proj.transform(ll, 'EPSG:4326', 'EPSG:3857');
+        var region = mobileedd.page.Map.getInstance().getNdfdRegion(mercatorLL);
+        var url = "http://preview.weather.gov/edd/resource/edd/ndfd/getNdfdMeteogramData.php?lat=" + mercatorLL[1] + '&lon=' + mercatorLL[0] + '&region=' + region;  //conus';// + clickRegion//http://forecast.weather.gov/MapClick.php?lat=" + ll[1] + "&lon=" + ll[0] + "&FcstType=json";
+        var ndfdReq = new qx.io.request.Jsonp(url);
+        ndfdReq.setCallbackParam("callback");
+        ndfdReq.setCache(false);
+        ndfdReq.addListener("success", function(e)
+        {
+          var response = e.getTarget().getResponse();
+          if (typeof ($) == "undefined")
+          {
+            var req = new qx.bom.request.Script();
+            req.onload = function() {
+              me.plotData(response);
+            };
+            req.open("GET", "resource/mobileedd/libs/flot/flot-combo.js");
+            req.send();
+          } else
+          {
+            me.plotData(response);
+          }
+        })
+        ndfdReq.send();
 
         //var url = me.c.getSecure() + "://forecast.weather.gov/MapClick.php?lat=" + ll[1] + "&lon=" + ll[1] + "&FcstType=json";
+
+        //   var clickRegion = me.dataStore.getNdfdRegionFromPoint(lat, lon);
+
+        // me.reqNdfdHourlyData.setUrl("resource/edd/ndfd/getNdfdMeteogramData.php?lat=" + lonlat.lat + '&lon=' + lonlat.lon + '&region=' + clickRegion);
+
+        // // Send request
+
+        // me.reqNdfdHourlyData.send();
         var url = "http://forecast.weather.gov/MapClick.php?lat=" + ll[1] + "&lon=" + ll[0] + "&FcstType=json";
         var fxReq = new qx.io.request.Jsonp(url);
         fxReq.setCallbackParam("callback");
@@ -46,7 +77,14 @@ qx.Class.define("mobileedd.page.Forecast",
         fxReq.addListener("success", function(e)
         {
           var response = e.getTarget().getResponse();
-          var html = '';
+
+          //var html = '';
+          var html = '<div id="ftgraph" class="demo-placeholder"></div>';
+          html += '<div id="fwindgraph" class="demo-placeholder"></div>';
+          html += '<div id="fprecipgraph" class="demo-placeholder"></div>';
+          html += '<div id="fqpf" class="demo-placeholder"></div>';
+          html += '<div id="fwavegraph" class="demo-placeholder"></div>';
+          html += '<hr>';
           var forecastFor = "<b>Forecast for:</b> " + response.location.areaDescription + "<font style=\"padding-left:10px;\">(Elevation: </font>" + response.location.elevation + " ft.)<br>";
 
           //me.resultsWindow.setCaption("NWS Forecast for " + response.location.areaDescription + " (Elevation: " + response.location.elevation + " ft.) " + "Lat: " + response.location.latitude + " Lon: " + response.location.longitude);
@@ -83,6 +121,264 @@ qx.Class.define("mobileedd.page.Forecast",
         });
         fxReq.send();
       }, this);
+    },
+    plotData : function(response)
+    {
+      var me = this;
+      console.log(response);
+      var cold = false;
+      response.t.forEach(function(obj) {
+        if (obj[1] <= 40) {
+          cold = true;
+        }
+      })
+      var axisFormat = "ha ddd<br>(M/D)";
+      $.plot("#ftgraph", [
+      {
+        label : "Temperature",
+        data : response.t,
+        color : 'red',
+        lines : {
+          show : true
+        }
+      },
+      {
+        label : "Dew Point",
+        data : response.td,
+        color : 'green',
+        lines : {
+          show : true
+        }
+      },
+      {
+        label : "32 &deg;F / Freezing",
+        data : [[response.t[0][0], 32], [response.t[response.t.length - 1][0], 32]],
+        color : "#5890C4",
+        dashes : {
+          show : (cold) ? true : false
+        },
+        lines : {
+          show : false
+        },
+        units : "&deg;F"
+      }],
+      {
+        units : '&deg;F',
+        legend :
+        {
+          show : true,
+          position : 'ne'
+        },
+        xaxis :
+        {
+          mode : "time",
+
+          // min: response.t[0][0],
+
+          // max: response.t[response.t.length-1][0],
+          tickFormatter : function(val, axis) {
+            return new moment(val).format(axisFormat);
+          }
+        },
+        axisLabels : {
+          show : true
+        },
+        yaxes : [
+        {
+          position : 'left',
+          axisLabel : '°F',
+          tickFormatter : function(val, axis) {
+            return val.toFixed(0);
+          }
+        }]
+      });
+
+      // Wind
+      $.plot("#fwindgraph", [
+      {
+        label : "Wind Speed",
+        data : response.windspd,
+        color : 'purple',
+        lines : {
+          show : true
+        }
+      },
+      {
+        label : "Wind Gust",
+        data : response.windgust,
+        color : 'blue',
+        points : {
+          show : true
+        }
+      }],
+      {
+        units : 'mph',
+        legend :
+        {
+          show : true,
+          position : 'ne'
+        },
+        xaxis :
+        {
+          mode : "time",
+          tickFormatter : function(val, axis) {
+            return new moment(val).format(axisFormat);
+          }
+        },
+        axisLabels : {
+          show : true
+        },
+        yaxes : [
+        {
+          position : 'left',
+          axisLabel : 'mph',
+          tickFormatter : function(val, axis) {
+            return val.toFixed(0);
+          }
+        }]
+      });
+      $.plot("#fqpf", [
+      {
+        label : "QPF",
+        data : response.qpf,
+        color : '#057100',
+        bars :
+        {
+          show : true,
+          barWidth : 3600 * 1000 * 6  // * 0.25 * 0.05
+        }
+      },
+      {
+        label : "Snow",
+        data : response.snowamt,
+        color : 'blue',
+        bars :
+        {
+          show : true,
+          barWidth : 3600 * 1000 * 6  // * 0.25 * 0.05
+        }
+      },
+      {
+        label : "Ice",
+        data : response.iceaccum,
+        color : '#E117E3',
+        bars :
+        {
+          show : true,
+          barWidth : 3600 * 1000 * 6  // * 0.25 * 0.05
+        }
+      }],
+      {
+        units : '"',
+        legend :
+        {
+          show : true,
+          position : 'ne'
+        },
+        xaxis :
+        {
+          mode : "time",
+          min : response.t[0][0],
+          max : response.t[response.t.length - 1][0],
+          tickFormatter : function(val, axis) {
+            return new moment(val).format(axisFormat);
+          }
+        },
+        axisLabels : {
+          show : true
+        },
+        yaxes : [
+        {
+          min : 0,
+          position : 'left',
+          axisLabel : '"',
+          tickFormatter : function(val, axis) {
+            return val.toFixed(2);
+          }
+        }]
+      });
+      $.plot("#fprecipgraph", [
+      {
+        label : "Precipitation",
+        data : response.pop12,
+        color : '#057100',
+        lines :
+        {
+          show : true,
+          fill : true
+
+          //barWidth : 3600 * 1000 * 12// * 0.25 * 0.05
+        }
+      }],
+      {
+        units : '%',
+        legend :
+        {
+          show : true,
+          position : 'ne'
+        },
+        xaxis :
+        {
+          mode : "time",
+          tickFormatter : function(val, axis) {
+            return new moment(val).format(axisFormat);
+          }
+        },
+        axisLabels : {
+          show : true
+        },
+        yaxes : [
+        {
+          position : 'left',
+          axisLabel : '%',
+          tickFormatter : function(val, axis) {
+            return val.toFixed(0);
+          }
+        }]
+      });
+      var marine = false;
+      response.waveheight.forEach(function(obj) {
+        if (obj[1] != null) {
+          marine = true;
+        }
+      })
+      if (marine) {
+        $('#fwavegraph').show();
+      } else {
+        $('#fwavegraph').hide();
+      }
+      $.plot("#fwavegraph", [
+      {
+        label : "Wave Height",
+        data : response.waveheight,
+        color : 'blue',
+        lines : {
+          show : true
+        }
+      }],
+      {
+        units : '"',
+        legend :
+        {
+          show : true,
+          position : 'ne'
+        },
+        xaxis :
+        {
+          mode : "time",
+          tickFormatter : function(val, axis) {
+            return new moment(val).format(axisFormat);
+          }
+        },
+        axisLabels : {
+          show : true
+        },
+        yaxes : [
+        {
+          position : 'left',
+          axisLabel : 'feet'
+        }]
+      });
     },
 
     // overridden

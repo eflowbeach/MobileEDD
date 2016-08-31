@@ -1661,11 +1661,9 @@ qx.Class.define("mobileedd.page.Map",
             e.preventDefault();
             e.stopPropagation();
           }, this);
-          
-          if(error.message != "Only secure origins are allowed (see: https://goo.gl/Y0ZkNV)."){
+          if (error.message != "Only secure origins are allowed (see: https://goo.gl/Y0ZkNV).") {
             popup.show();
           }
-          
           qx.event.Timer.once(function() {
             popup.hide();
           }, this, 5000)
@@ -1847,12 +1845,49 @@ qx.Class.define("mobileedd.page.Map",
         });
         me.map.addLayer(me.countyBorder);
 
+        // Weak test polygons to determine region
+        var wkt = new ol.format.WKT();
+        var geojsonFormat = new ol.format.GeoJSON();
+
+        // Generated with EDD v4.0: new OpenLayers.Format.WKT().write(me.map.getLayersByName("Drawing Tool Vector Layer")[0].features[0])
+        me.alaska = geojsonFormat.writeFeatureObject(wkt.readFeature("POLYGON((-19483335.908861 9326281.8460132,-21929320.813646 7506469.076853,-21420555.953451 6038878.1339819,-17135190.400267 6351964.2017944,-14689205.495482 6586778.7526538,-14023897.60138 7115111.4920874,-14141304.87681 9600232.1553491,-16137228.559115 12144056.456326,-18994138.927904 11341773.407556,-19483335.908861 9326281.8460132))"));
+        me.conus = geojsonFormat.writeFeatureObject(wkt.readFeature("POLYGON((-13793975.02033 6454695.5677955,-14038573.510808 6063337.9830299,-13970085.933474 4086982.1799635,-12962340.152703 3255347.3123365,-10545707.066775 2727014.572903,-8559567.3240897 2805286.0898561,-7140896.0793143 5965498.5868385,-7894259.4299882 6288368.5942701,-11064255.86659 6542751.0243678,-13793975.02033 6454695.5677955))"));
+        me.puertorico = geojsonFormat.writeFeatureObject(wkt.readFeature("POLYGON((-7691242.6828912 2387022.6711379,-7564051.4678424 1795094.3241799,-7126220.1698859 1831784.0977516,-6866945.7699786 2093504.4825636,-7336574.8716974 2362562.82209,-7691242.6828912 2387022.6711379))"));
+        me.hawaii = geojsonFormat.writeFeatureObject(wkt.readFeature("POLYGON((-18754432.407234 3372754.5877662,-18778892.256282 1430642.5733668,-15119698.838723 1293667.4186988,-16166580.377971 3348294.7387183,-18754432.407234 3372754.5877662))"));
+        me.guam = geojsonFormat.writeFeatureObject(wkt.readFeature("POLYGON((15988948.67656 1618371.914809,15978553.240714 1403125.2431879,16321602.62361 1398844.7696046,16321602.62361 1627544.358202,15988948.67656 1618371.914809))"));
+
         // Add state overlay
 
         //me.addStatesLayer();
       }.bind(this);
       req.open("GET", this.getMapUri());
       req.send();
+    },
+    getNdfdRegion : function(mercatorLL)
+    {
+      var me = this;
+      var geojsonFormat = new ol.format.GeoJSON();
+      var feature = new ol.Feature( {
+        geometry : new ol.geom.Point(mercatorLL)
+      });
+      var point = geojsonFormat.writeFeatureObject(feature);
+
+      // For turf inside function to work need point and polygon in GeoJSON format
+      if (turf.inside(point, me.conus)) {
+        return "conus";
+      } else if (turf.inside(point, me.hawaii)) {
+        return "hawaii";
+      } else if (turf.inside(point, me.alaska)) {
+        return "alaska";
+      } else if (turf.inside(point, me.puertorico)) {
+        return "puertori";
+      } else if (turf.inside(point, me.guam)) {
+        return "guam";
+      }
+
+
+
+
     },
 
     /**
@@ -1977,7 +2012,11 @@ qx.Class.define("mobileedd.page.Map",
       geo.reverseGeocodeReq.addListenerOnce("success", function(e)
       {
         var response = e.getTarget().getResponse();
-        var address = response.address.City + ', ' + response.address.Region;
+        if (typeof response.address !== "undefined") {
+          var address = response.address.City + ', ' + response.address.Region;
+        } else {
+          address = 'Lon:' + ll[0].toFixed(2) + ' Lat:' + ll[1].toFixed(2);
+        }
         try {
           new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2) {
             if (div.innerHTML == 'Get Forecast For This Point...')

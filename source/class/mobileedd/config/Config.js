@@ -10,6 +10,9 @@ qx.Class.define("mobileedd.config.Config",
     mesowestToken : {
       init : "a13f6d0a32c842e6815c377e77a64e99"
     },
+    mapQuestKey : {
+      init : "6hcuidlVtrh41AFzsdKyGxUfuuzz1LAu"
+    },
     obDisplayedField : {
       init : "Temperature"
     }
