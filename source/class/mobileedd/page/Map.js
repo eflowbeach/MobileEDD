@@ -1661,7 +1661,11 @@ qx.Class.define("mobileedd.page.Map",
             e.preventDefault();
             e.stopPropagation();
           }, this);
-          popup.show();
+          
+          if(error.message != "Only secure origins are allowed (see: https://goo.gl/Y0ZkNV)."){
+            popup.show();
+          }
+          
           qx.event.Timer.once(function() {
             popup.hide();
           }, this, 5000)
