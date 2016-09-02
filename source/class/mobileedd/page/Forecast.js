@@ -10,6 +10,10 @@ me.imageurl = me.c.getSecure() + "//www.weather.gov/images/crh/impact/" + f.offi
 
 /*global qx*/
 
+/*global ol*/
+
+/*global mobileedd*/
+
 /**
  */
 qx.Class.define("mobileedd.page.Forecast",
@@ -32,100 +36,122 @@ qx.Class.define("mobileedd.page.Forecast",
     {
       var me = this;
       this.base(arguments);
-      this.label = new qx.ui.mobile.basic.Label("Forecast");
+
+      // Busy indicator
+      var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
+      this.busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
+      this.label = new qx.ui.mobile.embed.Html();
       this.getContent().add(this.label);
-      this.bus.subscribe("edd.forecast", function(e)
+
+      // NDFD request
+      me.ndfdReq = new qx.io.request.Jsonp();
+      me.ndfdReq.setCallbackParam("callback");
+      me.ndfdReq.setCache(false);
+      me.ndfdReq.addListener("success", function(e)
       {
-        var ll = e.getData();
-        var mercatorLL = ol.proj.transform(ll, 'EPSG:4326', 'EPSG:3857');
-        var region = mobileedd.page.Map.getInstance().getNdfdRegion(mercatorLL);
-        var url = "http://preview.weather.gov/edd/resource/edd/ndfd/getNdfdMeteogramData.php?lat=" + mercatorLL[1] + '&lon=' + mercatorLL[0] + '&region=' + region;  //conus';// + clickRegion//http://forecast.weather.gov/MapClick.php?lat=" + ll[1] + "&lon=" + ll[0] + "&FcstType=json";
-        var ndfdReq = new qx.io.request.Jsonp(url);
-        ndfdReq.setCallbackParam("callback");
-        ndfdReq.setCache(false);
-        ndfdReq.addListener("success", function(e)
+        var response = e.getTarget().getResponse();
+
+        // console.log(typeof ($) == "undefined", typeof ($.plot) == "undefined");
+        if (typeof (jQuery) === "undefined" || typeof (jQuery.plot) === "undefined")
         {
-          var response = e.getTarget().getResponse();
-          if (typeof ($) == "undefined" || typeof ($.plot) == "undefined")
+          var req = new qx.bom.request.Script();
+          req.onload = function()
           {
-            var req = new qx.bom.request.Script();
-            req.onload = function() {
-              me.plotData(response);
-            };
-            req.open("GET", "resource/mobileedd/libs/flot/flot-combo.js");
-            req.send();
-          } else
-          {
+            console.log('loading Flot');
             me.plotData(response);
+          };
+          req.open("GET", "resource/mobileedd/libs/flot/flot-combo.js");
+          req.send();
+        } else
+        {
+          me.plotData(response);
+        }
+      })
+
+      // Text request
+      me.fxReq = new qx.io.request.Jsonp();
+      me.fxReq.setCallbackParam("callback");
+      me.fxReq.setCache(false);
+      me.fxReq.addListener("success", function(e)
+      {
+        var response = e.getTarget().getResponse();
+
+        //var html = '';
+        var html = '<div id="ftgraph" class="demo-placeholder"></div>';
+        html += '<div id="fwindgraph" class="demo-placeholder"></div>';
+        html += '<div id="fprecipgraph" class="demo-placeholder"></div>';
+        html += '<div id="fqpf" class="demo-placeholder"></div>';
+        html += '<div id="fwavegraph" class="demo-placeholder"></div>';
+        html += '<hr>';
+        var forecastFor = "<b>Forecast for:</b> " + response.location.areaDescription + "<font style=\"padding-left:10px;\">(Elevation: </font>" + response.location.elevation + " ft.)<br>";
+
+        //me.resultsWindow.setCaption("NWS Forecast for " + response.location.areaDescription + " (Elevation: " + response.location.elevation + " ft.) " + "Lat: " + response.location.latitude + " Lon: " + response.location.longitude);
+        var dformat = "h:mm a ddd, MMM, YYYY";
+        try {
+          var createdAt = "<b>Created at:</b> " + new moment(response.creationDate).format(dformat) + "<br>";
+        }catch (e) {
+          var createdAt = "<b>Created at:</b> " + new moment(response.creationDate.split('--')[0]).format(dformat) + "<br>";
+        }
+        var issuedBy = "<b>Issued by:</b> " + '<a target="_blank"  href="' + response.credit + '">' + response.productionCenter + '</a><br><br>';
+        html += forecastFor;
+        html += createdAt;
+        html += issuedBy;
+        me.hazardObjectForFlot = {
+
+        };
+        response.data.hazardUrl.forEach(function(obj, index)
+        {
+          // Remove extra junk (For Hazardous Seas, for Winds, For Rough Bar) which isn't contained in the warning link...
+          var url = obj.replace(/\+For\+Hazardous\+Seas/g, "").replace(/\+For\+Winds/g, "").replace(/\+For\+Rough\+Bar/g, "").replace(/\&amp\;/g, "&");
+          html += '<a target="_blank" href="' + url + '">' + response.data.hazard[index] + "</a><br>";
+
+          //me.hazardObjectForFlot[response.data.hazard[index]] = url;
+        })
+        html += '<table id="fxtext" style="border-collapse:collapse; margin-top:14px;">';
+        response.time.startPeriodName.forEach(function(obj, index) {
+          if (obj.toLowerCase().indexOf("night") !== -1) {  //index % 2 ==0){
+            html += "<tr style=\"border: 1px solid rgb(180, 180, 180);\"><td bgcolor=\"#ffffff\" style=\"padding-left: 6px; padding-right:10px;\"><b>" + obj + "</b></td><td bgcolor=\"#ffffff\">" + response.data.text[index] + "</td></tr>";
+          } else {
+            html += "<tr style=\"border: 1px solid rgb(180, 180, 180);\"><td bgcolor=\"#B0E5F0\" style=\"padding-left: 6px;padding-right:10px;\"><b>" + obj + "</b></td><td bgcolor=\"#D7F1FF\">" + response.data.text[index] + "</td></tr>";
           }
         })
-        ndfdReq.send();
+        html += '</table>';
+        me.label.setHtml(html);
+      });
 
-        //var url = me.c.getSecure() + "://forecast.weather.gov/MapClick.php?lat=" + ll[1] + "&lon=" + ll[1] + "&FcstType=json";
+      // Request for forecast
+      this.bus.subscribe("edd.forecast", function(e)
+      {
+        this.busyPopup.show();
+        var ll = e.getData();
 
-        //   var clickRegion = me.dataStore.getNdfdRegionFromPoint(lat, lon);
+        // NDFD forecast
+        var mercatorLL = ol.proj.transform(ll, 'EPSG:4326', 'EPSG:3857');
+        var region = mobileedd.page.Map.getInstance().getNdfdRegion(mercatorLL);
+        var url = "http://preview.weather.gov/edd/resource/edd/ndfd/getNdfdMeteogramData.php?lat=" + mercatorLL[1] + '&lon=' + mercatorLL[0] + '&region=' + region;
+        me.ndfdReq.setUrl(url);
+        me.ndfdReq.send();
 
-        // me.reqNdfdHourlyData.setUrl("resource/edd/ndfd/getNdfdMeteogramData.php?lat=" + lonlat.lat + '&lon=' + lonlat.lon + '&region=' + clickRegion);
-
-        // // Send request
-
-        // me.reqNdfdHourlyData.send();
-        var url = "http://forecast.weather.gov/MapClick.php?lat=" + ll[1] + "&lon=" + ll[0] + "&FcstType=json";
-        var fxReq = new qx.io.request.Jsonp(url);
-        fxReq.setCallbackParam("callback");
-        fxReq.setCache(false);
-        fxReq.addListener("success", function(e)
-        {
-          var response = e.getTarget().getResponse();
-
-          //var html = '';
-          var html = '<div id="ftgraph" class="demo-placeholder"></div>';
-          html += '<div id="fwindgraph" class="demo-placeholder"></div>';
-          html += '<div id="fprecipgraph" class="demo-placeholder"></div>';
-          html += '<div id="fqpf" class="demo-placeholder"></div>';
-          html += '<div id="fwavegraph" class="demo-placeholder"></div>';
-          html += '<hr>';
-          var forecastFor = "<b>Forecast for:</b> " + response.location.areaDescription + "<font style=\"padding-left:10px;\">(Elevation: </font>" + response.location.elevation + " ft.)<br>";
-
-          //me.resultsWindow.setCaption("NWS Forecast for " + response.location.areaDescription + " (Elevation: " + response.location.elevation + " ft.) " + "Lat: " + response.location.latitude + " Lon: " + response.location.longitude);
-          var dformat = "h:mm a ddd, MMM, YYYY";
-          try {
-            var createdAt = "<b>Created at:</b> " + new moment(response.creationDate).format(dformat) + "<br>";
-          }catch (e) {
-            var createdAt = "<b>Created at:</b> " + new moment(response.creationDate.split('--')[0]).format(dformat) + "<br>";
-          }
-          var issuedBy = "<b>Issued by:</b> " + '<a target="_blank"  href="' + response.credit + '">' + response.productionCenter + '</a><br><br>';
-          html += forecastFor;
-          html += createdAt;
-          html += issuedBy;
-          me.hazardObjectForFlot = {
-
-          };
-          response.data.hazardUrl.forEach(function(obj, index)
-          {
-            // Remove extra junk (For Hazardous Seas, for Winds, For Rough Bar) which isn't contained in the warning link...
-            var url = obj.replace(/\+For\+Hazardous\+Seas/g, "").replace(/\+For\+Winds/g, "").replace(/\+For\+Rough\+Bar/g, "").replace(/\&amp\;/g, "&");
-            html += "<a href=\"javascript:;\" class=\"oldtime\" onclick='var win = new qx.ui.window.Window(\"" + response.data.hazard[index] + "\"); win.open();win.setMinWidth(800);win.setMinHeight(700);win.setLayout(new qx.ui.layout.VBox());var frame_point = new qx.ui.embed.ThemedIframe();frame_point.setSource(\"" + url + "\");win.setLayout(new qx.ui.layout.VBox());win.add(frame_point,{flex:1});'>" + response.data.hazard[index] + "</a><br>";
-            me.hazardObjectForFlot[response.data.hazard[index]] = url;
-          })
-          html += '<table id="fxtext" style="border-collapse:collapse; margin-top:14px;">';
-          response.time.startPeriodName.forEach(function(obj, index) {
-            if (obj.toLowerCase().indexOf("night") !== -1) {  //index % 2 ==0){
-              html += "<tr style=\"border: 1px solid rgb(180, 180, 180);\"><td bgcolor=\"#ffffff\" style=\"padding-left: 6px; padding-right:10px;\"><b>" + obj + "</b></td><td bgcolor=\"#ffffff\">" + response.data.text[index] + "</td></tr>";
-            } else {
-              html += "<tr style=\"border: 1px solid rgb(180, 180, 180);\"><td bgcolor=\"#B0E5F0\" style=\"padding-left: 6px;padding-right:10px;\"><b>" + obj + "</b></td><td bgcolor=\"#D7F1FF\">" + response.data.text[index] + "</td></tr>";
-            }
-          })
-          html += '</table>';
-          me.label.setValue(html);
-        });
-        fxReq.send();
+        /**
+         * Text Forecast
+         * */
+        var textUrl = "http://forecast.weather.gov/MapClick.php?lat=" + ll[1] + "&lon=" + ll[0] + "&FcstType=json";
+        me.fxReq.setUrl(textUrl);
+        me.fxReq.send();
       }, this);
     },
     plotData : function(response)
     {
       var me = this;
       console.log(response);
+      if (response == null)
+      {
+        me.label.setHtml('Error');
+        this.busyPopup.hide();
+        return;
+      }
+
+      // Check to see if we need to include a freezing line
       var cold = false;
       response.t.forEach(function(obj) {
         if (obj[1] <= 40) {
@@ -133,7 +159,7 @@ qx.Class.define("mobileedd.page.Forecast",
         }
       })
       var axisFormat = "ha ddd<br>(M/D)";
-      $.plot("#ftgraph", [
+      var temperatureData = [
       {
         label : "Temperature",
         data : response.t,
@@ -149,19 +175,23 @@ qx.Class.define("mobileedd.page.Forecast",
         lines : {
           show : true
         }
-      },
-      {
-        label : "32 &deg;F / Freezing",
-        data : [[response.t[0][0], 32], [response.t[response.t.length - 1][0], 32]],
-        color : "#5890C4",
-        dashes : {
-          show : (cold) ? true : false
-        },
-        lines : {
-          show : false
-        },
-        units : "&deg;F"
-      }],
+      }];
+      if (cold) {
+        temperatureData.push(
+        {
+          label : "32 &deg;F / Freezing",
+          data : [[response.t[0][0], 32], [response.t[response.t.length - 1][0], 32]],
+          color : "#5890C4",
+          dashes : {
+            show : true
+          },
+          lines : {
+            show : false
+          },
+          units : "&deg;F"
+        });
+      }
+      $.plot("#ftgraph", temperatureData,
       {
         units : '&deg;F',
         legend :
@@ -186,7 +216,7 @@ qx.Class.define("mobileedd.page.Forecast",
         yaxes : [
         {
           position : 'left',
-          axisLabel : '°F',
+          axisLabel : 'Temperature, °F',
           tickFormatter : function(val, axis) {
             return val.toFixed(0);
           }
@@ -231,7 +261,7 @@ qx.Class.define("mobileedd.page.Forecast",
         yaxes : [
         {
           position : 'left',
-          axisLabel : 'mph',
+          axisLabel : 'Wind, mph',
           tickFormatter : function(val, axis) {
             return val.toFixed(0);
           }
@@ -280,6 +310,7 @@ qx.Class.define("mobileedd.page.Forecast",
           mode : "time",
           min : response.t[0][0],
           max : response.t[response.t.length - 1][0],
+          axisLabel : 'Local Time',
           tickFormatter : function(val, axis) {
             return new moment(val).format(axisFormat);
           }
@@ -291,7 +322,7 @@ qx.Class.define("mobileedd.page.Forecast",
         {
           min : 0,
           position : 'left',
-          axisLabel : '"',
+          axisLabel : 'Precipitation, "',
           tickFormatter : function(val, axis) {
             return val.toFixed(2);
           }
@@ -330,7 +361,7 @@ qx.Class.define("mobileedd.page.Forecast",
         yaxes : [
         {
           position : 'left',
-          axisLabel : '%',
+          axisLabel : 'Prob. of Precipitation, %',
           tickFormatter : function(val, axis) {
             return val.toFixed(0);
           }
@@ -379,6 +410,7 @@ qx.Class.define("mobileedd.page.Forecast",
           axisLabel : 'feet'
         }]
       });
+      this.busyPopup.hide();
     },
 
     // overridden
