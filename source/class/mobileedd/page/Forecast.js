@@ -116,7 +116,7 @@ qx.Class.define("mobileedd.page.Forecast",
           }
         })
         html += '</table>';
-        me.label.setHtml(html);
+        me.embedHtml.setHtml(html);
       });
 
       // Request for forecast
@@ -146,7 +146,7 @@ qx.Class.define("mobileedd.page.Forecast",
       console.log(response);
       if (response == null)
       {
-        me.label.setHtml('Error');
+        me.embedHtml.setHtml('Error');
         this.busyPopup.hide();
         return;
       }
@@ -188,12 +188,22 @@ qx.Class.define("mobileedd.page.Forecast",
           lines : {
             show : false
           },
-          units : "&deg;F"
+          units : "&deg;F",
+          grid : {
+            backgroundColor : {
+              colors : ["#F8E6BC", "#FFFFFF"]
+            }
+          }
         });
       }
       $.plot("#ftgraph", temperatureData,
       {
         units : '&deg;F',
+        grid : {
+          backgroundColor : {
+            colors : ["#F8E6BC", "#FFFFFF"]
+          }
+        },
         legend :
         {
           show : true,
@@ -243,6 +253,11 @@ qx.Class.define("mobileedd.page.Forecast",
       }],
       {
         units : 'mph',
+        grid : {
+          backgroundColor : {
+            colors : ["#F8E6BC", "#FFFFFF"]
+          }
+        },
         legend :
         {
           show : true,
@@ -299,7 +314,12 @@ qx.Class.define("mobileedd.page.Forecast",
         }
       }],
       {
-        units : '"',
+        units : 'in',
+        grid : {
+          backgroundColor : {
+            colors : ["#F8E6BC", "#FFFFFF"]
+          }
+        },
         legend :
         {
           show : true,
@@ -322,7 +342,7 @@ qx.Class.define("mobileedd.page.Forecast",
         {
           min : 0,
           position : 'left',
-          axisLabel : 'Precipitation, "',
+          axisLabel : 'Precipitation, in.',
           tickFormatter : function(val, axis) {
             return val.toFixed(2);
           }
@@ -343,6 +363,11 @@ qx.Class.define("mobileedd.page.Forecast",
       }],
       {
         units : '%',
+        grid : {
+          backgroundColor : {
+            colors : ["#F8E6BC", "#FFFFFF"]
+          }
+        },
         legend :
         {
           show : true,
@@ -388,7 +413,12 @@ qx.Class.define("mobileedd.page.Forecast",
         }
       }],
       {
-        units : '"',
+        units : 'ft',
+        grid : {
+          backgroundColor : {
+            colors : ["#F8E6BC", "#FFFFFF"]
+          }
+        },
         legend :
         {
           show : true,

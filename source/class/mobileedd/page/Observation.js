@@ -147,6 +147,11 @@ qx.Class.define("mobileedd.page.Observation",
           }],
           {
             units : '&deg;F',
+            grid : {
+              backgroundColor : {
+                colors : ["#F8E6BC", "#FFFFFF"]
+              }
+            },
             legend :
             {
               show : true,
@@ -192,6 +197,11 @@ qx.Class.define("mobileedd.page.Observation",
           }],
           {
             units : 'mph',
+            grid : {
+              backgroundColor : {
+                colors : ["#F8E6BC", "#FFFFFF"]
+              }
+            },
             legend :
             {
               show : true,
@@ -228,7 +238,12 @@ qx.Class.define("mobileedd.page.Observation",
             }
           }],
           {
-            units : '"',
+            units : 'in',
+            grid : {
+              backgroundColor : {
+                colors : ["#F8E6BC", "#FFFFFF"]
+              }
+            },
             legend :
             {
               show : true,
@@ -264,6 +279,11 @@ qx.Class.define("mobileedd.page.Observation",
           }],
           {
             units : '"',
+            grid : {
+              backgroundColor : {
+                colors : ["#F8E6BC", "#FFFFFF"]
+              }
+            },
             legend :
             {
               show : true,
@@ -306,7 +326,12 @@ qx.Class.define("mobileedd.page.Observation",
             }
           }],
           {
-            units : '"',
+            units : 'ft',
+            grid : {
+              backgroundColor : {
+                colors : ["#F8E6BC", "#FFFFFF"]
+              }
+            },
             legend :
             {
               show : true,
@@ -328,24 +353,6 @@ qx.Class.define("mobileedd.page.Observation",
               axisLabel : 'feet'
             }]
           });
-
-          // $.plot("#tdgraph", [aryTD], {
-
-          //   xaxis :
-
-          //   {
-
-          //     mode : "time",
-
-          //     tickFormatter : function(val, axis) {
-
-          //       return new moment(val).format("h:mm a<br>ddd<br>(M/D)");
-
-          //     }
-
-          //   }
-
-          // });
         });
         tsReq.send();
         var html = '<div id="tgraph" class="demo-placeholder"></div>';
