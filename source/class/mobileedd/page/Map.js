@@ -85,11 +85,16 @@ qx.Class.define("mobileedd.page.Map",
         "source" : nc + "sat_meteo_emulated_imagery_lightningstrikedensity_goes_time" + msExport,
         "layer" : "show:3"
       },
-      "Observations" :
-      {
-        "source" : nc + "obs_meteocean_insitu_sfc_time" + msExport,
-        "layer" : "show:0"
-      },
+
+      // "Observations" :
+
+      // {
+
+      //   "source" : nc + "obs_meteocean_insitu_sfc_time" + msExport,
+
+      //   "layer" : "show:0"
+
+      // },
       "Hydrology" : {
         "group" : {
           "National Water Model" :
@@ -862,6 +867,7 @@ qx.Class.define("mobileedd.page.Map",
       var travelButton = new qx.ui.mobile.form.Button("Weather Travel Hazards", "mobileedd/images/car.png");
       travelButton.addListener("tap", function(e)
       {
+        this.c.setTravelActive(true);
         qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
         me.drawer.hide();
       }, this);
@@ -1566,11 +1572,21 @@ qx.Class.define("mobileedd.page.Map",
         });
         me.BasemapOptions = [me.terrain, me.lite, me.natgeo, me.esridark, me.esrilite, me.mapboxWorldbright, me.esriimage, me.esritopo];
 
+        // Don't allow rotations
+        var interactions = ol.interaction.defaults(
+        {
+          altShiftDragRotate : false,
+          pinchRotate : false
+        });
+
         // The map
         me.map = new ol.Map(
         {
           target : 'map',
-          controls : ol.control.defaults().extend([new ol.control.ScaleLine( {
+          interactions : interactions,
+          controls : ol.control.defaults( {
+            rotate : false
+          }).extend([new ol.control.ScaleLine( {
             units : 'us'
           })]),
           layers : [me.esridark, me.esridark_reference],
@@ -1627,16 +1643,13 @@ qx.Class.define("mobileedd.page.Map",
           }
         }));
         var deltaMean = 500;  // the geolocation sampling period mean in ms
-        geolocation.once('change', function(evt)
-        {
-          console.log('once');
+        geolocation.once('change', function(evt) {
           me.map.getView().setCenter(geolocation.getPosition());
         })
 
         // Listen to position changes
         geolocation.on('change', function()
         {
-          console.log('change');
           var position = geolocation.getPosition();
           me.setMyPosition(position);
           var accuracy = geolocation.getAccuracy();
@@ -1969,28 +1982,58 @@ qx.Class.define("mobileedd.page.Map",
         }
         items.push(htype + ' ' + hsig + ' - #' + obj.get('etn'));
       });
-      travelSegment.forEach(function(obj, index) {
-        items.push('Travel Hazard Segment - #' + index);
-      })
-      travelPoint.forEach(function(obj, index) {
-        items.push('Travel Hazard Point - #' + index);
-      })
-      items.push("Set Travel Origin");
 
-      // Handle Waypoints
-      if (typeof mobileedd.page.PageTravelHazards.getInstance().waypoints !== "undefined") {
-        mobileedd.page.PageTravelHazards.getInstance().waypoints.forEach(function(obj, index) {
-          items.push("Set Travel Waypoint #" + (Number(index) + 1));
+      // Travel items
+      if (this.c.getTravelActive())
+      {
+        travelSegment.forEach(function(obj, index) {
+          items.push('Travel Hazard Segment - #' + index);
         })
+        travelPoint.forEach(function(obj, index) {
+          items.push('Travel Hazard Point - #' + index);
+        })
+        items.push("Set Travel Origin");
+
+        // Handle Waypoints
+        if (typeof mobileedd.page.PageTravelHazards.getInstance().waypoints !== "undefined") {
+          mobileedd.page.PageTravelHazards.getInstance().waypoints.forEach(function(obj, index) {
+            items.push("Set Travel Waypoint #" + (Number(index) + 1));
+          })
+        }
+        items.push("Set Travel Destination");
       }
-      items.push("Set Travel Destination");
       items.push("Layer Options");
 
       // Cancel
       items.push("Cancel");
-      var model = new qx.data.Array(items);
-      var menu = new qx.ui.mobile.dialog.Menu(model);
+      me.model = new qx.data.Array(items);
+      var menu = new qx.ui.mobile.dialog.Menu(me.model);
       menu.show();
+
+      // setTimeout(function(){
+
+      //   me.model.push('TEST');
+
+      // },2000)
+      if (me.getLayerByName("National Water Model") != null)
+      {
+        // hazards.push(feature);
+        var waterRequest = new qx.io.request.Jsonp();
+        var url = me.getJsonpRoot() + "hazards/getShortFusedHazards.php";
+        var extent = me.map.getView().calculateExtent(me.map.getSize()).toString();
+        var ll = e.coordinate;
+        var url = 'http://mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/flowlines/Mapserver/identify?f=json&tolerance=1&returnGeometry=false&imageDisplay=1280,581,1&geometry={"x":' + ll[0] + ',"y":' + ll[1] + '}&geometryType=esriGeometryPoint&sr=102100&mapExtent=' + extent + '&layers=top';
+        waterRequest.setUrl(url);
+        waterRequest.setCallbackParam('callback');
+        waterRequest.addListenerOnce("success", function(e)
+        {
+          var data = e.getTarget().getResponse();
+          data.results.forEach(function(obj) {
+            me.model.insertAt(0, "NWM - " + obj.attributes.reach_id + " (" + obj.attributes.gnis_name + ")");
+          }, this)
+        }, this);
+        waterRequest.send();
+      }
 
       // Parse for hazards and highlight
       new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2)
@@ -2035,6 +2078,15 @@ qx.Class.define("mobileedd.page.Map",
       {
         var selectedIndex = evt.getData().index;
         var selectedItem = evt.getData().item;
+        if (selectedItem.indexOf("NWM") !== -1)
+        {
+          var runID = selectedItem.split(' - ')[1].split(' (')[0];
+          var message = new qx.event.message.Message("edd.streamflow");
+          message.setData(runID);
+          qx.core.Init.getApplication().getRouting().executeGet("/nwm");
+          me.bus.dispatch(message);
+          return;
+        }
         if (selectedItem.indexOf("Get Forecast For") !== -1)
         {
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');

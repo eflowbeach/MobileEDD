@@ -19,6 +19,7 @@ qx.Class.define("mobileedd.page.TravelSample",
   construct : function()
   {
     this.base(arguments);
+    this.c = mobileedd.config.Config.getInstance();
     this.bus = qx.event.message.Bus.getInstance();
     this.setTitle("Travel Hazard Sample");
     this.setShowBackButton(true);

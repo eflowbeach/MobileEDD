@@ -148,7 +148,7 @@ qx.Class.define("mobileedd.Observations",
         me.getUpdatedServiceUrl();
         me.observationReq.send();
       }
-      if (this.observationLayer.getSource() != null) {
+      if (typeof (this.observationLayer) !== "undefined" && this.observationLayer.getSource() != null) {
         this.observationLayer.getSource().dispatchEvent('change');
       }
     },

@@ -68,10 +68,11 @@ qx.Class.define("mobileedd.Application",
       var hydrograph = mobileedd.page.Hydrograph.getInstance();
       var observation = mobileedd.page.Observation.getInstance();
       var forecast = mobileedd.page.Forecast.getInstance();
+      var nwm = mobileedd.page.NationalWaterModel.getInstance();
 
       // Add the pages to the page manager.
       var manager = new qx.ui.mobile.page.Manager(false);
-      manager.addDetail([map, hazardtext, travelhazards, travelsample, hydrograph, observation, forecast]);
+      manager.addDetail([map, hazardtext, travelhazards, travelsample, hydrograph, observation, forecast, nwm]);
 
       // Initialize the application routing
       this.getRouting().onGet("/", this._show, map);
@@ -81,6 +82,7 @@ qx.Class.define("mobileedd.Application",
       this.getRouting().onGet("/hydrograph", this._show, hydrograph);
       this.getRouting().onGet("/observation", this._show, observation);
       this.getRouting().onGet("/forecast", this._show, forecast);
+      this.getRouting().onGet("/nwm", this._show, nwm);
       this.getRouting().init();
       var button = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legendOn.png");
       button.setId("hideButton");

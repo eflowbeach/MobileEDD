@@ -15,6 +15,9 @@ qx.Class.define("mobileedd.config.Config",
     },
     obDisplayedField : {
       init : "Temperature"
+    },
+    travelActive : {
+      init : false
     }
   },
   construct : function() {

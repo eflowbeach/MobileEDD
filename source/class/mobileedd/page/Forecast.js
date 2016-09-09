@@ -40,8 +40,8 @@ qx.Class.define("mobileedd.page.Forecast",
       // Busy indicator
       var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
       this.busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
-      this.label = new qx.ui.mobile.embed.Html();
-      this.getContent().add(this.label);
+      this.embedHtml = new qx.ui.mobile.embed.Html();
+      this.getContent().add(this.embedHtml);
 
       // NDFD request
       me.ndfdReq = new qx.io.request.Jsonp();
