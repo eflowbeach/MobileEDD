@@ -2175,21 +2175,8 @@ qx.Class.define("mobileedd.page.Map",
         }
         if (selectedItem.indexOf("Monitor") !== -1)
         {
-          //var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           me.setMyPosition(e.coordinate);
           me.checkWwaAtLocation();
-
-          //var myPosition = ol.proj.transform([-82.9, 29.28], 'EPSG:4326', 'EPSG:3857');
-
-          // mobileedd.page.Forecast.getInstance();
-
-          // var text = new qx.event.message.Message("edd.forecast");
-
-          // text.setData(ll);
-
-          // qx.core.Init.getApplication().getRouting().executeGet("/forecast");
-
-          // me.bus.dispatch(text);
           return;
         }
         if (selectedItem == "Set Travel Destination")
@@ -2216,7 +2203,7 @@ qx.Class.define("mobileedd.page.Map",
         }
         if (selectedItem.indexOf("Hydrograph") !== -1)
         {
-          var key = selectedItem;  //.split('Hydrograph - ')[1];
+          var key = selectedItem; 
           var text = new qx.event.message.Message("edd.hydrograph");
           text.setData(hydrographs[key]);
           qx.core.Init.getApplication().getRouting().executeGet("/hydrograph");
@@ -2225,7 +2212,7 @@ qx.Class.define("mobileedd.page.Map",
         }
         if (selectedItem.indexOf("Ob - ") !== -1)
         {
-          var key = selectedItem;  //.split('Hydrograph - ')[1];
+          var key = selectedItem; 
           var text = new qx.event.message.Message("edd.observation");
           text.setData(observations[key]);
           qx.core.Init.getApplication().getRouting().executeGet("/observation");
@@ -2339,6 +2326,8 @@ qx.Class.define("mobileedd.page.Map",
             }
           })
         }
+        
+        // Make Hazard options for menu
         var hsplit = selectedItem.split(' - ');
         var htype1 = hsplit[0];
         var hetn = hsplit[1].replace('#', '');
