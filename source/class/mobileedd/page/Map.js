@@ -32,7 +32,7 @@ qx.Class.define("mobileedd.page.Map",
       init : false
     },
     basemap : {
-      init : "ESRI Gray"
+      init : "ESRI Dark Gray"
     },
     myPosition :
     {
@@ -78,9 +78,12 @@ qx.Class.define("mobileedd.page.Map",
     var idp = me.c.getSecure() + '//idpgis.ncep.noaa.gov/arcgis/rest/services/';
     var qpf = 'NWS_Forecasts_Guidance_Warnings/wpc_qpf' + msExport;
     var spc = 'NWS_Forecasts_Guidance_Warnings/SPC_wx_outlks' + msExport;
+    var npsg = me.c.getSecure() + '//psgeodata.fs.fed.us/arcgis/rest/services/NPSG/';
+
+    //http://psgeodata.fs.fed.us/arcgis/rest/services/NPSG/Fuel_Moisture/MapServer/
     this.layer_list =
     {
-      "Lightning" :
+      "Lightning Density" :
       {
         "source" : nc + "sat_meteo_emulated_imagery_lightningstrikedensity_goes_time" + msExport,
         "layer" : "show:3"
@@ -95,25 +98,85 @@ qx.Class.define("mobileedd.page.Map",
       //   "layer" : "show:0"
 
       // },
-      "Hydrology" : {
-        "group" : {
-          "National Water Model" :
-          {
-            "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/river_network" + msExport,
-            "layer" : "show:0,1,2,3"
-          }
-        }
+
+      // "Hydrology" : {
+
+      //   "group" : {
+      "National Water Model" :
+      {
+        "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/river_network" + msExport,
+        "layer" : "show:0,1,2,3"
+
+        //   }
+
+        // }
       },
-      "Fire" : {
-        "group" : {
+      "Fire Weather" : {
+        "group" :
+        {
           "Active Fire Perimeters" :
           {
             "source" : me.c.getSecure() + "//tmservices1.esri.com/arcgis/rest/services/LiveFeeds/Wildfire_Activity" + msExport,
             "layer" : "show:2"
+          },
+          "Forecasted Fire Danger" :
+          {
+            "source" : npsg + 'Fire_Danger' + msExport,
+            "layer" : "show:0"
+          },
+          "Haines Index" :
+          {
+            "source" : npsg + 'Fire_Danger' + msExport,
+            "layer" : "show:1"
+          },
+          "ERC Day 1" :
+          {
+            "source" : npsg + 'Fire_Danger' + msExport,
+            "layer" : "show:3"
+          },
+          "ERC Day 2" :
+          {
+            "source" : npsg + 'Fire_Danger' + msExport,
+            "layer" : "show:4"
+          },
+          "ERC Day 3" :
+          {
+            "source" : npsg + 'Fire_Danger' + msExport,
+            "layer" : "show:5"
+          },
+          "ERC Day 4" :
+          {
+            "source" : npsg + 'Fire_Danger' + msExport,
+            "layer" : "show:6"
+          },
+          "ERC Day 5" :
+          {
+            "source" : npsg + 'Fire_Danger' + msExport,
+            "layer" : "show:7"
+          },
+          "ERC Day 6" :
+          {
+            "source" : npsg + 'Fire_Danger' + msExport,
+            "layer" : "show:8"
+          },
+          "ERC Day 7" :
+          {
+            "source" : npsg + 'Fire_Danger' + msExport,
+            "layer" : "show:9"
+          },
+          "Fuel Moisture (100 hr)" :
+          {
+            "source" : npsg + 'Fuel_Moisture' + msExport,
+            "layer" : "show:1"
+          },
+          "Fuel Moisture (1000 hr)" :
+          {
+            "source" : npsg + 'Fuel_Moisture' + msExport,
+            "layer" : "show:0"
           }
         }
       },
-      "Convective Outlooks" : {
+      "SPC Convective Outlooks" : {
         "group" :
         {
           "Convective Outlook - Day 1" :
@@ -148,92 +211,92 @@ qx.Class.define("mobileedd.page.Map",
           }
         }
       },
-      "Precipitation" : {
+      "Precipitation (Forecast & Estimates)" : {
         "group" :
         {
-          "Precipitation - Day 1 QPF" :
+          "Forecast - Day 1 QPF" :
           {
             "source" : idp + qpf,
             "layer" : "show:1"
           },
-          "Precipitation - Day 2 QPF" :
+          "Forecast - Day 2 QPF" :
           {
             "source" : idp + qpf,
             "layer" : "show:2"
           },
-          "Precipitation - Day 3 QPF" :
+          "Forecast - Day 3 QPF" :
           {
             "source" : idp + qpf,
             "layer" : "show:3"
           },
-          "Precipitation - Day 4-5 QPF" :
+          "Forecast - Day 4-5 QPF" :
           {
             "source" : idp + qpf,
             "layer" : "show:4"
           },
-          "Precipitation - Day 6-7 QPF" :
+          "Forecast - Day 6-7 QPF" :
           {
             "source" : idp + qpf,
             "layer" : "show:5"
           },
-          "Precipitation - Day 1-2 QPF" :
+          "Forecast - Day 1-2 QPF" :
           {
             "source" : idp + qpf,
             "layer" : "show:8"
           },
-          "Precipitation - Day 1-5 QPF" :
+          "Forecast - Day 1-5 QPF" :
           {
             "source" : idp + qpf,
             "layer" : "show:9"
           },
-          "Precipitation - Day 1-7 QPF" :
+          "Forecast - Day 1-7 QPF" :
           {
             "source" : idp + qpf,
             "layer" : "show:10"
           },
-          "Precipitation - 1 hour QPE" :
+          "Estimate - 1 hour QPE" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
             "layer" : "show:3"
           },
-          "Precipitation - 3 hour QPE" :
+          "Estimate - 3 hour QPE" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
             "layer" : "show:7"
           },
-          "Precipitation - 6 hour QPE" :
+          "Estimate - 6 hour QPE" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
             "layer" : "show:11"
           },
-          "Precipitation - 12 hour QPE" :
+          "Estimate - 12 hour QPE" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
             "layer" : "show:15"
           },
-          "Precipitation - 24 hour QPE" :
+          "Estimate - 24 hour QPE" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
             "layer" : "show:19"
           },
-          "Precipitation - 48 hour QPE" :
+          "Estimate - 48 hour QPE" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
             "layer" : "show:23"
           },
-          "Precipitation - 72 hour QPE" :
+          "Estimate - 72 hour QPE" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
             "layer" : "show:27"
           }
         }
       },
-      "Hurricane Forecast Cones" :
+      "Tropical Cyclone Track/Intensity" :
       {
         "source" : nc + "wwa_meteocean_tropicalcyclones_trackintensityfcsts_time" + msExport,
         "layer" : "show:2,3,4,5,7,8,9"
       },
-      "Satellite" : {
+      "Satellite Imagery" : {
         "group" :
         {
           "Satellite - Visible" :
@@ -1360,7 +1423,7 @@ qx.Class.define("mobileedd.page.Map",
         });
         me.natgeo = new ol.layer.Tile(
         {
-          name : "ESRI Nat Geo",
+          name : "ESRI National Geographic",
           type : 'base',
           source : new ol.source.XYZ(
           {
@@ -1430,7 +1493,7 @@ qx.Class.define("mobileedd.page.Map",
         });
         me.esridark = new ol.layer.Tile(
         {
-          name : "ESRI Gray",
+          name : "ESRI Dark Gray",
           type : 'base',
           source : source
         });
@@ -1439,7 +1502,7 @@ qx.Class.define("mobileedd.page.Map",
         });
         me.esridark_reference = new ol.layer.Tile(
         {
-          name : "ESRI Gray Reference",
+          name : "ESRI Dark Gray Reference",
           type : 'base',
           source : new ol.source.XYZ( {
             url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
@@ -1479,7 +1542,7 @@ qx.Class.define("mobileedd.page.Map",
         var urlTemplate = me.c.getSecure() + '//services.arcgisonline.com/arcgis/rest/services/ESRI_Imagery_World_2D/MapServer/tile/{z}/{y}/{x}';
         me.esriimage = new ol.layer.Tile(
         {
-          name : "ESRI Image",
+          name : "ESRI Satellite",
           type : 'base',
 
           /* ol.source.XYZ and ol.tilegrid.XYZ have no resolutions config */
@@ -1529,7 +1592,7 @@ qx.Class.define("mobileedd.page.Map",
         var urlTemplateTopo = me.c.getSecure() + '//services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer/tile/{z}/{y}/{x}';
         me.esritopo = new ol.layer.Tile(
         {
-          name : "ESRI Topo",
+          name : "ESRI Topographic",
           type : 'base',
           source : new ol.source.TileImage(
           {
@@ -1926,7 +1989,7 @@ qx.Class.define("mobileedd.page.Map",
     handleMapClick : function(e)
     {
       var me = this;
-      var items = ['Get Forecast For This Point...'];
+      var items = ['Get Forecast For This Point...', 'Monitor this location'];
       var hazards = [];
       var travelSegment = [];
       var travelPoint = [];
@@ -2018,14 +2081,12 @@ qx.Class.define("mobileedd.page.Map",
       if (me.getLayerByName("National Water Model") != null)
       {
         // hazards.push(feature);
-        
-          if (typeof (jQuery) === "undefined" || typeof (jQuery.plot) === "undefined")
+        if (typeof (jQuery) === "undefined" || typeof (jQuery.plot) === "undefined")
         {
           var req = new qx.bom.request.Script();
           req.open("GET", "resource/mobileedd/libs/flot/flot-combo.js");
           req.send();
-        } 
-        
+        }
         var waterRequest = new qx.io.request.Jsonp();
         var url = me.getJsonpRoot() + "hazards/getShortFusedHazards.php";
         var extent = me.map.getView().calculateExtent(me.map.getSize()).toString();
@@ -2036,9 +2097,10 @@ qx.Class.define("mobileedd.page.Map",
         waterRequest.addListenerOnce("success", function(e)
         {
           var data = e.getTarget().getResponse();
-          data.results.forEach(function(obj) {
+          data.results.forEach(function(obj)
+          {
             var name = "NWM - " + obj.attributes.reach_id + " (" + obj.attributes.gnis_name + ")";
-            me.model.insertAt(0, name.replace('(Null)',''));
+            me.model.insertAt(0, name.replace('(Null)', ''));
           }, this)
         }, this);
         waterRequest.send();
@@ -2070,10 +2132,15 @@ qx.Class.define("mobileedd.page.Map",
           address = 'Lon:' + ll[0].toFixed(2) + ' Lat:' + ll[1].toFixed(2);
         }
         try {
-          new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2) {
+          new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2)
+          {
             if (div.innerHTML == 'Get Forecast For This Point...')
             {
               div.innerHTML = 'Get Forecast For ' + address;  // This Point...'
+            }
+            if (div.innerHTML == 'Monitor this location')
+            {
+              div.innerHTML = 'Monitor ' + address;  // This Point...'
             }
           })
         }catch (e) {
@@ -2104,6 +2171,25 @@ qx.Class.define("mobileedd.page.Map",
           text.setData(ll);
           qx.core.Init.getApplication().getRouting().executeGet("/forecast");
           me.bus.dispatch(text);
+          return;
+        }
+        if (selectedItem.indexOf("Monitor") !== -1)
+        {
+          //var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
+          me.setMyPosition(e.coordinate);
+          me.checkWwaAtLocation();
+
+          //var myPosition = ol.proj.transform([-82.9, 29.28], 'EPSG:4326', 'EPSG:3857');
+
+          // mobileedd.page.Forecast.getInstance();
+
+          // var text = new qx.event.message.Message("edd.forecast");
+
+          // text.setData(ll);
+
+          // qx.core.Init.getApplication().getRouting().executeGet("/forecast");
+
+          // me.bus.dispatch(text);
           return;
         }
         if (selectedItem == "Set Travel Destination")
@@ -2419,7 +2505,10 @@ qx.Class.define("mobileedd.page.Map",
           color = "#ffa500"
         } else if (hsig == "Advisory") {
           color = "#ffeb00"
+        } else if (hsig == "Statement") {
+          color = "#A67C45"
         }
+
 
 
         qx.bom.element.Style.setCss(qx.bom.Selector.query('.navigationbar')[0], 'background-image: linear-gradient(' + color + ',#383838)');
@@ -2437,7 +2526,8 @@ qx.Class.define("mobileedd.page.Map",
       // var myPosition = ol.proj.transform([-93.26, 37.19], 'EPSG:4326', 'EPSG:3857');
 
       //var myPosition = ol.proj.transform([-112.94, 40.54], 'EPSG:4326', 'EPSG:3857');
-      var myPosition = ol.proj.transform([-82.9, 29.28], 'EPSG:4326', 'EPSG:3857');
+
+      //var myPosition = ol.proj.transform([-82.9, 29.28], 'EPSG:4326', 'EPSG:3857');
       if (myPosition != null)
       {
         me.hazardsAtMyPosition = me.hazardVectorSource.getFeaturesAtCoordinate(myPosition);
@@ -2495,7 +2585,7 @@ qx.Class.define("mobileedd.page.Map",
         if (obj.get('name') == selectedItem) {
           layers.insertAt(0, obj);
         }
-        if (selectedItem == "ESRI Gray") {
+        if (selectedItem == "ESRI Dark Gray") {
           me.esridark_reference.setVisible(true);
         } else if (selectedItem == "ESRI Light Gray")
         {

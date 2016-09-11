@@ -64,7 +64,7 @@ qx.Class.define("mobileedd.Observations",
       // Start the auto-refresh timer
       me.timer.start();
       me.map.getView().on('change:resolution', function(evt) {
-        if (me.observationLayer.getVisible())
+        if (typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible())
         {
           if (evt.target.get('resolution') < 1500) {
             me.setNetworks('');

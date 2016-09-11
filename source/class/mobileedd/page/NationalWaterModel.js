@@ -15,9 +15,9 @@
 qx.Class.define("mobileedd.page.NationalWaterModel",
 {
   extend : qx.ui.mobile.page.NavigationPage,
-  properties: {
-    stationLabel:{
-      init: ''
+  properties : {
+    stationLabel : {
+      init : ''
     }
   },
   type : 'singleton',
@@ -36,9 +36,9 @@ qx.Class.define("mobileedd.page.NationalWaterModel",
     _initialize : function()
     {
       this.base(arguments);
-      
-    // Stream name
-    this.labelStream = new qx.ui.mobile.basic.Label("");
+
+      // Stream name
+      this.labelStream = new qx.ui.mobile.basic.Label("");
       this.labelStream.addCssClass("graphTitle");
       qx.bom.element.Style.setCss(this.labelStream.getContainerElement(), 'color:#0309ff;');
       this.getContent().add(this.labelStream);
@@ -79,8 +79,7 @@ qx.Class.define("mobileedd.page.NationalWaterModel",
         {
           var response = e.getTarget().getResponse();
           this.labelStream.setValue(this.getStationLabel());
-          
-          
+
           // build plot object
           var data = [];
           response[0].data.forEach(function(obj) {
