@@ -2018,6 +2018,14 @@ qx.Class.define("mobileedd.page.Map",
       if (me.getLayerByName("National Water Model") != null)
       {
         // hazards.push(feature);
+        
+          if (typeof (jQuery) === "undefined" || typeof (jQuery.plot) === "undefined")
+        {
+          var req = new qx.bom.request.Script();
+          req.open("GET", "resource/mobileedd/libs/flot/flot-combo.js");
+          req.send();
+        } 
+        
         var waterRequest = new qx.io.request.Jsonp();
         var url = me.getJsonpRoot() + "hazards/getShortFusedHazards.php";
         var extent = me.map.getView().calculateExtent(me.map.getSize()).toString();
@@ -2029,7 +2037,8 @@ qx.Class.define("mobileedd.page.Map",
         {
           var data = e.getTarget().getResponse();
           data.results.forEach(function(obj) {
-            me.model.insertAt(0, "NWM - " + obj.attributes.reach_id + " (" + obj.attributes.gnis_name + ")");
+            var name = "NWM - " + obj.attributes.reach_id + " (" + obj.attributes.gnis_name + ")";
+            me.model.insertAt(0, name.replace('(Null)',''));
           }, this)
         }, this);
         waterRequest.send();
@@ -2055,7 +2064,7 @@ qx.Class.define("mobileedd.page.Map",
       geo.reverseGeocodeReq.addListenerOnce("success", function(e)
       {
         var response = e.getTarget().getResponse();
-        if (typeof response.address !== "undefined") {
+        if (typeof response.address !== "undefined" && response.address.City != null) {
           var address = response.address.City + ', ' + response.address.Region;
         } else {
           address = 'Lon:' + ll[0].toFixed(2) + ' Lat:' + ll[1].toFixed(2);
@@ -2082,7 +2091,7 @@ qx.Class.define("mobileedd.page.Map",
         {
           var runID = selectedItem.split(' - ')[1].split(' (')[0];
           var message = new qx.event.message.Message("edd.streamflow");
-          message.setData(runID);
+          message.setData([runID, selectedItem]);
           qx.core.Init.getApplication().getRouting().executeGet("/nwm");
           me.bus.dispatch(message);
           return;

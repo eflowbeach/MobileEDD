@@ -350,7 +350,7 @@ qx.Class.define("mobileedd.page.Forecast",
       });
       $.plot("#fprecipgraph", [
       {
-        label : "Precipitation",
+        label : "Prob. of Precipitation, %",
         data : response.pop12,
         color : '#057100',
         lines :

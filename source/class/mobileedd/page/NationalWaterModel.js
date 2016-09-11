@@ -15,6 +15,11 @@
 qx.Class.define("mobileedd.page.NationalWaterModel",
 {
   extend : qx.ui.mobile.page.NavigationPage,
+  properties: {
+    stationLabel:{
+      init: ''
+    }
+  },
   type : 'singleton',
   construct : function()
   {
@@ -31,6 +36,12 @@ qx.Class.define("mobileedd.page.NationalWaterModel",
     _initialize : function()
     {
       this.base(arguments);
+      
+    // Stream name
+    this.labelStream = new qx.ui.mobile.basic.Label("");
+      this.labelStream.addCssClass("graphTitle");
+      qx.bom.element.Style.setCss(this.labelStream.getContainerElement(), 'color:#0309ff;');
+      this.getContent().add(this.labelStream);
 
       // Short
       this.labelShort = new qx.ui.mobile.basic.Label("Short Range");
@@ -60,13 +71,16 @@ qx.Class.define("mobileedd.page.NationalWaterModel",
       this.getContent().add(this.embedHtmlLong);
       this.bus.subscribe("edd.streamflow", function(e)
       {
-        var stid = e.getData();
+        var stid = e.getData()[0];
+        this.setStationLabel(e.getData()[1].replace('NWM - ', 'National Water Model<br>'));
         var req = new qx.io.request.Xhr("resource/mobileedd/data/getStreamflow.php?id=" + stid + '&type=short_range');
         req.setParser("json");
         req.addListener("success", function(e)
         {
           var response = e.getTarget().getResponse();
-
+          this.labelStream.setValue(this.getStationLabel());
+          
+          
           // build plot object
           var data = [];
           response[0].data.forEach(function(obj) {
