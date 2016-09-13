@@ -32,7 +32,7 @@ qx.Class.define("mobileedd.Observations",
     this.c = mobileedd.config.Config.getInstance();
     me.mapObject = mobileedd.page.Map.getInstance();
     me.map = me.mapObject.getMap();
-    
+
     // Load GeoJSON libs
     var req = new qx.bom.request.Script();
     req.onload = function()
@@ -68,7 +68,7 @@ qx.Class.define("mobileedd.Observations",
 
       // Start the auto-refresh timer
       me.timer.start();
-      
+
       // Set up a listener for map move.
       me.map.getView().on('change:resolution', function(evt) {
         if (typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible())
@@ -85,14 +85,14 @@ qx.Class.define("mobileedd.Observations",
     }.bind(this);
     req.open("GET", "resource/mobileedd/libs/geojsonlibs.js");
     req.send();
-    
+
     // Load plotting libraries
     if (typeof (jQuery) === "undefined" || typeof (jQuery.plot) === "undefined")
-        {
-          var req = new qx.bom.request.Script();
-          req.open("GET", "resource/mobileedd/libs/flot/flot-combo.js");
-          req.send();
-        }
+    {
+      var req = new qx.bom.request.Script();
+      req.open("GET", "resource/mobileedd/libs/flot/flot-combo.js");
+      req.send();
+    }
   },
   members :
   {
@@ -164,6 +164,7 @@ qx.Class.define("mobileedd.Observations",
         this.observationLayer.getSource().dispatchEvent('change');
       }
     },
+
     /**
      * Add the observation layer
      * */

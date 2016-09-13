@@ -106,6 +106,34 @@ qx.Class.define("mobileedd.MoreLayers",
       }
       me.mapObject.qpeContainer.setVisibility('excluded');
     },
+    addStormReports : function()
+    {
+      var me = this;
+      var sr = me.mapObject.getLayerByName("Storm Reports");
+
+      // Add the layer if it doesn't exist
+      if (sr == null)
+      {
+        var srObject = mobileedd.StormReports.getInstance();
+        srObject.addLayer();
+        srObject.timer.start();
+
+        // Add layer to more layers Object
+        me.layers["Storm Reports"] = srObject.srLayer;
+      } else
+      {
+        var srObject = mobileedd.StormReports.getInstance();
+        if (sr.getVisible())
+        {
+          sr.setVisible(false);
+          srObject.timer.stop();
+        } else
+        {
+          sr.setVisible(true);
+          srObject.timer.start();
+        }
+      }
+    },
 
     /**
     * Add a new radar Layer

@@ -12,11 +12,6 @@ qx.Class.define("mobileedd.Rivers",
 {
   extend : qx.core.Object,
   type : "singleton",
-  properties : {
-    opacity : {
-      init : 0.7
-    }
-  },
   construct : function()
   {
     var me = this;
