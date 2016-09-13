@@ -18,6 +18,9 @@ qx.Class.define("mobileedd.Observations",
     },
     networks : {
       init : "1,14,96"
+    },
+    extent : {
+      init : ''
     }
   },
   type : "singleton",
@@ -29,6 +32,8 @@ qx.Class.define("mobileedd.Observations",
     this.c = mobileedd.config.Config.getInstance();
     me.mapObject = mobileedd.page.Map.getInstance();
     me.map = me.mapObject.getMap();
+    
+    // Load GeoJSON libs
     var req = new qx.bom.request.Script();
     req.onload = function()
     {
@@ -63,6 +68,8 @@ qx.Class.define("mobileedd.Observations",
 
       // Start the auto-refresh timer
       me.timer.start();
+      
+      // Set up a listener for map move.
       me.map.getView().on('change:resolution', function(evt) {
         if (typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible())
         {
@@ -78,9 +85,14 @@ qx.Class.define("mobileedd.Observations",
     }.bind(this);
     req.open("GET", "resource/mobileedd/libs/geojsonlibs.js");
     req.send();
-    var req = new qx.bom.request.Script();
-    req.open("GET", "resource/mobileedd/libs/flot/flot-combo.js");
-    req.send();
+    
+    // Load plotting libraries
+    if (typeof (jQuery) === "undefined" || typeof (jQuery.plot) === "undefined")
+        {
+          var req = new qx.bom.request.Script();
+          req.open("GET", "resource/mobileedd/libs/flot/flot-combo.js");
+          req.send();
+        }
   },
   members :
   {
@@ -152,6 +164,9 @@ qx.Class.define("mobileedd.Observations",
         this.observationLayer.getSource().dispatchEvent('change');
       }
     },
+    /**
+     * Add the observation layer
+     * */
     addLayer : function()
     {
       var me = this;
@@ -161,7 +176,6 @@ qx.Class.define("mobileedd.Observations",
         source : null,
         style : function(feature, resolution)
         {
-          // console.log(feature);
           var anchor = [36, 36];
           var image = '';
           var service_type = "OBSERVATIONS";
@@ -314,6 +328,10 @@ qx.Class.define("mobileedd.Observations",
       });
       me.map.addLayer(me.observationLayer);
     },
+
+    /**
+     * Set up the observation request
+     * */
     setupobservationRequest : function()
     {
       var me = this;
@@ -330,10 +348,31 @@ qx.Class.define("mobileedd.Observations",
         strategy : ol.loadingstrategy.bbox,
         loader : function(extent, resolution, projection)
         {
-          me.getUpdatedServiceUrl();
-          me.observationReq.send();
+          if (me.getExtent() != extent.toString())
+          {
+            // if (typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible())
+
+            // {
+
+            //   if (resolution < 1500) {
+
+            //     me.setNetworks('');
+
+            //   } else {
+
+            //     me.setNetworks('1,14,96');
+
+            //   }
+            me.getUpdatedServiceUrl();
+            me.observationReq.send();
+
+            // }
+          }
+          me.setExtent(extent.toString());
         }
       }));
+
+      // Cluster strategy
       me.clusterSource = new ol.source.Cluster(
       {
         distance : 30,
@@ -357,7 +396,7 @@ qx.Class.define("mobileedd.Observations",
           return;
         }
         if (me.observationLayer.getSource() !== null) {
-          me.observationLayer.getSource().clear();
+          me.vectorSource.clear();
         }
         me.vectorSource.addFeatures(features);
         me.observationLayer.setSource(me.clusterSource);

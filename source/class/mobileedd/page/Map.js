@@ -62,9 +62,9 @@ qx.Class.define("mobileedd.page.Map",
     /**
      * Mapping Library
      * */
-    me.setMapUri("resource/mobileedd/ol.js");
 
-    //me.setMapUri("resource/mobileedd/ol-debug.js");
+    // me.setMapUri("resource/mobileedd/ol.js");
+    me.setMapUri("resource/mobileedd/ol-debug.js");
 
     // Busy indicator
     var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
@@ -768,7 +768,6 @@ qx.Class.define("mobileedd.page.Map",
       this.__obPeriodMenu.setTitle("Last X hours");
       this.__obPeriodMenu.addListener("changeSelection", function(e)
       {
-        console.log("Received <b>changeSelection</b> from Menu Dialog. [index: " + e.getData().index + "] [item: " + e.getData().item + "]");
         me.obPeriodButton.setValue(e.getData().item);
         mobileedd.Observations.getInstance().setPeriod(e.getData().item);
       }, this);
@@ -2025,7 +2024,6 @@ qx.Class.define("mobileedd.page.Map",
         if (layer.get('name') == "Observations")
         {
           var features = feature.get('features');
-          var features = feature.get('features');
           for (var i = 0; i < features.length; i++)
           {
             var value = 'Ob - ' + features[i].get("NAME");
@@ -2203,7 +2201,7 @@ qx.Class.define("mobileedd.page.Map",
         }
         if (selectedItem.indexOf("Hydrograph") !== -1)
         {
-          var key = selectedItem; 
+          var key = selectedItem;
           var text = new qx.event.message.Message("edd.hydrograph");
           text.setData(hydrographs[key]);
           qx.core.Init.getApplication().getRouting().executeGet("/hydrograph");
@@ -2212,7 +2210,7 @@ qx.Class.define("mobileedd.page.Map",
         }
         if (selectedItem.indexOf("Ob - ") !== -1)
         {
-          var key = selectedItem; 
+          var key = selectedItem;
           var text = new qx.event.message.Message("edd.observation");
           text.setData(observations[key]);
           qx.core.Init.getApplication().getRouting().executeGet("/observation");
@@ -2326,7 +2324,7 @@ qx.Class.define("mobileedd.page.Map",
             }
           })
         }
-        
+
         // Make Hazard options for menu
         var hsplit = selectedItem.split(' - ');
         var htype1 = hsplit[0];
