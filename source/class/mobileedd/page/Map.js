@@ -1675,17 +1675,15 @@ qx.Class.define("mobileedd.page.Map",
             zoom : 6
           })
         });
-        
-         var req = new qx.bom.request.Script();
-      req.onload = function()
-      {
-         // Popup layer
-        me.popup = new ol.Overlay.Popup();
-me.map.addOverlay(me.popup);
-      }
-       req.open("GET", 'resource/mobileedd/libs/ol3-popup.js');
-      req.send();
-       
+        var req = new qx.bom.request.Script();
+        req.onload = function()
+        {
+          // Popup layer
+          me.popup = new ol.Overlay.Popup();
+          me.map.addOverlay(me.popup);
+        }
+        req.open("GET", 'resource/mobileedd/libs/ol3-popup.js');
+        req.send();
 
         // The map click listener
         me.map.on("click", function(e)
@@ -2022,7 +2020,9 @@ me.map.addOverlay(me.popup);
       var hazards = [];
       var travelSegment = [];
       var travelPoint = [];
-      var stormReports = {};
+      var stormReports = {
+
+      };
       var hydrographs = {
 
       };
@@ -2042,15 +2042,12 @@ me.map.addOverlay(me.popup);
         if (layer.get('name') == "Travel Hazards Points") {
           travelPoint.push(feature);
         }
-        
-         if (layer.get('name') == "Storm Reports") {
-          var key = 'Storm Report - ' + feature.get('magnitude') + ' ' + feature.get('typetext') + ' (id:' + feature.id_+')';
-          stormReports[key]= feature;
+        if (layer.get('name') == "Storm Reports")
+        {
+          var key = 'Storm Report - ' + feature.get('magnitude') + ' ' + feature.get('typetext') + ' (id:' + feature.id_ + ')';
+          stormReports[key] = feature;
           items.push(key);
         }
-        
-      
-        
         if (layer.get('name') == "Rivers")
         {
           var value = 'Hydrograph - ' + feature.get("location");
@@ -2116,7 +2113,8 @@ me.map.addOverlay(me.popup);
       //   me.model.push('TEST');
 
       // },2000)
-      if (me.getLayerByName("National Water Model") != null)
+      var nwm = me.getLayerByName("National Water Model");
+      if (nwm != null && nwm.getVisible())
       {
         // hazards.push(feature);
         if (typeof (jQuery) === "undefined" || typeof (jQuery.plot) === "undefined")
@@ -2192,6 +2190,8 @@ me.map.addOverlay(me.popup);
       {
         var selectedIndex = evt.getData().index;
         var selectedItem = evt.getData().item;
+        
+        // National Water Model
         if (selectedItem.indexOf("NWM") !== -1)
         {
           var runID = selectedItem.split(' - ')[1].split(' (')[0];
@@ -2202,31 +2202,26 @@ me.map.addOverlay(me.popup);
           return;
         }
         
-        
+        // Storm reports
         if (selectedItem.indexOf("Storm Report") !== -1)
-        {    
+        {
+          var geom = e.coordinate;
+          var content = '<table>';
+          Object.keys(stormReports[selectedItem].values_).forEach(function(obj)
+          {
+            console.log(obj, stormReports[selectedItem].values_[obj]);
+            if (obj == "geometry") {
+              geom = stormReports[selectedItem].values_[obj].flatCoordinates;
+            } else {
+              content += '<tr><td><b>' + capitalizeFirstLetter(obj) + ':</b></td>';
+              content += '<td>' + stormReports[selectedItem].values_[obj] + '</td></tr>';
+            }
+          })
+          content += '</table>';
+          me.popup.show(geom, content);
+        }
         
-console.log(stormReports[selectedItem]);
-var geom = e.coordinate;
-    var content = '<table>';
-    Object.keys(stormReports[selectedItem].values_).forEach(function(obj){
-console.log(obj,stormReports[selectedItem].values_[obj] );
-if(obj=="geometry"){
-  geom = stormReports[selectedItem].values_[obj].flatCoordinates;
-}else{
-content+= '<tr><td><b>' + capitalizeFirstLetter(obj) + ':</b></td>';
-content+= '<td>' + stormReports[selectedItem].values_[obj] + '</td></tr>';
-}
-})
-content+='</table>';
-    // <p>If the popup content is quite long then by default it will scroll vertically.</p>';
-    // content += '<p>This behaviour together with the minimum width and maximum height can be changed by overriding the rules for the CSS class <code>.ol-popup-content</code> defined in <code>src/ol3-popup.css</code>.</p>';
-    // content += '<hr />';
-    // content += '<p><em>This text is here to demonstrate the content scrolling due to there being too much content to display :-)</em></p>';
-     me.popup.show(geom, content);
-// });
-}
-        
+        // Public Forecast
         if (selectedItem.indexOf("Get Forecast For") !== -1)
         {
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
@@ -2237,12 +2232,16 @@ content+='</table>';
           me.bus.dispatch(text);
           return;
         }
+        
+        // Monitor a location
         if (selectedItem.indexOf("Monitor") !== -1)
         {
           me.setMyPosition(e.coordinate);
           me.checkWwaAtLocation();
           return;
         }
+        
+        // Travel Forecast
         if (selectedItem == "Set Travel Destination")
         {
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
@@ -2265,6 +2264,8 @@ content+='</table>';
           qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
           return;
         }
+        
+        // Hydrographs
         if (selectedItem.indexOf("Hydrograph") !== -1)
         {
           var key = selectedItem;
@@ -2274,6 +2275,8 @@ content+='</table>';
           me.bus.dispatch(text);
           return;
         }
+        
+        // Observation Graphs
         if (selectedItem.indexOf("Ob - ") !== -1)
         {
           var key = selectedItem;
@@ -2283,6 +2286,8 @@ content+='</table>';
           me.bus.dispatch(text);
           return;
         }
+        
+        // Layer options
         if (selectedItem == "Layer Options")
         {
           // FIXME - Clicks were getting propagated through the menu, so added a boolean to check to see if the menu is visible.

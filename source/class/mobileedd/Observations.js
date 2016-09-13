@@ -70,18 +70,18 @@ qx.Class.define("mobileedd.Observations",
       me.timer.start();
 
       // Set up a listener for map move.
-      me.map.getView().on('change:resolution', function(evt) {
-        if (typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible())
-        {
-          if (evt.target.get('resolution') < 1500) {
-            me.setNetworks('');
-          } else {
-            me.setNetworks('1,14,96');
-          }
-          me.getUpdatedServiceUrl();
-          me.observationReq.send();
-        }
-      });
+      // me.map.getView().on('change:resolution', function(evt) {
+      //   if (typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible())
+      //   {
+      //     if (evt.target.get('resolution') < 1500) {
+      //       me.setNetworks('');
+      //     } else {
+      //       me.setNetworks('1,14,96');
+      //     }
+      //     me.getUpdatedServiceUrl();
+      //     me.observationReq.send();
+      //   }
+      // });
     }.bind(this);
     req.open("GET", "resource/mobileedd/libs/geojsonlibs.js");
     req.send();
@@ -150,16 +150,23 @@ qx.Class.define("mobileedd.Observations",
 
 
 
-      if (value != "Observations" && old == "Observations")
+      if (value != "Precipitation" && old == "Precipitation")
       {
         me.getUpdatedServiceUrl();
         me.observationReq.send();
       }
-      if (value == "Observations" && !old == "Observations")
+      if (value == "Precipitation" && old != "Precipitation")
       {
         me.getUpdatedServiceUrl();
         me.observationReq.send();
       }
+      
+      // Check for period change
+      if(!isNaN(Number(value))){
+        me.getUpdatedServiceUrl();
+        me.observationReq.send();
+      }
+      
       if (typeof (this.observationLayer) !== "undefined" && this.observationLayer.getSource() != null) {
         this.observationLayer.getSource().dispatchEvent('change');
       }
