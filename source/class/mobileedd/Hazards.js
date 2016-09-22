@@ -1,6 +1,5 @@
 /**
-*  Rivers - http://preview.weather.gov/edd/resource/edd/rfc/getAhpsData.php?datadefine=both%7Cmajor%7Cmoderate%7Cminor%7Caction&left=-95.6542258262616&right=-79.74602270126027&top=44.9330348029024&bottom=37.85676929732233
-*
+*  Hazards
 */
 
 /*global qx*/
@@ -22,17 +21,15 @@ qx.Class.define("mobileedd.Hazards",
     me.map = me.mapObject.getMap();
 
     // Timer
-    
-     me.hazardRequestTimer = new qx.event.Timer(0);  //1000 * 60);
-      me.hazardRequestTimer.addListener("interval", function(e)
-      {
-        me.hazardRequestTimer.setInterval(1000 * 20);
-        if (me.mapObject.getReady()) {
-          me.hazardRequest.send();
-        }
-      });
-      
-       this.sigMap =
+    me.hazardRequestTimer = new qx.event.Timer(0);  
+    me.hazardRequestTimer.addListener("interval", function(e)
+    {
+      me.hazardRequestTimer.setInterval(1000 * 20);
+      if (me.mapObject.getReady()) {
+        me.hazardRequest.send();
+      }
+    });
+    this.sigMap =
     {
       "Warning" : "W",
       "Watch" : "A",
@@ -111,17 +108,9 @@ qx.Class.define("mobileedd.Hazards",
       "Winter Storm" : "WS",
       "Winter Weather" : "WW"
     };
-    
-    // me.timer = new qx.event.Timer(0);
-    // var refreshRate = 5 * 60;
-    // me.timer.addListener("interval", function(e)
-    // {
-    //   me.timer.setInterval(1000 * refreshRate);
-    //   me.riverRequest.send();
-    // }, this);
   },
-  members : {
-    
+  members :
+  {
     /**
       Add a hazards layer ...
       */
@@ -278,6 +267,5 @@ qx.Class.define("mobileedd.Hazards",
         }
       }
     }
-    
   }
 });

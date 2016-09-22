@@ -80,7 +80,6 @@ qx.Class.define("mobileedd.page.Map",
     var spc = 'NWS_Forecasts_Guidance_Warnings/SPC_wx_outlks' + msExport;
     var npsg = me.c.getSecure() + '//psgeodata.fs.fed.us/arcgis/rest/services/NPSG/';
 
-    //http://psgeodata.fs.fed.us/arcgis/rest/services/NPSG/Fuel_Moisture/MapServer/
     this.layer_list =
     {
       "Lightning Density" :
@@ -318,11 +317,10 @@ qx.Class.define("mobileedd.page.Map",
       },
       "Storm Reports" :
       {
-        "source" : null,  //nc + "sat_meteo_imagery_goes_time" + msExport,
-        "layer" : null  //"show:3"
+        "source" : null, 
+        "layer" : null  
       }
     };
-   
   },
   members :
   {
@@ -443,8 +441,6 @@ qx.Class.define("mobileedd.page.Map",
       me.radarContainer.add(radarLoopComposite);
 
       // Long loop
-
-      // Loop
       var radarLoopComposite = new qx.ui.mobile.container.Composite();
       radarLoopComposite.setLayout(new qx.ui.mobile.layout.HBox());
       me.longLoop = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
@@ -508,12 +504,10 @@ qx.Class.define("mobileedd.page.Map",
         flex : 1
       });
       hazardsLabel.addCssClass("menuLabels");
-     
       me.hazardToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
       me.hazardToggleButton.addListener("changeValue", function(e)
       {
         me.hazardObject = mobileedd.Hazards.getInstance();
-        
         if (typeof me.hazardObject.hazardLayer == "undefined") {
           me.hazardObject.addHazardsLayer();
         }
@@ -537,8 +531,6 @@ qx.Class.define("mobileedd.page.Map",
            * Longfuse Container
            */
       me.showAllComposite = new qx.ui.mobile.container.Composite();
-
-      // me.showAllComposite.addCssClass("hboxPad");
       me.showAllComposite.setLayout(new qx.ui.mobile.layout.HBox());
       var hazardsLabel = new qx.ui.mobile.basic.Label("Show All: ");
       hazardsLabel.addCssClass("loopLabel");
@@ -546,7 +538,6 @@ qx.Class.define("mobileedd.page.Map",
         flex : 1
       });
 
-      // hazardsLabel.addCssClass("menuLabels");
       me.longfuseButton = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
       me.longfuseButton.addListener("changeValue", function(e)
       {
@@ -571,7 +562,8 @@ qx.Class.define("mobileedd.page.Map",
         flex : 1
       });
       me.showLongFuseLabelButton = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
-      me.showLongFuseLabelButton.addListener("changeValue", function(e) {
+      me.showLongFuseLabelButton.addListener("changeValue", function(e)
+      {
         var hazards = mobileedd.Hazards.getInstance();
         if (hazards.hazardLayer.getSource() !== null) {
           hazards.hazardLayer.getSource().dispatchEvent('change');
@@ -618,8 +610,6 @@ qx.Class.define("mobileedd.page.Map",
         {
           me.obDisplayFieldContainer.setVisibility('visible');
           me.obPeriodContainer.setVisibility('visible');
-
-          //me.obBusyIndicator.setVisibility('visible');
         } else
         {
           me.obPeriodContainer.setVisibility('excluded');
@@ -826,7 +816,7 @@ qx.Class.define("mobileedd.page.Map",
       scrollContainer.add(moreLayersButton);
 
       /**
-       * Background
+       * Background (basemap)
        * */
       var bgButton = new qx.ui.mobile.form.Button("Change Background Map", "mobileedd/images/map_icon.png");
       bgButton.addListener("tap", function(e)
@@ -837,8 +827,6 @@ qx.Class.define("mobileedd.page.Map",
         });
         var options = option_names.sort();
         options.push('Cancel');
-
-        //mobileedd.page.Map.getInstance().terrain.get('name')]
         var model = new qx.data.Array(options);
         var menu = new qx.ui.mobile.dialog.Menu(model);
         menu.show();
@@ -856,8 +844,8 @@ qx.Class.define("mobileedd.page.Map",
       scrollContainer.add(bgButton);
 
       /**
-            * Travel Hazards
-            */
+      * Travel Hazards
+      */
       var travelButton = new qx.ui.mobile.form.Button("Weather Travel Hazards", "mobileedd/images/car.png");
       travelButton.addListener("tap", function(e)
       {
@@ -964,11 +952,8 @@ qx.Class.define("mobileedd.page.Map",
 
       // Reset Button
       var resetButton = new qx.ui.mobile.navigationbar.Button("Reset");
-      resetButton.addListener("tap", function(e)
-      {
+      resetButton.addListener("tap", function(e) {
         me.reset();
-
-        //me.drawer.show();
       }, this);
       this.getLeftContainer().add(resetButton);
 
@@ -1088,19 +1073,21 @@ qx.Class.define("mobileedd.page.Map",
       url += '&ll=';
       var ll = ol.proj.transform(mobileedd.page.Map.getInstance().map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326');
       url += ll[0].toFixed(4) + ',';
-      url += ll[1].toFixed(4);  //ol.proj.transform(me.map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326').toString();
+      url += ll[1].toFixed(4);
 
       // Basemap
       url += '&bm=';
       url += me.getBasemap()
 
-      // Borders
+      /**
+       * Borders
+       * */
 
       // Show counties
       url += '&c=';
       url += me.countyToggleButton.getValue() ? 'T' : 'F';
 
-      // colors
+      // Colors
       url += '&sc=';
       url += me.getStateBorderColor().replace('#', '');
       url += '&cc=';
@@ -1308,10 +1295,6 @@ qx.Class.define("mobileedd.page.Map",
       me.dynamicLegendContainer = new qx.ui.mobile.container.Composite();
       me.dynamicLegendScrollContainer.add(me.dynamicLegendContainer);
       me.legendContainer.add(me.dynamicLegendScrollContainer);
-
-      //me.dynamicLegendScrollContainer.addCssClass('white');
-
-      // new qx.ui.mobile.core.Root().add(
       return me.legendContainer;
     },
 
@@ -1495,9 +1478,7 @@ qx.Class.define("mobileedd.page.Map",
               var n = Math.pow(2, z + 1);  // 2 tiles at z=0
               x = x % n;
               if (x * n < 0) {
-                // x and n differ in sign so add n to wrap the result
-
-                // to the correct sign
+                // x and n differ in sign so add n to wrap the result to the correct sign
                 x = x + n;
               }
               return urlTemplate.replace('{z}', z.toString()).replace('{y}', y.toString()).replace('{x}', x.toString());
@@ -1543,9 +1524,7 @@ qx.Class.define("mobileedd.page.Map",
               var n = Math.pow(2, z + 1);  // 2 tiles at z=0
               x = x % n;
               if (x * n < 0) {
-                // x and n differ in sign so add n to wrap the result
-
-                // to the correct sign
+                // x and n differ in sign so add n to wrap the result to the correct sign
                 x = x + n;
               }
               return urlTemplateTopo.replace('{z}', z.toString()).replace('{y}', y.toString()).replace('{x}', x.toString());
@@ -2025,7 +2004,6 @@ qx.Class.define("mobileedd.page.Map",
       me.model = new qx.data.Array(items);
       var menu = new qx.ui.mobile.dialog.Menu(me.model);
       menu.show();
-
       var nwm = me.getLayerByName("National Water Model");
       if (nwm != null && nwm.getVisible())
       {
@@ -2103,7 +2081,7 @@ qx.Class.define("mobileedd.page.Map",
       {
         var selectedIndex = evt.getData().index;
         var selectedItem = evt.getData().item;
-        
+
         // National Water Model
         if (selectedItem.indexOf("NWM") !== -1)
         {
@@ -2114,7 +2092,7 @@ qx.Class.define("mobileedd.page.Map",
           me.bus.dispatch(message);
           return;
         }
-        
+
         // Storm reports
         if (selectedItem.indexOf("Storm Report") !== -1)
         {
@@ -2133,7 +2111,7 @@ qx.Class.define("mobileedd.page.Map",
           content += '</table>';
           me.popup.show(geom, content);
         }
-        
+
         // Public Forecast
         if (selectedItem.indexOf("Get Forecast For") !== -1)
         {
@@ -2145,7 +2123,7 @@ qx.Class.define("mobileedd.page.Map",
           me.bus.dispatch(text);
           return;
         }
-        
+
         // Monitor a location
         if (selectedItem.indexOf("Monitor") !== -1)
         {
@@ -2153,7 +2131,7 @@ qx.Class.define("mobileedd.page.Map",
           me.checkWwaAtLocation();
           return;
         }
-        
+
         // Travel Forecast
         if (selectedItem == "Set Travel Destination")
         {
@@ -2177,7 +2155,7 @@ qx.Class.define("mobileedd.page.Map",
           qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
           return;
         }
-        
+
         // Hydrographs
         if (selectedItem.indexOf("Hydrograph") !== -1)
         {
@@ -2188,7 +2166,7 @@ qx.Class.define("mobileedd.page.Map",
           me.bus.dispatch(text);
           return;
         }
-        
+
         // Observation Graphs
         if (selectedItem.indexOf("Ob - ") !== -1)
         {
@@ -2199,7 +2177,7 @@ qx.Class.define("mobileedd.page.Map",
           me.bus.dispatch(text);
           return;
         }
-        
+
         // Layer options
         if (selectedItem == "Layer Options")
         {
@@ -2356,7 +2334,6 @@ qx.Class.define("mobileedd.page.Map",
         });
       }, this);
     },
-
 
     /**
      * Get the map
