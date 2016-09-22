@@ -322,85 +322,7 @@ qx.Class.define("mobileedd.page.Map",
         "layer" : null  //"show:3"
       }
     };
-    this.sigMap =
-    {
-      "Warning" : "W",
-      "Watch" : "A",
-      "Advisory" : "Y",
-      "Statement" : "S"
-    }
-    this.hazardMap =
-    {
-      "Air Stagnation" : "AS",
-      "Areal Flood" : "FA",
-      "Ashfall" : "AF",
-      "Avalanche" : "AV",
-      "Beach Hazards" : "BH",
-      "Blizzard" : "BZ",
-      "Blowing Dust" : "DU",
-      "Blowing Snow" : "BS",
-      "Brisk Wind" : "BW",
-      "Coastal Flood" : "CF",
-      "Dense Fog" : "FG",
-      "Dense Smoke" : "SM",
-      "Dust Storm" : "DS",
-      "Excessive Heat" : "EH",
-      "Extreme Cold" : "EC",
-      "Extreme Wind" : "EW",
-      "Fire Weather" : "FW",
-      "Flash Flood" : "FF",
-      "Flood" : "FL",
-      "Freeze" : "FZ",
-      "Freezing Fog" : "ZF",
-      "Freezing Rain" : "ZR",
-      "Freezing Spray" : "UP",
-      "Frost" : "FR",
-      "Gale" : "GL",
-      "Hard Freeze" : "HZ",
-      "Hazardous Seas" : "SE",
-      "Heat" : "HT",
-      "Heavy Sleet" : "HP",
-      "Heavy Snow" : "HS",
-      "High Surf" : "SU",
-      "High Wind" : "HW",
-      "Hurricane" : "HU",
-      "Hurricane Force Wind" : "HF",
-      "Hydrologic" : "HY",
-      "Ice Accretion" : "UP",
-      "Ice Storm" : "IS",
-      "Inland Hurricane" : "HI",
-      "Inland Hurricane Wind" : "HI",
-      "Inland Tropical Storm" : "TI",
-      "Lake Effect Snow" : "LE",
-      "Lake Effect Snow and " : "LB",
-      "Lake Wind" : "LW",
-      "Lakeshore Flood" : "LS",
-      "Low Water" : "LO",
-      "Marine" : "MA",
-      "Marine Dense Fog" : "MF",
-      "Radiological Hazard" : "RH",
-      "Red Flag" : "FW",
-      "Rip Current" : "RP",
-      "Severe Thunderstorm" : "SV",
-      "Sleet" : "IP",
-      "Small Craft" : "SC",
-      "Small Craft for Hazardous Seas" : "SW",
-      "Small Craft for Rough Bar" : "RB",
-      "Small Craft for Winds" : "SI",
-      "Snow" : "SN",
-      "Snow and Blowing Snow" : "SB",
-      "Storm" : "SR",
-      "Tornado" : "TO",
-      "Tropical Storm" : "TR",
-      "Tsunami" : "TS",
-      "Typhoon" : "TY",
-      "Volcanic Ashfall" : "AF",
-      "Volcano" : "VO",
-      "Wind" : "WI",
-      "Wind Chill" : "WC",
-      "Winter Storm" : "WS",
-      "Winter Weather" : "WW"
-    };
+   
   },
   members :
   {
@@ -586,29 +508,24 @@ qx.Class.define("mobileedd.page.Map",
         flex : 1
       });
       hazardsLabel.addCssClass("menuLabels");
-      me.hazardRequestTimer = new qx.event.Timer(0);  //1000 * 60);
-      me.hazardRequestTimer.addListener("interval", function(e)
-      {
-        me.hazardRequestTimer.setInterval(1000 * 20);
-        if (me.getReady()) {
-          me.hazardRequest.send();
-        }
-      });
+     
       me.hazardToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
       me.hazardToggleButton.addListener("changeValue", function(e)
       {
-        if (typeof me.hazardLayer == "undefined") {
-          me.addHazardsLayer();
+        me.hazardObject = mobileedd.Hazards.getInstance();
+        
+        if (typeof me.hazardObject.hazardLayer == "undefined") {
+          me.hazardObject.addHazardsLayer();
         }
-        me.hazardLayer.setVisible(e.getData());
+        me.hazardObject.hazardLayer.setVisible(e.getData());
         if (e.getData())
         {
-          me.hazardRequestTimer.start();
+          me.hazardObject.hazardRequestTimer.start();
           me.showAllComposite.setVisibility("visible");
           me.showHazardLabelComposite.setVisibility("visible");
         } else
         {
-          me.hazardRequestTimer.stop();
+          me.hazardObject.hazardRequestTimer.stop();
           me.showAllComposite.setVisibility("excluded");
           me.showHazardLabelComposite.setVisibility("excluded");
         }
@@ -637,8 +554,8 @@ qx.Class.define("mobileedd.page.Map",
         if (me.longfuseButton.getValue()) {
           url += "?all=t";
         }
-        me.hazardRequest.setUrl(url);
-        me.hazardRequest.send();
+        me.hazardObject.hazardRequest.setUrl(url);
+        me.hazardObject.hazardRequest.send();
       }, this);
       me.showAllComposite.add(me.longfuseButton);
       scrollContainer.add(me.showAllComposite);
@@ -655,8 +572,9 @@ qx.Class.define("mobileedd.page.Map",
       });
       me.showLongFuseLabelButton = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
       me.showLongFuseLabelButton.addListener("changeValue", function(e) {
-        if (me.hazardLayer.getSource() !== null) {
-          me.hazardLayer.getSource().dispatchEvent('change');
+        var hazards = mobileedd.Hazards.getInstance();
+        if (hazards.hazardLayer.getSource() !== null) {
+          hazards.hazardLayer.getSource().dispatchEvent('change');
         }
       }, this);
       me.showHazardLabelComposite.add(me.showLongFuseLabelButton);
@@ -1504,7 +1422,7 @@ qx.Class.define("mobileedd.page.Map",
         {
           me.setReady(true);
           me.setUrlParams();
-          me.hazardRequest.send();
+          me.hazardObject.hazardRequest.send();
         });
         var attribution = new ol.Attribution( {
           html : 'Tiles &copy; <a href=me.c.getSecure() + "//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer">ArcGIS</a>'
@@ -2108,11 +2026,6 @@ qx.Class.define("mobileedd.page.Map",
       var menu = new qx.ui.mobile.dialog.Menu(me.model);
       menu.show();
 
-      // setTimeout(function(){
-
-      //   me.model.push('TEST');
-
-      // },2000)
       var nwm = me.getLayerByName("National Water Model");
       if (nwm != null && nwm.getVisible())
       {
@@ -2146,7 +2059,7 @@ qx.Class.define("mobileedd.page.Map",
       new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2)
       {
         if (div.innerHTML.indexOf("Warning") !== -1) {
-          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'background-color:#FF5D5D;')
+          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'background-color:#ff3737;color:#FFF000')
         }
         if (div.innerHTML.indexOf("Watch") !== -1) {
           qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'background-color:#FEBB39;')
@@ -2412,9 +2325,9 @@ qx.Class.define("mobileedd.page.Map",
           if (htype + ' ' + hsig == htype1 && feature.get('etn') == hetn)
           {
             var wfo = feature.get('office').substr(1, 4);
-            var phenom = feature.get('phenomenon').length == 2 ? feature.get('phenomenon') : me.hazardMap[feature.get('phenomenon')];
+            var phenom = feature.get('phenomenon').length == 2 ? feature.get('phenomenon') : me.hazardObject.hazardMap[feature.get('phenomenon')];
             var eventid = feature.get('etn').replace(/ /g, '');
-            var sig = (typeof feature.get('significance') == "undefined") ? 'W' : me.sigMap[feature.get('significance')];
+            var sig = (typeof feature.get('significance') == "undefined") ? 'W' : me.hazardObject.sigMap[feature.get('significance')];
             var url = me.getJsonpRoot() + 'getWarningText.php';
             url += '?year=' + new Date(feature.get('end') * 1000).getFullYear();
             url += '&wfo=' + wfo;
@@ -2444,162 +2357,6 @@ qx.Class.define("mobileedd.page.Map",
       }, this);
     },
 
-    /**
-      Add a hazards layer ...
-      */
-    addHazardsLayer : function()
-    {
-      var me = this;
-      me.hazardVectorSource = new ol.source.Vector(( {
-        projection : 'EPSG:3857'
-      }));
-      me.hazardLayer = new ol.layer.Vector(
-      {
-        name : "Hazards",
-        source : me.hazardVectorSource,
-        style : function(feature, resolution)
-        {
-          var color;
-          var fg = 'white';
-          var label = '';
-
-          // Better colors for short-fused hazards
-          if (feature.get('phenomenon') == "SV" || me.hazardMap[feature.get('phenomenon')] == "SV" && feature.get('significance') == "Warning")
-          {
-            color = 'yellow';
-            fg = 'black';
-          } else if (feature.get('phenomenon') == "TO" || me.hazardMap[feature.get('phenomenon')] == "TO" && feature.get('significance') == "Warning") {
-            color = 'red';
-          } else if (feature.get('phenomenon') == "FF" || me.hazardMap[feature.get('phenomenon')] == "FF" && feature.get('significance') == "Warning") {
-            color = '#0AF330';
-          } else if (feature.get('phenomenon') == "MA" || me.hazardMap[feature.get('phenomenon')] == "MA" && feature.get('significance') == "Warning") {
-            color = '#29E8EF';
-          } else {
-            color = feature.get('color');
-          }
-
-
-
-          // Show the hazard text
-          if (me.showLongFuseLabelButton.getValue()) {
-            if (me.longfuseButton.getValue()) {
-              label = feature.get('phenomenon') + '\n' + feature.get('significance');
-            } else {
-              var key = Object.keys(me.hazardMap).filter(function(key) {
-                return me.hazardMap[key] === feature.get('phenomenon')
-              })[0];
-              label = key + '\n' + 'Warning';
-            }
-          }
-          var contrast = getContrast50(color);
-          var textStroke = new ol.style.Stroke(
-          {
-            color : contrast,
-            width : 5
-          });
-          var textFill = new ol.style.Fill( {
-            color : color
-          });
-          return [new ol.style.Style(
-          {
-            stroke : new ol.style.Stroke(
-            {
-              color : color,
-              width : 5
-            }),
-            text : new ol.style.Text(
-            {
-              font : '20px Calibri,sans-serif',
-              text : label,
-              fill : textFill,
-              stroke : textStroke
-            })
-          })];
-        }
-      });
-      me.map.addLayer(me.hazardLayer);
-
-      // Hazard Request
-      me.hazardRequest = new qx.io.request.Jsonp();
-      var url = me.getJsonpRoot() + "hazards/getShortFusedHazards.php";
-      if (me.longfuseButton.getValue()) {
-        url += "?all=t";
-      }
-      me.hazardRequest.setUrl(url);
-      me.hazardRequest.setCallbackParam('callback');
-      me.hazardRequest.addListener("success", function(e)
-      {
-        var data = e.getTarget().getResponse();
-        var features = new ol.format.GeoJSON().readFeatures(data, {
-          featureProjection : 'EPSG:3857'
-        });
-
-        // if ( me.hazardVectorSource !== null) {
-        me.hazardVectorSource.clear();
-
-        // }
-        me.hazardVectorSource.addFeatures(features);
-        me.checkWwaAtLocation();
-
-        // me.hazardLayer.setSource(vectorSource);
-      }, this);
-      me.cycleWwaTimer = new qx.event.Timer(3000);
-      me.cycleCount = 0;
-      me.cycleWwaTimer.addListener("interval", function(e)
-      {
-        var feature = me.hazardsAtMyPosition[me.cycleCount];  //.forEach(function(obj, index){
-        var htype = feature.get('warn_type');
-        var hsig = 'Warning';
-        if (typeof htype == "undefined")
-        {
-          htype = feature.get('phenomenon');
-          hsig = feature.get('significance');
-        }
-        qx.bom.Selector.query('.navigationbar>h1')[0].innerHTML = htype + ' ' + hsig;
-        var color = "#646464";
-        if (hsig == "Warning") {
-          color = "#dc2d2d"
-        } else if (hsig == "Watch") {
-          color = "#ffa500"
-        } else if (hsig == "Advisory") {
-          color = "#ffeb00"
-        } else if (hsig == "Statement") {
-          color = "#A67C45"
-        }
-
-
-
-        qx.bom.element.Style.setCss(qx.bom.Selector.query('.navigationbar')[0], 'background-image: linear-gradient(' + color + ',#383838)');
-        me.cycleCount++;
-        if (me.cycleCount >= me.hazardsAtMyPosition.length) {
-          me.cycleCount = 0;
-        }
-      })
-    },
-    checkWwaAtLocation : function(features)
-    {
-      var me = this;
-      var myPosition = me.getMyPosition();
-
-      // var myPosition = ol.proj.transform([-93.26, 37.19], 'EPSG:4326', 'EPSG:3857');
-
-      //var myPosition = ol.proj.transform([-112.94, 40.54], 'EPSG:4326', 'EPSG:3857');
-
-      //var myPosition = ol.proj.transform([-82.9, 29.28], 'EPSG:4326', 'EPSG:3857');
-      if (myPosition != null)
-      {
-        me.hazardsAtMyPosition = me.hazardVectorSource.getFeaturesAtCoordinate(myPosition);
-        if (me.hazardsAtMyPosition.length >= 1) {
-          me.cycleWwaTimer.start();
-        } else {
-          me.cycleWwaTimer.stop();
-
-          // Reset to original
-          qx.bom.element.Style.setCss(qx.bom.Selector.query('.navigationbar')[0], 'background-image: linear-gradient(#646464,#383838)');
-          qx.bom.Selector.query('.navigationbar>h1')[0].innerHTML = 'Mobile EDD';
-        }
-      }
-    },
 
     /**
      * Get the map
