@@ -205,10 +205,7 @@ qx.Class.define("mobileedd.StormReports",
       // Hazard Request
       me.srRequest = new qx.io.request.Jsonp();
 
-      // FIXME
-
-      //var url = me.mapObject.getJsonpRoot() + "getLSR.php";
-      var url = "http://dev.nids.noaa.gov/~jwolfe/edd/edd/source/resource/edd/getLSR.php";
+      var url = me.mapObject.getJsonpRoot() + "getLSR.php";
       me.srRequest.setRequestData(
       {
         "sts" : new moment().utc().subtract(3, 'hours').format('YYYYMMDDHHMM'),

@@ -200,21 +200,17 @@ qx.Class.define("mobileedd.Hazards",
         var features = new ol.format.GeoJSON().readFeatures(data, {
           featureProjection : 'EPSG:3857'
         });
-
-        // if ( me.hazardVectorSource !== null) {
         me.hazardVectorSource.clear();
-
-        // }
         me.hazardVectorSource.addFeatures(features);
         me.checkWwaAtLocation();
-
-        // me.hazardLayer.setSource(vectorSource);
       }, this);
+      
+      // Cycle header every 3 seconds if there are hazards
       me.cycleWwaTimer = new qx.event.Timer(3000);
       me.cycleCount = 0;
       me.cycleWwaTimer.addListener("interval", function(e)
       {
-        var feature = me.hazardsAtMyPosition[me.cycleCount];  //.forEach(function(obj, index){
+        var feature = me.hazardsAtMyPosition[me.cycleCount];  
         var htype = feature.get('warn_type');
         var hsig = 'Warning';
         if (typeof htype == "undefined")

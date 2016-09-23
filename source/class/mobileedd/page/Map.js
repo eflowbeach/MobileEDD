@@ -51,7 +51,7 @@ qx.Class.define("mobileedd.page.Map",
     this.base(arguments);
     this.c = mobileedd.config.Config.getInstance();
     this.bus = qx.event.message.Bus.getInstance();
-    this.setTitle("Mobile EDD");
+    this.setTitle("NWS Mobile EDD");
     var me = this;
 
     // Set the service root
@@ -101,15 +101,15 @@ qx.Class.define("mobileedd.page.Map",
       // "Hydrology" : {
 
       //   "group" : {
-      "National Water Model" :
-      {
-        "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/river_network" + msExport,
-        "layer" : "show:0,1,2,3"
+      // "National Water Model" :
+      // {
+      //   "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/river_network" + msExport,
+      //   "layer" : "show:0,1,2,3"
 
-        //   }
+      //   //   }
 
-        // }
-      },
+      //   // }
+      // },
       "Fire Weather" : {
         "group" :
         {
@@ -175,7 +175,7 @@ qx.Class.define("mobileedd.page.Map",
           }
         }
       },
-      "SPC Convective Outlooks" : {
+      "Thunderstorm Outlooks" : {
         "group" :
         {
           "Convective Outlook - Day 1" :
@@ -213,84 +213,84 @@ qx.Class.define("mobileedd.page.Map",
       "Precipitation (Forecast & Estimates)" : {
         "group" :
         {
-          "Forecast - Day 1 QPF" :
+          "Forecast - Day 1" :
           {
             "source" : idp + qpf,
             "layer" : "show:1"
           },
-          "Forecast - Day 2 QPF" :
+          "Forecast - Day 2" :
           {
             "source" : idp + qpf,
             "layer" : "show:2"
           },
-          "Forecast - Day 3 QPF" :
+          "Forecast - Day 3" :
           {
             "source" : idp + qpf,
             "layer" : "show:3"
           },
-          "Forecast - Day 4-5 QPF" :
+          "Forecast - Day 4-5" :
           {
             "source" : idp + qpf,
             "layer" : "show:4"
           },
-          "Forecast - Day 6-7 QPF" :
+          "Forecast - Day 6-7" :
           {
             "source" : idp + qpf,
             "layer" : "show:5"
           },
-          "Forecast - Day 1-2 QPF" :
+          "Forecast - Day 1-2" :
           {
             "source" : idp + qpf,
             "layer" : "show:8"
           },
-          "Forecast - Day 1-5 QPF" :
+          "Forecast - Day 1-5" :
           {
             "source" : idp + qpf,
             "layer" : "show:9"
           },
-          "Forecast - Day 1-7 QPF" :
+          "Forecast - Day 1-7" :
           {
             "source" : idp + qpf,
             "layer" : "show:10"
           },
-          "Estimate - 1 hour QPE" :
+          "Estimate - Last hour" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
             "layer" : "show:3"
           },
-          "Estimate - 3 hour QPE" :
+          "Estimate - Last 3 hours" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
             "layer" : "show:7"
           },
-          "Estimate - 6 hour QPE" :
+          "Estimate - Last 6 hours" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
             "layer" : "show:11"
           },
-          "Estimate - 12 hour QPE" :
+          "Estimate - Last 12 hours" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
             "layer" : "show:15"
           },
-          "Estimate - 24 hour QPE" :
+          "Estimate - Last 24 hours" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
             "layer" : "show:19"
           },
-          "Estimate - 48 hour QPE" :
+          "Estimate - Last 48 hours" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
             "layer" : "show:23"
           },
-          "Estimate - 72 hour QPE" :
+          "Estimate - Last 72 hours" :
           {
             "source" : nc + "analysis_meteohydro_sfc_qpe_time" + msExport,
             "layer" : "show:27"
           }
         }
       },
-      "Tropical Cyclone Track/Intensity" :
+      "Tropical Forecast" :
       {
         "source" : nc + "wwa_meteocean_tropicalcyclones_trackintensityfcsts_time" + msExport,
         "layer" : "show:2,3,4,5,7,8,9"
@@ -346,6 +346,18 @@ qx.Class.define("mobileedd.page.Map",
       var scrollContainer = new qx.ui.mobile.container.Composite();
       scroll.add(scrollContainer);
       me.drawer.add(scroll);
+      
+      /**
+       * NOAA/NWS icons
+       * */
+      var composite = new qx.ui.mobile.container.Composite();
+      // composite.addCssClass("hboxPad");
+      composite.setLayout(new qx.ui.mobile.layout.HBox().set({alignX:"center"}));
+      var atom = new qx.ui.mobile.basic.Atom(null, "resource/mobileedd/images/noaa.png");
+      composite.add(atom);
+      var atom = new qx.ui.mobile.basic.Atom(null, "resource/mobileedd/images/nws.png");
+      composite.add(atom);
+      scrollContainer.add(composite); 
 
       /**
        * Radar Container
@@ -453,7 +465,7 @@ qx.Class.define("mobileedd.page.Map",
           mobileedd.Radar.getInstance().setFrames(5)
         }
       });
-      var loopLabel = new qx.ui.mobile.basic.Label("Long Loop: ");
+      var loopLabel = new qx.ui.mobile.basic.Label("1 Hour Loop: ");
       loopLabel.addCssClass("loopLabel");
       radarLoopComposite.add(loopLabel, {
         flex : 1
@@ -858,7 +870,7 @@ qx.Class.define("mobileedd.page.Map",
       /**
        * Share
        */
-      var shareButton = new qx.ui.mobile.form.Button("Generate Web Link", "mobileedd/images/url.png");
+      var shareButton = new qx.ui.mobile.form.Button("Save/Share Map", "mobileedd/images/share.png");
       shareButton.addListener("tap", function(e)
       {
         var composite = new qx.ui.mobile.container.Composite();
@@ -1828,6 +1840,7 @@ qx.Class.define("mobileedd.page.Map",
               text : new ol.style.Text(
               {
                 text : countyLabel,
+                scale: 1.5,
                 stroke : new ol.style.Stroke(
                 {
                   width : 2,
@@ -2128,7 +2141,7 @@ qx.Class.define("mobileedd.page.Map",
         if (selectedItem.indexOf("Monitor") !== -1)
         {
           me.setMyPosition(e.coordinate);
-          me.checkWwaAtLocation();
+          me.hazardObject.checkWwaAtLocation();
           return;
         }
 

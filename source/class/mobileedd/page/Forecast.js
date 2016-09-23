@@ -215,7 +215,7 @@ qx.Class.define("mobileedd.page.Forecast",
 
           // min: response.t[0][0],
 
-          // max: response.t[response.t.length-1][0],
+          max: new moment().add(72,'hours'),//response.t[response.t.length-1][0],
           tickFormatter : function(val, axis) {
             return new moment(val).format(axisFormat);
           }
@@ -266,6 +266,7 @@ qx.Class.define("mobileedd.page.Forecast",
         xaxis :
         {
           mode : "time",
+          max: new moment().add(72,'hours'),
           tickFormatter : function(val, axis) {
             return new moment(val).format(axisFormat);
           }
@@ -284,7 +285,7 @@ qx.Class.define("mobileedd.page.Forecast",
       });
       $.plot("#fqpf", [
       {
-        label : "QPF",
+        label : "Liquid Precipitation",
         data : response.qpf,
         color : '#057100',
         bars :
@@ -329,7 +330,8 @@ qx.Class.define("mobileedd.page.Forecast",
         {
           mode : "time",
           min : response.t[0][0],
-          max : response.t[response.t.length - 1][0],
+          //max : response.t[response.t.length - 1][0],
+            max: new moment().add(72,'hours'),
           axisLabel : 'Local Time',
           tickFormatter : function(val, axis) {
             return new moment(val).format(axisFormat);
@@ -350,7 +352,7 @@ qx.Class.define("mobileedd.page.Forecast",
       });
       $.plot("#fprecipgraph", [
       {
-        label : "Prob. of Precipitation, %",
+        label : "Chance of Precipitation, %",
         data : response.pop12,
         color : '#057100',
         lines :
@@ -376,6 +378,7 @@ qx.Class.define("mobileedd.page.Forecast",
         xaxis :
         {
           mode : "time",
+            max: new moment().add(72,'hours'),
           tickFormatter : function(val, axis) {
             return new moment(val).format(axisFormat);
           }
@@ -386,7 +389,7 @@ qx.Class.define("mobileedd.page.Forecast",
         yaxes : [
         {
           position : 'left',
-          axisLabel : 'Prob. of Precipitation, %',
+          axisLabel : 'Chance of Precipitation, %',
           tickFormatter : function(val, axis) {
             return val.toFixed(0);
           }
@@ -427,6 +430,7 @@ qx.Class.define("mobileedd.page.Forecast",
         xaxis :
         {
           mode : "time",
+            max: new moment().add(72,'hours'),
           tickFormatter : function(val, axis) {
             return new moment(val).format(axisFormat);
           }

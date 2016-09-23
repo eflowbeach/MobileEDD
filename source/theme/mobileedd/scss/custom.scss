@@ -194,3 +194,17 @@
 .ol-popup.marker {
     margin-bottom: 30px;
 }
+
+#statusMessage {
+    position: absolute;
+    z-index: 0;
+    top: 135px;
+    left: 0px;
+    background-color: rgba(255,232,131,0.9);
+    color: #000000;
+    padding: 13px;
+    border-radius: 0px 20px 20px 0px;
+    border-color: #318fbf;
+    border-style: solid;
+    border-width: 5px 5px 5px 0px;
+}

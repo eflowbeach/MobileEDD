@@ -75,7 +75,7 @@ qx.Class.define("mobileedd.page.Hydrograph",
         if (typeof (feature.get('obstime')) !== "undefined" && feature.get('obstime') != "")
         {
           // Nasty conversion from UTC string to local time with timezone - moment doesn't support timezones.
-          html += '<br><span style="font-size: 12px;"><b>Ob Time (Local):</b> ' + moment.utc(feature.get('obstime'), 'hh:mm Do MMMM, YYYY').local().format("HH:mm a ddd, MMM Do YYYY") + '</span>';
+          html += '<br><span style="font-size: 12px;"><b>Ob Time (Local):</b> ' + moment.utc(feature.get('obstime'), 'hh:mm Do MMMM, YYYY').local().format("h:mm a ddd, MMM Do YYYY") + '</span>';
           html += '<br><span style="font-size: 12px;"><b>Ob Time (UTC):</b> ' + moment.utc(feature.get('obstime'), 'hh:mm Do MMMM, YYYY').format("HH:mm[Z] ddd, MMM Do YYYY") + '</span>';
         }
 
