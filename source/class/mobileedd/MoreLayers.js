@@ -148,48 +148,6 @@ qx.Class.define("mobileedd.MoreLayers",
       var layerName = "River Levels";
       var riverLevels = me.mapObject.getLayerByName(layerName);
 
-      // me.html[layerName] = new qx.ui.mobile.embed.Html(layerName);
-      var legend = [
-      {
-        color : "#FF00FF",
-        label : "Major Flood",
-        shape : "circle",
-        radius : 7
-      },
-      {
-        color : "#FF0033",
-        label : "Moderate Flood",
-        shape : "circle",
-        radius : 7
-      },
-      {
-        color : "#FF9900",
-        label : "Flood Stage",
-        shape : "circle",
-        radius : 7
-      },
-      {
-        color : "#FFFF00",
-        label : "Action Stage",
-        shape : "circle",
-        radius : 7
-      },
-      {
-        color : "#00DC00",
-        label : "Normal",
-        shape : "circle",
-        radius : 7
-      },
-      {
-        color : "#000000",
-        label : "Old Observation",
-        shape : "circle",
-        radius : 7
-      }];
-      var subtitle = '*Note: Inner circles show observed height while outer circles show forecasted height.<br>';
-      me.html[layerName] = new mobileedd.LegendCreator(layerName, legend, subtitle);
-      me.mapObject.dynamicLegendContainer.add(me.html[layerName]);
-
       // Add the layer if it doesn't exist
       if (riverLevels == null)
       {
@@ -199,6 +157,48 @@ qx.Class.define("mobileedd.MoreLayers",
 
         // Add layer to more layers Object
         me.layers[layerName] = riverLevelsObject.riverLevelsLayer;
+
+        // Add a legend
+        var legend = [
+        {
+          color : "#FF00FF",
+          label : "Major Flood",
+          shape : "circle",
+          radius : 7
+        },
+        {
+          color : "#FF0033",
+          label : "Moderate Flood",
+          shape : "circle",
+          radius : 7
+        },
+        {
+          color : "#FF9900",
+          label : "Flood Stage",
+          shape : "circle",
+          radius : 7
+        },
+        {
+          color : "#FFFF00",
+          label : "Action Stage",
+          shape : "circle",
+          radius : 7
+        },
+        {
+          color : "#00DC00",
+          label : "Normal",
+          shape : "circle",
+          radius : 7
+        },
+        {
+          color : "#000000",
+          label : "Old Observation",
+          shape : "circle",
+          radius : 7
+        }];
+        var subtitle = '*Note: Inner circles show observed height while outer circles show forecasted height.<br>';
+        me.html[layerName] = new mobileedd.LegendCreator(layerName, legend, subtitle);
+        me.mapObject.dynamicLegendContainer.add(me.html[layerName]);
       } else
       {
         var riverLevelsObject = mobileedd.RiverLevels.getInstance();
@@ -206,10 +206,13 @@ qx.Class.define("mobileedd.MoreLayers",
         {
           riverLevels.setVisible(false);
           riverLevelsObject.timer.stop();
+          me.html[layerName].setVisibility('excluded');
         } else
         {
           riverLevels.setVisible(true);
           riverLevelsObject.timer.start();
+          me.html[layerName].setVisibility('visible');
+          me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
         }
       }
     },
