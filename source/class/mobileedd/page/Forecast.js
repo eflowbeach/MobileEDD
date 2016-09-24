@@ -214,8 +214,7 @@ qx.Class.define("mobileedd.page.Forecast",
           mode : "time",
 
           // min: response.t[0][0],
-
-          max: new moment().add(72,'hours'),//response.t[response.t.length-1][0],
+          max : new moment().add(72, 'hours'),  //response.t[response.t.length-1][0],
           tickFormatter : function(val, axis) {
             return new moment(val).format(axisFormat);
           }
@@ -266,7 +265,7 @@ qx.Class.define("mobileedd.page.Forecast",
         xaxis :
         {
           mode : "time",
-          max: new moment().add(72,'hours'),
+          max : new moment().add(72, 'hours'),
           tickFormatter : function(val, axis) {
             return new moment(val).format(axisFormat);
           }
@@ -330,8 +329,9 @@ qx.Class.define("mobileedd.page.Forecast",
         {
           mode : "time",
           min : response.t[0][0],
+
           //max : response.t[response.t.length - 1][0],
-            max: new moment().add(72,'hours'),
+          max : new moment().add(72, 'hours'),
           axisLabel : 'Local Time',
           tickFormatter : function(val, axis) {
             return new moment(val).format(axisFormat);
@@ -378,7 +378,7 @@ qx.Class.define("mobileedd.page.Forecast",
         xaxis :
         {
           mode : "time",
-            max: new moment().add(72,'hours'),
+          max : new moment().add(72, 'hours'),
           tickFormatter : function(val, axis) {
             return new moment(val).format(axisFormat);
           }
@@ -430,7 +430,7 @@ qx.Class.define("mobileedd.page.Forecast",
         xaxis :
         {
           mode : "time",
-            max: new moment().add(72,'hours'),
+          max : new moment().add(72, 'hours'),
           tickFormatter : function(val, axis) {
             return new moment(val).format(axisFormat);
           }

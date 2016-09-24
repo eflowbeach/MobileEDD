@@ -21,7 +21,7 @@ qx.Class.define("mobileedd.Hazards",
     me.map = me.mapObject.getMap();
 
     // Timer
-    me.hazardRequestTimer = new qx.event.Timer(0);  
+    me.hazardRequestTimer = new qx.event.Timer(0);
     me.hazardRequestTimer.addListener("interval", function(e)
     {
       me.hazardRequestTimer.setInterval(1000 * 20);
@@ -204,13 +204,13 @@ qx.Class.define("mobileedd.Hazards",
         me.hazardVectorSource.addFeatures(features);
         me.checkWwaAtLocation();
       }, this);
-      
+
       // Cycle header every 3 seconds if there are hazards
       me.cycleWwaTimer = new qx.event.Timer(3000);
       me.cycleCount = 0;
       me.cycleWwaTimer.addListener("interval", function(e)
       {
-        var feature = me.hazardsAtMyPosition[me.cycleCount];  
+        var feature = me.hazardsAtMyPosition[me.cycleCount];
         var htype = feature.get('warn_type');
         var hsig = 'Warning';
         if (typeof htype == "undefined")

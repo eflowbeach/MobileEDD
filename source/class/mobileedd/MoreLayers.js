@@ -106,6 +106,10 @@ qx.Class.define("mobileedd.MoreLayers",
       }
       me.mapObject.qpeContainer.setVisibility('excluded');
     },
+
+    /**
+     * Add Storm Reports
+     * */
     addStormReports : function()
     {
       var me = this;
@@ -131,6 +135,81 @@ qx.Class.define("mobileedd.MoreLayers",
         {
           sr.setVisible(true);
           srObject.timer.start();
+        }
+      }
+    },
+
+    /**
+    * Add River Levels
+    * */
+    addRiverLevels : function()
+    {
+      var me = this;
+      var layerName = "River Levels";
+      var riverLevels = me.mapObject.getLayerByName(layerName);
+
+      // me.html[layerName] = new qx.ui.mobile.embed.Html(layerName);
+      var legend = [
+      {
+        color : "#FF00FF",
+        label : "Major Flood",
+        shape : "circle",
+        radius : 7
+      },
+      {
+        color : "#FF0033",
+        label : "Moderate Flood",
+        shape : "circle",
+        radius : 7
+      },
+      {
+        color : "#FF9900",
+        label : "Flood Stage",
+        shape : "circle",
+        radius : 7
+      },
+      {
+        color : "#FFFF00",
+        label : "Action Stage",
+        shape : "circle",
+        radius : 7
+      },
+      {
+        color : "#00DC00",
+        label : "Normal",
+        shape : "circle",
+        radius : 7
+      },
+      {
+        color : "#000000",
+        label : "Old Observation",
+        shape : "circle",
+        radius : 7
+      }];
+      var subtitle = '*Note: Inner circles show observed height while outer circles show forecasted height.<br>';
+      me.html[layerName] = new mobileedd.LegendCreator(layerName, legend, subtitle);
+      me.mapObject.dynamicLegendContainer.add(me.html[layerName]);
+
+      // Add the layer if it doesn't exist
+      if (riverLevels == null)
+      {
+        var riverLevelsObject = mobileedd.RiverLevels.getInstance();
+        riverLevelsObject.addLayer();
+        riverLevelsObject.timer.start();
+
+        // Add layer to more layers Object
+        me.layers[layerName] = riverLevelsObject.riverLevelsLayer;
+      } else
+      {
+        var riverLevelsObject = mobileedd.RiverLevels.getInstance();
+        if (riverLevels.getVisible())
+        {
+          riverLevels.setVisible(false);
+          riverLevelsObject.timer.stop();
+        } else
+        {
+          riverLevels.setVisible(true);
+          riverLevelsObject.timer.start();
         }
       }
     },

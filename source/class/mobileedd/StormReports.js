@@ -204,7 +204,6 @@ qx.Class.define("mobileedd.StormReports",
 
       // Hazard Request
       me.srRequest = new qx.io.request.Jsonp();
-
       var url = me.mapObject.getJsonpRoot() + "getLSR.php";
       me.srRequest.setRequestData(
       {

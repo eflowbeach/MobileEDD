@@ -79,7 +79,6 @@ qx.Class.define("mobileedd.page.Map",
     var qpf = 'NWS_Forecasts_Guidance_Warnings/wpc_qpf' + msExport;
     var spc = 'NWS_Forecasts_Guidance_Warnings/SPC_wx_outlks' + msExport;
     var npsg = me.c.getSecure() + '//psgeodata.fs.fed.us/arcgis/rest/services/NPSG/';
-
     this.layer_list =
     {
       "Lightning Density" :
@@ -97,19 +96,21 @@ qx.Class.define("mobileedd.page.Map",
       //   "layer" : "show:0"
 
       // },
-
-      // "Hydrology" : {
-
-      //   "group" : {
-      // "National Water Model" :
-      // {
-      //   "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/river_network" + msExport,
-      //   "layer" : "show:0,1,2,3"
-
-      //   //   }
-
-      //   // }
-      // },
+      "Hydrology" : {
+        "group" :
+        {
+          "National Water Model" :
+          {
+            "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/river_network" + msExport,
+            "layer" : "show:0,1,2,3"
+          },
+          "River Levels" :
+          {
+            "source" : null,
+            "layer" : null
+          }
+        }
+      },
       "Fire Weather" : {
         "group" :
         {
@@ -317,8 +318,8 @@ qx.Class.define("mobileedd.page.Map",
       },
       "Storm Reports" :
       {
-        "source" : null, 
-        "layer" : null  
+        "source" : null,
+        "layer" : null
       }
     };
   },
@@ -346,18 +347,21 @@ qx.Class.define("mobileedd.page.Map",
       var scrollContainer = new qx.ui.mobile.container.Composite();
       scroll.add(scrollContainer);
       me.drawer.add(scroll);
-      
+
       /**
        * NOAA/NWS icons
        * */
       var composite = new qx.ui.mobile.container.Composite();
+
       // composite.addCssClass("hboxPad");
-      composite.setLayout(new qx.ui.mobile.layout.HBox().set({alignX:"center"}));
+      composite.setLayout(new qx.ui.mobile.layout.HBox().set( {
+        alignX : "center"
+      }));
       var atom = new qx.ui.mobile.basic.Atom(null, "resource/mobileedd/images/noaa.png");
       composite.add(atom);
       var atom = new qx.ui.mobile.basic.Atom(null, "resource/mobileedd/images/nws.png");
       composite.add(atom);
-      scrollContainer.add(composite); 
+      scrollContainer.add(composite);
 
       /**
        * Radar Container
@@ -549,7 +553,6 @@ qx.Class.define("mobileedd.page.Map",
       me.showAllComposite.add(hazardsLabel, {
         flex : 1
       });
-
       me.longfuseButton = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
       me.longfuseButton.addListener("changeValue", function(e)
       {
@@ -702,30 +705,54 @@ qx.Class.define("mobileedd.page.Map",
       /**
       * River Container
       */
-      var composite = new qx.ui.mobile.container.Composite();
-      composite.addCssClass("hboxPad");
-      composite.setLayout(new qx.ui.mobile.layout.HBox());
-      var riversLabel = new qx.ui.mobile.basic.Label("Rivers: ");
-      composite.add(riversLabel, {
-        flex : 1
-      });
-      riversLabel.addCssClass("menuLabels");
-      me.riverToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
-      me.riverToggleButton.addListener("changeValue", function(e)
-      {
-        var riverObject = mobileedd.Rivers.getInstance();
-        if (typeof riverObject.riverLayer == "undefined") {
-          riverObject.addLayer();
-        }
-        riverObject.riverLayer.setVisible(e.getData());
-        if (e.getData()) {
-          riverObject.timer.start();
-        } else {
-          riverObject.timer.stop();
-        }
-      }, this);
-      composite.add(me.riverToggleButton);
-      scrollContainer.add(composite);
+
+      // var composite = new qx.ui.mobile.container.Composite();
+
+      // composite.addCssClass("hboxPad");
+
+      // composite.setLayout(new qx.ui.mobile.layout.HBox());
+
+      // var riversLabel = new qx.ui.mobile.basic.Label("Rivers: ");
+
+      // composite.add(riversLabel, {
+
+      //   flex : 1
+
+      // });
+
+      // riversLabel.addCssClass("menuLabels");
+
+      // me.riverToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
+
+      // me.riverToggleButton.addListener("changeValue", function(e)
+
+      // {
+
+      //   var riverObject = mobileedd.Rivers.getInstance();
+
+      //   if (typeof riverObject.riverLayer == "undefined") {
+
+      //     riverObject.addLayer();
+
+      //   }
+
+      //   riverObject.riverLayer.setVisible(e.getData());
+
+      //   if (e.getData()) {
+
+      //     riverObject.timer.start();
+
+      //   } else {
+
+      //     riverObject.timer.stop();
+
+      //   }
+
+      // }, this);
+
+      // composite.add(me.riverToggleButton);
+
+      // scrollContainer.add(composite);
 
       /**
        * More Layers
@@ -796,6 +823,12 @@ qx.Class.define("mobileedd.page.Map",
             {
               var selectedItem = evt.getData().item;
               if (selectedItem == 'Cancel') {
+                return;
+              }
+              if (selectedItem == 'River Levels')
+              {
+                mobileedd.MoreLayers.getInstance().addRiverLevels();
+                me.drawer.hide();
                 return;
               }
               var layer = me.layer_list[me.group].group[selectedItem];
@@ -881,9 +914,37 @@ qx.Class.define("mobileedd.page.Map",
         tf.setValue(this.makeUrl());
         form.add(tf, "Web Link: ");
         composite.add(new qx.ui.mobile.form.renderer.Single(form))
+
+        // Go to link
         var widget = new qx.ui.mobile.form.Button("Go to Link");
         widget.addListener("tap", function() {
           window.location = this.makeUrl();
+        }, this);
+        composite.add(widget);
+
+        // Shorten
+        var widget = new qx.ui.mobile.form.Button("Shorten Url");
+        widget.addListener("tap", function()
+        {
+          var req = new qx.io.request.Jsonp("https://go.usa.gov/api/shorten.jsonp?login=edd&apiKey=4429d50bf53eb88bf65d9ff7507c9f1f&longUrl=" + this.makeUrl());
+          req.setCallbackParam("callback");
+          req.addListenerOnce("success", function(e)
+          {
+            tf.setValue(e.getTarget().getResponse().response.data.entry[0].short_url);
+            this.busyPopup.hide();
+          });
+          req.addListener("fail", function(e)
+          {
+            tf.setValue(this.makeUrl());
+            me.goUsaAtom.setIcon("edd/images/close_button.png");
+            this.busyPopup.hide();
+          }, this);
+          req.addListener("readyStateChange", function(e) {
+            if (this.getPhase() == "sent") {
+              this.busyPopup.show();
+            }
+          });
+          req.send();
         }, this);
         composite.add(widget);
         var widget = new qx.ui.mobile.form.Button("Close");
@@ -1024,7 +1085,8 @@ qx.Class.define("mobileedd.page.Map",
       me.observationToggleButton.setValue(false);
 
       // Rivers
-      me.riverToggleButton.setValue(false);
+
+      // me.riverToggleButton.setValue(false);
       me.countyToggleButton.setValue(false);
 
       // Toggle all other layer visibilities off
@@ -1073,9 +1135,11 @@ qx.Class.define("mobileedd.page.Map",
       url += me.observationToggleButton.getValue() ? 'T' : 'F';
       url += '&obfield=' + me.c.getObDisplayedField();
 
-      // Rivers
-      url += '&riv=';
-      url += me.riverToggleButton.getValue() ? 'T' : 'F';
+      // // Rivers
+
+      // url += '&riv=';
+
+      // url += me.riverToggleButton.getValue() ? 'T' : 'F';
 
       // Zoom
       url += '&z=';
@@ -1172,8 +1236,10 @@ qx.Class.define("mobileedd.page.Map",
       }
 
       // Rivers
-      var bool = me.getURLParameter('riv') == "T" ? true : false;
-      me.riverToggleButton.setValue(bool);
+
+      // var bool = me.getURLParameter('riv') == "T" ? true : false;
+
+      // me.riverToggleButton.setValue(bool);
 
       // More Layers
       var ml = me.getURLParameter('ml');
@@ -1189,6 +1255,11 @@ qx.Class.define("mobileedd.page.Map",
           if (name == "Storm Reports")
           {
             mobileedd.MoreLayers.getInstance().addStormReports();
+            return;
+          }
+          if (name == "River Levels")
+          {
+            mobileedd.MoreLayers.getInstance().addRiverLevels();
             return;
           }
           if (typeof (group) == "undefined" || group == "undefined")
@@ -1840,7 +1911,7 @@ qx.Class.define("mobileedd.page.Map",
               text : new ol.style.Text(
               {
                 text : countyLabel,
-                scale: 1.5,
+                scale : 1.5,
                 stroke : new ol.style.Stroke(
                 {
                   width : 2,
@@ -1958,7 +2029,7 @@ qx.Class.define("mobileedd.page.Map",
           stormReports[key] = feature;
           items.push(key);
         }
-        if (layer.get('name') == "Rivers")
+        if (layer.get('name') == "River Levels")
         {
           var value = 'Hydrograph - ' + feature.get("location");
           var test = new qx.data.Array(items);

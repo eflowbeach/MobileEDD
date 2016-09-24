@@ -18,6 +18,7 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
   construct : function()
   {
     this.base(arguments);
+    this.c = mobileedd.config.Config.getInstance();
     this.bus = qx.event.message.Bus.getInstance();
     this.setTitle("Travel Hazards");
     this.setShowBackButton(true);
@@ -79,11 +80,42 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
       this.waypoints = [];
       this.waypointsLonLat = [];
       this.waypointsNumber = 0;
-      this.myLocationButton = new qx.ui.mobile.form.Button("Add Waypoint...", "resource/mobileedd/images/map-marker-icon-blue.png");
-      this.myLocationButton.addListener("tap", function(e) {
+      this.myWaypointButton = new qx.ui.mobile.form.Button("Add Waypoint...", "resource/mobileedd/images/map-marker-icon-blue.png");
+      this.myWaypointButton.addListener("tap", function(e) {
         this.addWaypointContainer();
       }, this);
-      this.getContent().add(this.myLocationButton);
+      this.getContent().add(this.myWaypointButton);
+
+      // Use your own key
+      this.myKeyButton = new qx.ui.mobile.form.Button("MapQuest Key...", "resource/mobileedd/images/key.png");
+      this.myKeyButton.addListener("tap", function(e)
+      {
+        var composite = new qx.ui.mobile.container.Composite();
+        composite.setLayout(new qx.ui.mobile.layout.VBox());
+        var popup = new qx.ui.mobile.dialog.Popup();
+        var form = new qx.ui.mobile.form.Form();
+        var tf = new qx.ui.mobile.form.TextArea();
+        tf.setValue(this.c.getMapQuestKey());
+        form.add(tf, "Your MapQuest Key: ");
+        composite.add(new qx.ui.mobile.form.renderer.Single(form))
+
+        // Go to link
+        var widget = new qx.ui.mobile.form.Button("Apply");
+        widget.addListener("tap", function()
+        {
+          this.c.setMapQuestKey(tf.getValue());
+          popup.hide();
+        }, this);
+        composite.add(widget);
+        var widget = new qx.ui.mobile.form.Button("Close");
+        widget.addListener("tap", function() {
+          popup.hide();
+        }, this);
+        composite.add(widget);
+        popup.add(composite);
+        popup.show();
+      }, this);
+      this.getContent().add(this.myKeyButton);
 
       // Go button
       this.goButton = new qx.ui.mobile.form.Button("Go!", "resource/mobileedd/images/greenball.png");

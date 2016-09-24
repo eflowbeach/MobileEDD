@@ -112,14 +112,12 @@ qx.Class.define("mobileedd.Application",
         }
       }, this);
       this.getRoot().add(button);
-      
-      
+
       /**
        * Status Message
        *  - Listen for status message changes
        * */
       this.statusMessage = new qx.ui.mobile.embed.Html();
-      
       this.statusMessage.setId("statusMessage");
       var slideRight =
       {
@@ -135,26 +133,20 @@ qx.Class.define("mobileedd.Application",
           }
         }
       };
-   
       this.getRoot().add(this.statusMessage);
-      
+
       // Keep track of previous message
       this.status = "";
       this.hide = false;
-      
-      
-      
-      
-      
       qx.bom.element.Animation.animate(this.statusMessage.getContentElement(), slideRight, 1000);
-       this.statusMessage.addListener("tap", function(e) {
-         // Hide
-         qx.bom.element.Animation.animate(this.statusMessage.getContentElement(), slideRight, 1000);
-         this.hide = true;
-       },this);
+      this.statusMessage.addListener("tap", function(e)
+      {
+        // Hide
+        qx.bom.element.Animation.animate(this.statusMessage.getContentElement(), slideRight, 1000);
+        this.hide = true;
+      }, this);
       var statusRequest = new qx.io.request.Jsonp();
-      var url = "http://dev.nids.noaa.gov/~jwolfe/edd/edd/build/resource/edd/getEddMobileStatus.php";//me.mapObject.getJsonpRoot() + "hazards/getShortFusedHazards.php";
-   
+      var url = "http://dev.nids.noaa.gov/~jwolfe/edd/edd/build/resource/edd/getEddMobileStatus.php";  //me.mapObject.getJsonpRoot() + "hazards/getShortFusedHazards.php";
       statusRequest.setUrl(url);
       statusRequest.setCache(false);
       statusRequest.setCallbackParam('callback');
@@ -162,37 +154,37 @@ qx.Class.define("mobileedd.Application",
       {
         var message = e.getTarget().getResponse().Message;
         this.statusMessage.setHtml(message);
-        
+
         // New message
-         if(this.status != message){
-           this.hide = false;
-         };
-         // Don't show
-        if(this.hide){
+        if (this.status != message) {
+          this.hide = false;
+        };
+
+        // Don't show
+        if (this.hide) {
           return;
         }
+
         // Show balloon
-        if(this.status == "" && message != ""){
+        if (this.status == "" && message != "") {
           qx.bom.element.Animation.animateReverse(this.statusMessage.getContentElement(), slideRight, 1000);
         }
+
         // Hide balloon
-        if(this.status !== "" && message == ""){
+        if (this.status !== "" && message == "") {
           qx.bom.element.Animation.animate(this.statusMessage.getContentElement(), slideRight, 1000);
         }
-        
-        
         this.status = message;
       }, this);
-      
+
       // Check for new messages every 5 minutes
       var messageTimer = new qx.event.Timer(0);
       messageTimer.addListener("interval", function(e)
       {
-        messageTimer.setInterval(1000 * 5);//* 60 * 5);
-      statusRequest.send();
+        messageTimer.setInterval(1000 * 60 * 5);
+        statusRequest.send();
       })
       messageTimer.start();
-      
     },
 
     /**

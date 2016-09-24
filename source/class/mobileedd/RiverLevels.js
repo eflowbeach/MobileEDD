@@ -8,10 +8,15 @@
 /*global ol*/
 
 /*global mobileedd*/
-qx.Class.define("mobileedd.Rivers",
+qx.Class.define("mobileedd.RiverLevels",
 {
   extend : qx.core.Object,
   type : "singleton",
+  properties : {
+    lastCall : {
+      init : new Date()
+    }
+  },
   construct : function()
   {
     var me = this;
@@ -37,10 +42,39 @@ qx.Class.define("mobileedd.Rivers",
     addLayer : function()
     {
       var me = this;
-      me.riverLayer = new ol.layer.Vector(
+      me.vectorSource = new ol.source.Vector((
       {
-        name : "Rivers",
-        source : null,
+        projection : 'EPSG:3857',
+        loader : function(extent, resolution, projection)
+        {
+          var riverObject = mobileedd.RiverLevels.getInstance();
+          var extent = ol.proj.transformExtent(extent, 'EPSG:3857', 'EPSG:4326');
+          var datadefine = "both|major|moderate|minor|action";
+          if (resolution < 1500) {
+            datadefine = 'both|major|moderate|minor|action|normal|old|no_flooding'
+          }
+          riverObject.riverRequest.setRequestData(
+          {
+            "datadefine" : datadefine,
+            "left" : extent[0],
+            "right" : extent[2],
+            "top" : extent[3],
+            "bottom" : extent[1]
+          });
+
+          // BBOX strategy behaves strangely in OL3 - put a time constraint on the frequency of calls allowed
+          if (new Date().getTime() - riverObject.getLastCall() > 5000)
+          {
+            riverObject.riverRequest.send();
+            riverObject.setLastCall(new Date());
+          }
+        },
+        strategy : ol.loadingstrategy.bbox
+      }));
+      me.riverLevelsLayer = new ol.layer.Vector(
+      {
+        name : "River Levels",
+        source : me.vectorSource,
         style : function(feature, resolution)
         {
           var color = feature.get('color');
@@ -87,9 +121,9 @@ qx.Class.define("mobileedd.Rivers",
           })];
         }
       });
-      me.map.addLayer(me.riverLayer);
+      me.map.addLayer(me.riverLevelsLayer);
 
-      // Hazard Request
+      // River Request
       me.riverRequest = new qx.io.request.Jsonp();
       var url = me.mapObject.getJsonpRoot() + "rfc/getAhpsData.php";
 
@@ -113,35 +147,10 @@ qx.Class.define("mobileedd.Rivers",
         var features = new ol.format.GeoJSON().readFeatures(data, {
           featureProjection : 'EPSG:3857'
         });
-        var vectorSource = new ol.source.Vector((
-        {
-          projection : 'EPSG:3857',
-          features : features,
-          loader : function(extent, resolution, projection)
-          {
-            // console.log(extent, resolution, projection)
-            var riverObject = mobileedd.Rivers.getInstance();
-            var extent = ol.proj.transformExtent(extent, 'EPSG:3857', 'EPSG:4326');
-            var datadefine = "both|major|moderate|minor|action";
-            if (resolution < 1500) {
-              datadefine = 'both|major|moderate|minor|action|normal|old|no_flooding'
-            }
-            riverObject.riverRequest.setRequestData(
-            {
-              "datadefine" : datadefine,
-              "left" : extent[0],
-              "right" : extent[2],
-              "top" : extent[3],
-              "bottom" : extent[1]
-            });
-            riverObject.riverRequest.send();
-          },
-          strategy : ol.loadingstrategy.bbox
-        }));
-        if (me.riverLayer.getSource() !== null) {
-          me.riverLayer.getSource().clear();
+        if (me.riverLevelsLayer.getSource() !== null) {
+          me.riverLevelsLayer.getSource().clear();
         }
-        me.riverLayer.setSource(vectorSource);
+        me.vectorSource.addFeatures(features);
       }, this);
     }
   }
