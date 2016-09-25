@@ -1,3 +1,13 @@
+/* ************************************************************************
+
+   Copyright: 2016
+
+   License: MIT
+
+   Authors: Jonathan Wolfe
+
+************************************************************************ */
+
 /**
  * Legend Creator  - Generic way of making legends quickly using an array of objects and specifying if you want circles dashes, etc.
  *

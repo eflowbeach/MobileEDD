@@ -1,10 +1,10 @@
 /* ************************************************************************
 
-   Copyright:
+   Copyright: 2016
 
-   License:
+   License: MIT
 
-   Authors:
+   Authors: Jonathan Wolfe
 
 ************************************************************************ */
 
@@ -34,6 +34,20 @@ qx.Class.define("mobileedd.page.Map",
     basemap : {
       init : "ESRI Dark Gray"
     },
+    wwaList :
+    {
+      init : null,
+      nullable : true
+    },
+    hazardList :
+    {
+      init : null,
+      nullable : true,
+      apply : "makeSingularHazardArray"
+    },
+    singularHazardArray : {
+      init : null
+    },
     myPosition :
     {
       init : null,
@@ -54,9 +68,7 @@ qx.Class.define("mobileedd.page.Map",
     this.setTitle("NWS Mobile EDD");
     var me = this;
 
-    // Set the service root
-
-    // preview does not have https - either way it gets blocked...
+    // Set the service root - preview does not have https - either way it gets blocked...
     me.setJsonpRoot(me.c.getSecure() + "//preview.weather.gov/edd/resource/edd/");
 
     /**
@@ -65,6 +77,43 @@ qx.Class.define("mobileedd.page.Map",
 
     // me.setMapUri("resource/mobileedd/ol.js");
     me.setMapUri("resource/mobileedd/ol-debug.js");
+
+    // Warning types
+    me.sigMap =
+    {
+      "Warning" : "W",
+      "Watch" : "A",
+      "Advisory" : "Y",
+      "Statement" : "S"
+    }
+
+    // A list of hazards to display
+    me.hazard_types =
+    {
+      "Hydrologic" : ["Coastal Flood", "Areal Flood", "Flash Flood", "Flood", "Lakeshore Flood"],
+      "Winter" : ["Freezing Rain", "Freezing Fog", "Winter Storm", "Winter Weather", "Wind Chill", "Ice Accretion", "Snow", "Snow and Blowing Snow", "Lake Effect Snow and Blowing Snow", "Ice Storm", "Sleet", "Heavy Snow", "Heavy Sleet", "Extreme Cold", "Lake Effect Snow", "Avalanche", "Blowing Snow", "Blizzard"],
+      "Marine" : ["Wind", "Storm", "Inland Tropical Storm", "Tropical Storm", "Tsunami", "Typhoon", "Small Craft", "Hazardous Seas", "Small Craft for Winds", "Low Water", "Lakeshore Flood", "Lake Wind", "Small Craft for Rough Bar", "Hurricane", "High Wind", "Gale", "Hurricane Force Wind", "Inland Hurricane Wind", "Coastal Flood", "Marine", "Volcanic Ashfall", "Ice Accretion"],
+      "Fire" : ["Red Flag", "Fire Weather"],
+      "Tornado" : ["Tornado", "Marine"],
+      "Severe T-storm &nbsp;" : ["Severe Thunderstorm", "Marine"],
+      "Flash Flood" : ["Flash Flood"],
+      "Temperature" : ["Wind Chill", "Heat", "Excessive Heat", "Extreme Cold", "Frost", "Freeze"],
+      "Wind" : ["Wind", "Typhoon", "Inland Hurricane Wind", "High Wind", "Blowing Dust", "Dust Storm", "Lake Wind", "Small Craft", "Small Craft for Winds", "Storm", "Inland Tropical Storm", "Hurricane Force Wind", "Gale"]
+    };
+
+    // Set the Users position
+    if (typeof (Storage) !== "undefined")
+    {
+      if (localStorage.getItem("monitor") != null) {
+        me.setMyPosition(JSON.parse(localStorage.getItem("monitor")));
+      }
+      if (localStorage.getItem("hazardlist") != null) {
+        me.setHazardList(JSON.parse(localStorage.getItem("hazardlist")));
+      }
+      if (localStorage.getItem("wwalist") != null) {
+        me.setWwaList(JSON.parse(localStorage.getItem("wwalist")));
+      }
+    }
 
     // Busy indicator
     var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
@@ -457,25 +506,44 @@ qx.Class.define("mobileedd.page.Map",
       me.radarContainer.add(radarLoopComposite);
 
       // Long loop
-      var radarLoopComposite = new qx.ui.mobile.container.Composite();
-      radarLoopComposite.setLayout(new qx.ui.mobile.layout.HBox());
-      me.longLoop = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
-      me.longLoop.addListener("changeValue", function(e)
-      {
-        var bool = e.getData();
-        if (bool) {
-          mobileedd.Radar.getInstance().setFrames(20)
-        } else {
-          mobileedd.Radar.getInstance().setFrames(5)
-        }
-      });
-      var loopLabel = new qx.ui.mobile.basic.Label("1 Hour Loop: ");
-      loopLabel.addCssClass("loopLabel");
-      radarLoopComposite.add(loopLabel, {
-        flex : 1
-      });
-      radarLoopComposite.add(me.longLoop);
-      me.radarContainer.add(radarLoopComposite);
+
+      // var radarLoopComposite = new qx.ui.mobile.container.Composite();
+
+      // radarLoopComposite.setLayout(new qx.ui.mobile.layout.HBox());
+
+      // me.longLoop = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
+
+      // me.longLoop.addListener("changeValue", function(e)
+
+      // {
+
+      //   var bool = e.getData();
+
+      //   if (bool) {
+
+      //     mobileedd.Radar.getInstance().setFrames(20)
+
+      //   } else {
+
+      //     mobileedd.Radar.getInstance().setFrames(5)
+
+      //   }
+
+      // });
+
+      // var loopLabel = new qx.ui.mobile.basic.Label("1 Hour Loop: ");
+
+      // loopLabel.addCssClass("loopLabel");
+
+      // radarLoopComposite.add(loopLabel, {
+
+      //   flex : 1
+
+      // });
+
+      // radarLoopComposite.add(me.longLoop);
+
+      // me.radarContainer.add(radarLoopComposite);
 
       // Radar Loop Slider
       var radarLoopSliderComposite = new qx.ui.mobile.container.Composite();
@@ -531,64 +599,226 @@ qx.Class.define("mobileedd.page.Map",
         if (e.getData())
         {
           me.hazardObject.hazardRequestTimer.start();
-          me.showAllComposite.setVisibility("visible");
-          me.showHazardLabelComposite.setVisibility("visible");
+          me.showHazardLabelContainer.setVisibility("visible");
         } else
         {
           me.hazardObject.hazardRequestTimer.stop();
-          me.showAllComposite.setVisibility("excluded");
-          me.showHazardLabelComposite.setVisibility("excluded");
+          me.showHazardLabelContainer.setVisibility("excluded");
         }
       }, this);
       composite.add(me.hazardToggleButton);
       scrollContainer.add(composite);
 
       /**
-           * Longfuse Container
-           */
-      me.showAllComposite = new qx.ui.mobile.container.Composite();
-      me.showAllComposite.setLayout(new qx.ui.mobile.layout.HBox());
-      var hazardsLabel = new qx.ui.mobile.basic.Label("Show All: ");
-      hazardsLabel.addCssClass("loopLabel");
-      me.showAllComposite.add(hazardsLabel, {
-        flex : 1
-      });
-      me.longfuseButton = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
-      me.longfuseButton.addListener("changeValue", function(e)
-      {
-        var url = me.getJsonpRoot() + "hazards/getShortFusedHazards.php";
-        if (me.longfuseButton.getValue()) {
-          url += "?all=t";
-        }
-        me.hazardObject.hazardRequest.setUrl(url);
-        me.hazardObject.hazardRequest.send();
-      }, this);
-      me.showAllComposite.add(me.longfuseButton);
-      scrollContainer.add(me.showAllComposite);
-
-      /**
-        * Longfuse - Show Label
+        * Hazards - Show Label
         */
-      me.showHazardLabelComposite = new qx.ui.mobile.container.Composite();
-      me.showHazardLabelComposite.setLayout(new qx.ui.mobile.layout.HBox());
-      var showHazardLabel = new qx.ui.mobile.basic.Label("Show Label: ");
-      showHazardLabel.addCssClass("loopLabel");
-      me.showHazardLabelComposite.add(showHazardLabel, {
+      me.showHazardLabelContainer = new qx.ui.mobile.container.Composite();
+      me.showHazardLabelContainer.setLayout(new qx.ui.mobile.layout.HBox());
+      var showHazardLabels = new qx.ui.mobile.basic.Label("Show Label: ");
+      showHazardLabels.addCssClass("loopLabel");
+      me.showHazardLabelContainer.add(showHazardLabels, {
         flex : 1
       });
-      me.showLongFuseLabelButton = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
-      me.showLongFuseLabelButton.addListener("changeValue", function(e)
+      me.showHazardLabel = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
+      me.showHazardLabel.addListener("changeValue", function(e)
       {
         var hazards = mobileedd.Hazards.getInstance();
         if (hazards.hazardLayer.getSource() !== null) {
           hazards.hazardLayer.getSource().dispatchEvent('change');
         }
       }, this);
-      me.showHazardLabelComposite.add(me.showLongFuseLabelButton);
-      scrollContainer.add(me.showHazardLabelComposite);
+      me.showHazardLabelContainer.add(me.showHazardLabel);
+      scrollContainer.add(me.showHazardLabelContainer);
+
+      // Configure Hazards
+      me.hazardConfigureContainer = new qx.ui.mobile.container.Composite();
+      me.hazardConfigureContainer.setLayout(new qx.ui.mobile.layout.HBox());
+
+      // Holders
+      me.hazardToggleButtons = [];
+      me.hazardToggleButtonNames = [];
+      me.hazardToggleWwaButtons = [];
+      me.hazardToggleWwaButtonNames = [];
+
+      // Hazard Config Popup
+      me.hazardConfigPopup = new qx.ui.mobile.dialog.Popup();
+      me.hazardConfigPopup.setModal(true);
+      var composite = new qx.ui.mobile.container.Composite();
+      composite.setLayout(new qx.ui.mobile.layout.VBox());
+
+      // Group
+      var widget = new qx.ui.mobile.basic.Label("Groups");
+      widget.addCssClass("popupGroup");
+      composite.add(widget);
+
+      // Loop through hazard_type keys and generate a configuration widget
+      Object.keys(me.hazard_types).sort().forEach(function(obj, index)
+      {
+        // Horizontal container for each hazard
+        var container = new qx.ui.mobile.container.Composite();
+        container.setLayout(new qx.ui.mobile.layout.HBox());
+
+        // Make the label
+        var label = new qx.ui.mobile.basic.Label(obj);
+        container.add(label, {
+          flex : 1
+        });
+
+        // Keep track of names
+        me.hazardToggleButtonNames[index] = obj;
+
+        // Check to see if the list has been set, if not check them all.
+        if (me.getHazardList() != null) {
+          // Check to see if the saved list item is active or not - set value accordingly
+          if (new qx.data.Array(me.getHazardList()).contains(obj)) {
+            var value = true;
+          } else {
+            value = false;
+          }
+        } else {
+          value = true;
+        }
+
+        // Keep track of button objects
+        me.hazardToggleButtons[index] = new qx.ui.mobile.form.ToggleButton(value, "Hide", "Show");
+
+        // Add button to the container
+        container.add(me.hazardToggleButtons[index]);
+        composite.add(container);
+      })
+
+      // Type
+      var widget = new qx.ui.mobile.basic.Label("Type");
+      widget.addCssClass("popupGroup");
+      composite.add(widget);
+
+      // Wwa
+      Object.keys(me.sigMap).sort().forEach(function(obj, index)
+      {
+        // Horizontal container for each hazard
+        var container = new qx.ui.mobile.container.Composite();
+        container.setLayout(new qx.ui.mobile.layout.HBox());
+
+        // Make the label
+        var label = new qx.ui.mobile.basic.Label(obj);
+        container.add(label, {
+          flex : 1
+        });
+
+        // Keep track of names
+        me.hazardToggleWwaButtonNames[index] = obj;
+
+        // Check to see if the list has been set, if not check them all.
+        if (me.getWwaList() != null) {
+          // Check to see if the saved list item is active or not - set value accordingly
+          if (new qx.data.Array(me.getWwaList()).contains(obj)) {
+            var value = true;
+          } else {
+            value = false;
+          }
+        } else {
+          value = true;
+        }
+
+        // Keep track of button objects
+        me.hazardToggleWwaButtons[index] = new qx.ui.mobile.form.ToggleButton(value, "Hide", "Show");
+
+        // Add button to the container
+        container.add(me.hazardToggleWwaButtons[index]);
+        composite.add(container);
+      })
       var spacer = new qx.ui.mobile.container.Composite();
       spacer.addCssClass("thinseparator");
-      scrollContainer.add(spacer)
+      composite.add(spacer)
+
+      // Toggle All
+      me.toggle = 0;
+      var widget = new qx.ui.mobile.form.Button("Toggle All");
+      widget.addListener("tap", function(e)
+      {
+        // Don't click map...
+        e.preventDefault();
+        e.stopPropagation();
+        me.hazardToggleButtons.forEach(function(obj, index) {
+          if (me.toggle % 2 == 0) {
+            obj.setValue(true);
+          } else {
+            obj.setValue(false);
+          }
+        })
+
+        // Save them to properties and local storage
+        me.hazardToggleWwaButtons.forEach(function(obj, index) {
+          if (me.toggle % 2 == 0) {
+            obj.setValue(true);
+          } else {
+            obj.setValue(false);
+          }
+        })
+        me.toggle++;
+      }, this);
+      composite.add(widget);
+
+      // Apply
+      var widget = new qx.ui.mobile.form.Button("Apply");
+      widget.addListener("tap", function(e)
+      {
+        // Don't click map...
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Generate a list of checked hazards
+        var hazardlist = [];
+        me.hazardToggleButtons.forEach(function(obj, index) {
+          if (obj.getValue()) {
+            hazardlist.push(me.hazardToggleButtonNames[index]);
+          }
+        })
+
+        // Save them to properties and local storage
+        me.setHazardList(hazardlist);
+        localStorage.setItem("hazardlist", JSON.stringify(hazardlist))
+
+        // WWA
+        var wwaList = [];
+        me.hazardToggleWwaButtons.forEach(function(obj, index) {
+          if (obj.getValue()) {
+            wwaList.push(me.hazardToggleWwaButtonNames[index]);
+          }
+        })
+
+        // Save them to properties and local storage
+        me.setWwaList(wwaList);
+        localStorage.setItem("wwalist", JSON.stringify(wwaList))
+
+        // Redraw the Hazard layer
+        mobileedd.Hazards.getInstance().hazardLayer.getSource().dispatchEvent('change');
+
+        // Hide the popup
+        me.hazardConfigPopup.hide();
+      }, this);
+      composite.add(widget);
+
+      // Make the hazard area scrollable
+      var scroll = new qx.ui.mobile.container.Scroll();
+      scroll.add(composite);
+
+      // Set the color to white
+      qx.bom.element.Style.setCss(scroll.getContainerElement(), 'color:#FFFFFF');
+      me.hazardConfigPopup.add(scroll);
+
+      // Allow for hazard configuration
+      var configureHazardsButton = new qx.ui.mobile.form.Button("Configure Hazards", "resource/mobileedd/images/settings.png");
+      configureHazardsButton.addListener("tap", function(e)
+      {
+        me.drawer.hide();
+        me.hazardConfigPopup.show();
+      }, this)
+      me.hazardConfigureContainer.add(configureHazardsButton, {
+        flex : 1
+      });
+      me.hazardConfigureContainer.addCssClass("configureButton");
+      scrollContainer.add(me.hazardConfigureContainer);
 
       /**
            * Observation Container
@@ -624,7 +854,9 @@ qx.Class.define("mobileedd.page.Map",
         if (e.getData())
         {
           me.obDisplayFieldContainer.setVisibility('visible');
-          me.obPeriodContainer.setVisibility('visible');
+          if (me.obDisplayButton.getLabel() == "Precipitation") {
+            me.obPeriodContainer.setVisibility('visible');
+          }
         } else
         {
           me.obPeriodContainer.setVisibility('excluded');
@@ -701,62 +933,13 @@ qx.Class.define("mobileedd.page.Map",
       }, this);
       me.obPeriodContainer.add(me.obPeriodButton);
       scrollContainer.add(me.obPeriodContainer);
+      var spacer = new qx.ui.mobile.container.Composite();
+      spacer.addCssClass("thinseparator");
+      scrollContainer.add(spacer)
 
       /**
-      * River Container
-      */
-
-      // var composite = new qx.ui.mobile.container.Composite();
-
-      // composite.addCssClass("hboxPad");
-
-      // composite.setLayout(new qx.ui.mobile.layout.HBox());
-
-      // var riversLabel = new qx.ui.mobile.basic.Label("Rivers: ");
-
-      // composite.add(riversLabel, {
-
-      //   flex : 1
-
-      // });
-
-      // riversLabel.addCssClass("menuLabels");
-
-      // me.riverToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
-
-      // me.riverToggleButton.addListener("changeValue", function(e)
-
-      // {
-
-      //   var riverObject = mobileedd.Rivers.getInstance();
-
-      //   if (typeof riverObject.riverLayer == "undefined") {
-
-      //     riverObject.addLayer();
-
-      //   }
-
-      //   riverObject.riverLayer.setVisible(e.getData());
-
-      //   if (e.getData()) {
-
-      //     riverObject.timer.start();
-
-      //   } else {
-
-      //     riverObject.timer.stop();
-
-      //   }
-
-      // }, this);
-
-      // composite.add(me.riverToggleButton);
-
-      // scrollContainer.add(composite);
-
-      /**
-       * More Layers
-       * */
+        * More Layers
+        * */
       var moreLayersButton = new qx.ui.mobile.form.Button("More Layers...", "mobileedd/images/layers.png");
       moreLayersButton.addListener("tap", function(e)
       {
@@ -768,9 +951,7 @@ qx.Class.define("mobileedd.page.Map",
 
         // Loop through More Layers layers to find which ones are selected then color the background green
         var mlClass = mobileedd.MoreLayers.getInstance();
-        Object.keys(mlClass.layers).forEach(function(obj, index)
-        {
-          console.log(obj);
+        Object.keys(mlClass.layers).forEach(function(obj, index) {
           if (mlClass.layers[obj].getVisible()) {
             new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2) {
               if (div.innerHTML == obj) {
@@ -958,9 +1139,9 @@ qx.Class.define("mobileedd.page.Map",
       scrollContainer.add(shareButton);
 
       /**
-       * State border color
+       * Appearance
        * */
-      var showPopupButton = new qx.ui.mobile.form.Button("Configure", "resource/mobileedd/images/settings.png");
+      var showPopupButton = new qx.ui.mobile.form.Button("Appearance", "resource/mobileedd/images/paintbrush.png");
       showPopupButton.addListener("tap", function(e)
       {
         this.__popup.show();
@@ -994,7 +1175,7 @@ qx.Class.define("mobileedd.page.Map",
       composite.add(countyContainer);
       composite.add(closeDialogButton1);
       this.__popup = new qx.ui.mobile.dialog.Popup(composite);
-      this.__popup.setTitle("Configure");
+      this.__popup.setTitle("Appearance");
       closeDialogButton1.addListener("tap", function(e)
       {
         this.__popup.hide();
@@ -1002,6 +1183,92 @@ qx.Class.define("mobileedd.page.Map",
         e.stopPropagation();
       }, this);
       scrollContainer.add(showPopupButton);
+
+      // /**
+
+      //       * Configure
+
+      //       * */
+
+      //       var showPopupButton = new qx.ui.mobile.form.Button("Appearance", "resource/mobileedd/images/paintbrush.png");
+
+      //       showPopupButton.addListener("tap", function(e)
+
+      //       {
+
+      //         this.__popup.show();
+
+      //         me.drawer.hide();
+
+      //       }, this);
+
+      //       var composite = new qx.ui.mobile.container.Composite();
+
+      //       composite.setLayout(new qx.ui.mobile.layout.VBox());
+
+      //       var html = new qx.ui.mobile.embed.Html();
+
+      //       html.setHtml('<div id="test"></div>');
+
+      //       showPopupButton.addListener("appear", function()
+
+      //       {
+
+      //         document.getElementById('test').appendChild(document.getElementById('foo'));
+
+      //         document.getElementById('test').appendChild(document.getElementById('foo2'));
+
+      //       })
+
+      //       var closeDialogButton1 = new qx.ui.mobile.form.Button("Close");
+
+      //       // Add to popup
+
+      //       var countyContainer = new qx.ui.mobile.container.Composite();
+
+      //       countyContainer.addCssClass("hboxPad");
+
+      //       countyContainer.setLayout(new qx.ui.mobile.layout.HBox('left', 'middle'));
+
+      //       var countyLabel = new qx.ui.mobile.basic.Label("County Borders");
+
+      //       countyContainer.add(countyLabel);
+
+      //       //countyLabel.addCssClass("menuLabels");
+
+      //       me.countyToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
+
+      //       me.countyToggleButton.addListener("changeValue", function(e) {
+
+      //         me.countyBorder.setVisible(e.getData());
+
+      //       })
+
+      //       countyContainer.add(me.countyToggleButton);
+
+      //       composite.add(html);
+
+      //       composite.add(countyContainer);
+
+      //       composite.add(closeDialogButton1);
+
+      //       this.__popup = new qx.ui.mobile.dialog.Popup(composite);
+
+      //       this.__popup.setTitle("Appearance");
+
+      //       closeDialogButton1.addListener("tap", function(e)
+
+      //       {
+
+      //         this.__popup.hide();
+
+      //         e.preventDefault();
+
+      //         e.stopPropagation();
+
+      //       }, this);
+
+      //       scrollContainer.add(showPopupButton);
 
       /**
       * Close
@@ -1074,19 +1341,17 @@ qx.Class.define("mobileedd.page.Map",
       var me = this;
       me.loopControl.setValue(false);
       me.radarToggleButton.setValue(false);
-      me.longLoop.setValue(false);
+
+      // me.longLoop.setValue(false);
 
       // Hazards
-      me.longfuseButton.setValue(false);
-      me.showLongFuseLabelButton.setValue(false);
+
+      //me.longfuseButton.setValue(false);
+      me.showHazardLabel.setValue(false);
       me.hazardToggleButton.setValue(false);
 
       // Observations
       me.observationToggleButton.setValue(false);
-
-      // Rivers
-
-      // me.riverToggleButton.setValue(false);
       me.countyToggleButton.setValue(false);
 
       // Toggle all other layer visibilities off
@@ -1119,14 +1384,18 @@ qx.Class.define("mobileedd.page.Map",
       url += me.loopControl.getValue() ? 'T' : 'F';
       url += '&r=';
       url += me.radarToggleButton.getValue() ? 'T' : 'F';
-      url += '&rll=';
-      url += me.longLoop.getValue() ? 'T' : 'F';
+
+      // url += '&rll=';
+
+      // url += me.longLoop.getValue() ? 'T' : 'F';
 
       // Hazards
-      url += '&ah=';
-      url += me.longfuseButton.getValue() ? 'T' : 'F';
+
+      // url += '&ah=';
+
+      // url += me.longfuseButton.getValue() ? 'T' : 'F';
       url += '&lh=';
-      url += me.showLongFuseLabelButton.getValue() ? 'T' : 'F';
+      url += me.showHazardLabel.getValue() ? 'T' : 'F';
       url += '&h=';
       url += me.hazardToggleButton.getValue() ? 'T' : 'F';
 
@@ -1134,12 +1403,6 @@ qx.Class.define("mobileedd.page.Map",
       url += '&obs=';
       url += me.observationToggleButton.getValue() ? 'T' : 'F';
       url += '&obfield=' + me.c.getObDisplayedField();
-
-      // // Rivers
-
-      // url += '&riv=';
-
-      // url += me.riverToggleButton.getValue() ? 'T' : 'F';
 
       // Zoom
       url += '&z=';
@@ -1214,12 +1477,16 @@ qx.Class.define("mobileedd.page.Map",
       me.loopControl.setValue(bool);
       var bool = me.getURLParameter('r') == "T" ? true : false;
       me.radarToggleButton.setValue(bool);
-      var bool = me.getURLParameter('rll') == "T" ? true : false;
-      me.longLoop.setValue(bool);
-      var bool = me.getURLParameter('ah') == "T" ? true : false;
-      me.longfuseButton.setValue(bool);
+
+      // var bool = me.getURLParameter('rll') == "T" ? true : false;
+
+      // me.longLoop.setValue(bool);
+
+      // var bool = me.getURLParameter('ah') == "T" ? true : false;
+
+      // me.longfuseButton.setValue(bool);
       var bool = me.getURLParameter('lh') == "T" ? true : false;
-      me.showLongFuseLabelButton.setValue(bool);
+      me.showHazardLabel.setValue(bool);
       var bool = me.getURLParameter('h') == "T" ? true : false;
       me.hazardToggleButton.setValue(bool);
       var bool = me.getURLParameter('c') == "T" ? true : false;
@@ -1234,12 +1501,6 @@ qx.Class.define("mobileedd.page.Map",
         me.c.setObDisplayedField(field);
         me.obDisplayButton.setValue(field);
       }
-
-      // Rivers
-
-      // var bool = me.getURLParameter('riv') == "T" ? true : false;
-
-      // me.riverToggleButton.setValue(bool);
 
       // More Layers
       var ml = me.getURLParameter('ml');
@@ -1421,7 +1682,7 @@ qx.Class.define("mobileedd.page.Map",
           })
         });
         var attribution = new ol.Attribution( {
-          html : 'Tiles &copy; <a href=me.c.getSecure() + "//services.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer">ArcGIS</a>'
         });
         me.natgeo = new ol.layer.Tile(
         {
@@ -1491,7 +1752,7 @@ qx.Class.define("mobileedd.page.Map",
           me.hazardObject.hazardRequest.send();
         });
         var attribution = new ol.Attribution( {
-          html : 'Tiles &copy; <a href=me.c.getSecure() + "//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer">ArcGIS</a>'
         });
         me.esridark = new ol.layer.Tile(
         {
@@ -1500,7 +1761,7 @@ qx.Class.define("mobileedd.page.Map",
           source : source
         });
         var attribution = new ol.Attribution( {
-          html : 'Tiles &copy; <a href=me.c.getSecure() + "//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer">ArcGIS</a>'
         });
         me.esridark_reference = new ol.layer.Tile(
         {
@@ -1576,7 +1837,7 @@ qx.Class.define("mobileedd.page.Map",
           })
         });
         var attribution = new ol.Attribution( {
-          html : 'Tiles &copy; <a href=me.c.getSecure() + "//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer">ArcGIS</a>'
         });
         me.esrilite_reference = new ol.layer.Tile(
         {
@@ -1587,7 +1848,7 @@ qx.Class.define("mobileedd.page.Map",
           })
         });
         var attribution = new ol.Attribution( {
-          html : 'Tiles &copy; <a href=me.c.getSecure() + "//services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer">ArcGIS</a>'
         });
         var urlTemplateTopo = me.c.getSecure() + '//services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer/tile/{z}/{y}/{x}';
         me.esritopo = new ol.layer.Tile(
@@ -1722,6 +1983,7 @@ qx.Class.define("mobileedd.page.Map",
         {
           var position = geolocation.getPosition();
           me.setMyPosition(position);
+          localStorage.setItem("monitor", JSON.stringify(me.getMyPosition()))
           var accuracy = geolocation.getAccuracy();
           var heading = geolocation.getHeading() || 0;
           var speed = geolocation.getSpeed() || 0;
@@ -1865,6 +2127,11 @@ qx.Class.define("mobileedd.page.Map",
 
         // Turn on radar and hazards
         me.radarToggleButton.setValue(true);
+
+        // Turn on looping radar
+        me.loopControl.setValue(true);
+
+        // Turn on hazards
         me.hazardToggleButton.setValue(true);
 
         // State Border
@@ -2212,6 +2479,7 @@ qx.Class.define("mobileedd.page.Map",
         if (selectedItem.indexOf("Monitor") !== -1)
         {
           me.setMyPosition(e.coordinate);
+          localStorage.setItem("monitor", JSON.stringify(me.getMyPosition()))
           me.hazardObject.checkWwaAtLocation();
           return;
         }
@@ -2511,6 +2779,15 @@ qx.Class.define("mobileedd.page.Map",
     // From: http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
     getURLParameter : function(name) {
       return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+    },
+    makeSingularHazardArray : function(values)
+    {
+      var me = this;
+      var display_hazards = new qx.data.Array();
+      values.forEach(function(obj) {
+        display_hazards.append(me.hazard_types[obj]);
+      })
+      me.setSingularHazardArray(display_hazards);
     }
   }
 });

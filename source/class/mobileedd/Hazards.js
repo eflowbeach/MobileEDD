@@ -147,8 +147,18 @@ qx.Class.define("mobileedd.Hazards",
 
 
 
+          // WWA
+          if (!new qx.data.Array(me.mapObject.getWwaList()).contains(feature.get('significance'))) {
+            return null;
+          }
+
+          // Type
+          if (!me.mapObject.getSingularHazardArray().contains(feature.get('phenomenon'))) {
+            return null;
+          }
+
           // Show the hazard text
-          if (me.mapObject.showLongFuseLabelButton.getValue()) {
+          if (me.mapObject.showHazardLabel.getValue()) {
             if (me.mapObject.longfuseButton.getValue()) {
               label = feature.get('phenomenon') + '\n' + feature.get('significance');
             } else {
@@ -189,9 +199,11 @@ qx.Class.define("mobileedd.Hazards",
       // Hazard Request
       me.hazardRequest = new qx.io.request.Jsonp();
       var url = me.mapObject.getJsonpRoot() + "hazards/getShortFusedHazards.php";
-      if (me.mapObject.longfuseButton.getValue()) {
-        url += "?all=t";
-      }
+
+      // if (me.mapObject.longfuseButton.getValue()) {
+      url += "?all=t";
+
+      // }
       me.hazardRequest.setUrl(url);
       me.hazardRequest.setCallbackParam('callback');
       me.hazardRequest.addListener("success", function(e)

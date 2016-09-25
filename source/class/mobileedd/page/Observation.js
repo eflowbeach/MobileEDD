@@ -1,11 +1,11 @@
 /* ************************************************************************
 
-   Copyright:
+   Copyright: 2016
 
-   License:
+   License: MIT
 
-   Authors:
-me.imageurl = me.c.getSecure() + "//www.weather.gov/images/crh/impact/" + f.office + "_" + wtype + "_" + eventid + "_" + f.end + ".png";
+   Authors: Jonathan Wolfe
+
 ************************************************************************ */
 
 /*global qx*/
