@@ -75,8 +75,8 @@ qx.Class.define("mobileedd.page.Map",
      * Mapping Library
      * */
 
-    // me.setMapUri("resource/mobileedd/ol.js");
-    me.setMapUri("resource/mobileedd/ol-debug.js");
+    me.setMapUri("resource/mobileedd/ol.js");
+    //me.setMapUri("resource/mobileedd/ol-debug.js");
 
     // Warning types
     me.sigMap =
