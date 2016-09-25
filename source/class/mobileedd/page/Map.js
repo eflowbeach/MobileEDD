@@ -642,7 +642,7 @@ qx.Class.define("mobileedd.page.Map",
 
       // Hazard Config Popup
       me.hazardConfigPopup = new qx.ui.mobile.dialog.Popup();
-      me.hazardConfigPopup.setModal(true);
+      //me.hazardConfigPopup.setModal(true);
       var composite = new qx.ui.mobile.container.Composite();
       composite.setLayout(new qx.ui.mobile.layout.VBox());
 
