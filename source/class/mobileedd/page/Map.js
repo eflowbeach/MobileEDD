@@ -777,7 +777,10 @@ qx.Class.define("mobileedd.page.Map",
 
         // Save them to properties and local storage
         me.setHazardList(hazardlist);
+          if (typeof (Storage) !== "undefined")
+    {
         localStorage.setItem("hazardlist", JSON.stringify(hazardlist))
+    }
 
         // WWA
         var wwaList = [];
@@ -789,7 +792,10 @@ qx.Class.define("mobileedd.page.Map",
 
         // Save them to properties and local storage
         me.setWwaList(wwaList);
+          if (typeof (Storage) !== "undefined")
+    {
         localStorage.setItem("wwalist", JSON.stringify(wwaList))
+    }
 
         // Redraw the Hazard layer
         mobileedd.Hazards.getInstance().hazardLayer.getSource().dispatchEvent('change');
@@ -1983,7 +1989,10 @@ qx.Class.define("mobileedd.page.Map",
         {
           var position = geolocation.getPosition();
           me.setMyPosition(position);
+            if (typeof (Storage) !== "undefined")
+    {
           localStorage.setItem("monitor", JSON.stringify(me.getMyPosition()))
+    }
           var accuracy = geolocation.getAccuracy();
           var heading = geolocation.getHeading() || 0;
           var speed = geolocation.getSpeed() || 0;
@@ -2479,7 +2488,10 @@ qx.Class.define("mobileedd.page.Map",
         if (selectedItem.indexOf("Monitor") !== -1)
         {
           me.setMyPosition(e.coordinate);
+            if (typeof (Storage) !== "undefined")
+    {
           localStorage.setItem("monitor", JSON.stringify(me.getMyPosition()))
+    }
           me.hazardObject.checkWwaAtLocation();
           return;
         }
