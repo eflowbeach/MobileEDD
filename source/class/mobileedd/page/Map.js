@@ -633,7 +633,6 @@ qx.Class.define("mobileedd.page.Map",
       /**
        * Configure Hazards
        * */
-     
 
       // Holders
       me.hazardToggleButtons = [];
@@ -650,182 +649,182 @@ qx.Class.define("mobileedd.page.Map",
 
       // // Group
       var widget = new qx.ui.mobile.basic.Label("Groups");
-      // widget.addCssClass("popupGroup");
+      widget.addCssClass("popupGroup");
       composite.add(widget);
 
-      // // Loop through hazard_type keys and generate a configuration widget
-      // Object.keys(me.hazard_types).sort().forEach(function(obj, index)
-      // {
-      //   // Horizontal container for each hazard
-      //   var container = new qx.ui.mobile.container.Composite();
-      //   container.setLayout(new qx.ui.mobile.layout.HBox());
+      // Loop through hazard_type keys and generate a configuration widget
+      Object.keys(me.hazard_types).sort().forEach(function(obj, index)
+      {
+        // Horizontal container for each hazard
+        var container = new qx.ui.mobile.container.Composite();
+        container.setLayout(new qx.ui.mobile.layout.HBox());
 
-      //   // Make the label
-      //   var label = new qx.ui.mobile.basic.Label(obj);
-      //   container.add(label, {
-      //     flex : 1
-      //   });
+        // Make the label
+        var label = new qx.ui.mobile.basic.Label(obj);
+        container.add(label, {
+          flex : 1
+        });
 
-      //   // Keep track of names
-      //   me.hazardToggleButtonNames[index] = obj;
+        // Keep track of names
+        me.hazardToggleButtonNames[index] = obj;
 
-      //   // Check to see if the list has been set, if not check them all.
-      //   if (me.getHazardList() != null) {
-      //     // Check to see if the saved list item is active or not - set value accordingly
-      //     if (new qx.data.Array(me.getHazardList()).contains(obj)) {
-      //       var value = true;
-      //     } else {
-      //       value = false;
-      //     }
-      //   } else {
-      //     value = true;
-      //   }
+        // Check to see if the list has been set, if not check them all.
+        if (me.getHazardList() != null) {
+          // Check to see if the saved list item is active or not - set value accordingly
+          if (new qx.data.Array(me.getHazardList()).contains(obj)) {
+            var value = true;
+          } else {
+            value = false;
+          }
+        } else {
+          value = true;
+        }
 
-      //   // Keep track of button objects
-      //   me.hazardToggleButtons[index] = new qx.ui.mobile.form.ToggleButton(value, "Hide", "Show");
+        // Keep track of button objects
+        me.hazardToggleButtons[index] = new qx.ui.mobile.form.ToggleButton(value, "Hide", "Show");
 
-      //   // Add button to the container
-      //   container.add(me.hazardToggleButtons[index]);
-      //   composite.add(container);
-      // })
+        // Add button to the container
+        container.add(me.hazardToggleButtons[index]);
+        composite.add(container);
+      })
 
-      // // Type
-      // var widget = new qx.ui.mobile.basic.Label("Type");
-      // widget.addCssClass("popupGroup");
-      // composite.add(widget);
+      // Type
+      var widget = new qx.ui.mobile.basic.Label("Type");
+      widget.addCssClass("popupGroup");
+      composite.add(widget);
 
-      // // Wwa
-      // Object.keys(me.sigMap).sort().forEach(function(obj, index)
-      // {
-      //   // Horizontal container for each hazard
-      //   var container = new qx.ui.mobile.container.Composite();
-      //   container.setLayout(new qx.ui.mobile.layout.HBox());
+      // Wwa
+      Object.keys(me.sigMap).sort().forEach(function(obj, index)
+      {
+        // Horizontal container for each hazard
+        var container = new qx.ui.mobile.container.Composite();
+        container.setLayout(new qx.ui.mobile.layout.HBox());
 
-      //   // Make the label
-      //   var label = new qx.ui.mobile.basic.Label(obj);
-      //   container.add(label, {
-      //     flex : 1
-      //   });
+        // Make the label
+        var label = new qx.ui.mobile.basic.Label(obj);
+        container.add(label, {
+          flex : 1
+        });
 
-      //   // Keep track of names
-      //   me.hazardToggleWwaButtonNames[index] = obj;
+        // Keep track of names
+        me.hazardToggleWwaButtonNames[index] = obj;
 
-      //   // Check to see if the list has been set, if not check them all.
-      //   if (me.getWwaList() != null) {
-      //     // Check to see if the saved list item is active or not - set value accordingly
-      //     if (new qx.data.Array(me.getWwaList()).contains(obj)) {
-      //       var value = true;
-      //     } else {
-      //       value = false;
-      //     }
-      //   } else {
-      //     value = true;
-      //   }
+        // Check to see if the list has been set, if not check them all.
+        if (me.getWwaList() != null) {
+          // Check to see if the saved list item is active or not - set value accordingly
+          if (new qx.data.Array(me.getWwaList()).contains(obj)) {
+            var value = true;
+          } else {
+            value = false;
+          }
+        } else {
+          value = true;
+        }
 
-      //   // Keep track of button objects
-      //   me.hazardToggleWwaButtons[index] = new qx.ui.mobile.form.ToggleButton(value, "Hide", "Show");
+        // Keep track of button objects
+        me.hazardToggleWwaButtons[index] = new qx.ui.mobile.form.ToggleButton(value, "Hide", "Show");
 
-      //   // Add button to the container
-      //   container.add(me.hazardToggleWwaButtons[index]);
-      //   composite.add(container);
-      // })
-      // var spacer = new qx.ui.mobile.container.Composite();
-      // spacer.addCssClass("thinseparator");
-      // composite.add(spacer)
+        // Add button to the container
+        container.add(me.hazardToggleWwaButtons[index]);
+        composite.add(container);
+      })
+      var spacer = new qx.ui.mobile.container.Composite();
+      spacer.addCssClass("thinseparator");
+      composite.add(spacer)
 
-      // // Toggle All
-      // me.toggle = 0;
-      // var widget = new qx.ui.mobile.form.Button("Toggle All");
-      // widget.addListener("tap", function(e)
-      // {
-      //   // Don't click map...
-      //   e.preventDefault();
-      //   e.stopPropagation();
-      //   me.hazardToggleButtons.forEach(function(obj, index) {
-      //     if (me.toggle % 2 == 0) {
-      //       obj.setValue(true);
-      //     } else {
-      //       obj.setValue(false);
-      //     }
-      //   })
+      // Toggle All
+      me.toggle = 0;
+      var widget = new qx.ui.mobile.form.Button("Toggle All");
+      widget.addListener("tap", function(e)
+      {
+        // Don't click map...
+        e.preventDefault();
+        e.stopPropagation();
+        me.hazardToggleButtons.forEach(function(obj, index) {
+          if (me.toggle % 2 == 0) {
+            obj.setValue(true);
+          } else {
+            obj.setValue(false);
+          }
+        })
 
-      //   // Save them to properties and local storage
-      //   me.hazardToggleWwaButtons.forEach(function(obj, index) {
-      //     if (me.toggle % 2 == 0) {
-      //       obj.setValue(true);
-      //     } else {
-      //       obj.setValue(false);
-      //     }
-      //   })
-      //   me.toggle++;
-      // }, this);
-      // composite.add(widget);
+        // Save them to properties and local storage
+        me.hazardToggleWwaButtons.forEach(function(obj, index) {
+          if (me.toggle % 2 == 0) {
+            obj.setValue(true);
+          } else {
+            obj.setValue(false);
+          }
+        })
+        me.toggle++;
+      }, this);
+      composite.add(widget);
 
-      // // Apply
-      // var widget = new qx.ui.mobile.form.Button("Apply");
-      // widget.addListener("tap", function(e)
-      // {
-      //   // Don't click map...
-      //   e.preventDefault();
-      //   e.stopPropagation();
+      // Apply
+      var widget = new qx.ui.mobile.form.Button("Apply");
+      widget.addListener("tap", function(e)
+      {
+        // Don't click map...
+        e.preventDefault();
+        e.stopPropagation();
 
-      //   // Generate a list of checked hazards
-      //   var hazardlist = [];
-      //   me.hazardToggleButtons.forEach(function(obj, index) {
-      //     if (obj.getValue()) {
-      //       hazardlist.push(me.hazardToggleButtonNames[index]);
-      //     }
-      //   })
+        // Generate a list of checked hazards
+        var hazardlist = [];
+        me.hazardToggleButtons.forEach(function(obj, index) {
+          if (obj.getValue()) {
+            hazardlist.push(me.hazardToggleButtonNames[index]);
+          }
+        })
 
-      //   // Save them to properties and local storage
-      //   me.setHazardList(hazardlist);
-      //   if (typeof (Storage) !== "undefined") {
-      //     localStorage.setItem("hazardlist", JSON.stringify(hazardlist))
-      //   }
+        // Save them to properties and local storage
+        me.setHazardList(hazardlist);
+        if (typeof (Storage) !== "undefined") {
+          localStorage.setItem("hazardlist", JSON.stringify(hazardlist))
+        }
 
-      //   // WWA
-      //   var wwaList = [];
-      //   me.hazardToggleWwaButtons.forEach(function(obj, index) {
-      //     if (obj.getValue()) {
-      //       wwaList.push(me.hazardToggleWwaButtonNames[index]);
-      //     }
-      //   })
+        // WWA
+        var wwaList = [];
+        me.hazardToggleWwaButtons.forEach(function(obj, index) {
+          if (obj.getValue()) {
+            wwaList.push(me.hazardToggleWwaButtonNames[index]);
+          }
+        })
 
-      //   // Save them to properties and local storage
-      //   me.setWwaList(wwaList);
-      //   if (typeof (Storage) !== "undefined") {
-      //     localStorage.setItem("wwalist", JSON.stringify(wwaList))
-      //   }
+        // Save them to properties and local storage
+        me.setWwaList(wwaList);
+        if (typeof (Storage) !== "undefined") {
+          localStorage.setItem("wwalist", JSON.stringify(wwaList))
+        }
 
-      //   // Redraw the Hazard layer
-      //   mobileedd.Hazards.getInstance().hazardLayer.getSource().dispatchEvent('change');
+        // Redraw the Hazard layer
+        mobileedd.Hazards.getInstance().hazardLayer.getSource().dispatchEvent('change');
 
-      //   // Hide the popup
-      //   me.hazardConfigPopup.hide();
-      // }, this);
-      // composite.add(widget);
+        // Hide the popup
+        me.hazardConfigPopup.hide();
+      }, this);
+      composite.add(widget);
 
       // Make the hazard area scrollable
-      var scroll = new qx.ui.mobile.container.Scroll();
-      scroll.add(composite);
+      me.hazardScroll = new qx.ui.mobile.container.Scroll();
+      me.hazardScroll.add(composite);
 
       // Set the color to white
-      qx.bom.element.Style.setCss(scroll.getContainerElement(), 'color:#FFFFFF');
-      me.hazardConfigPopup.add(scroll);
-      
-      
+
+      // Had to add height since it was getting confused in Safari browser on iPhones.
+      qx.bom.element.Style.setCss(me.hazardScroll.getContainerElement(), 'color:#FFFFFF; height:300px;');
+      me.hazardConfigPopup.add(me.hazardScroll);
 
       /**
        * Allow for hazard configuration
        * */
       me.hazardConfigureContainer = new qx.ui.mobile.container.Composite();
       me.hazardConfigureContainer.setLayout(new qx.ui.mobile.layout.HBox());
-      
       var configureHazardsButton = new qx.ui.mobile.form.Button("Configure Hazards", "resource/mobileedd/images/settings.png");
       configureHazardsButton.addListener("tap", function(e)
       {
         me.drawer.hide();
         me.hazardConfigPopup.show();
+        me.hazardScroll.refresh();
       }, this)
       me.hazardConfigureContainer.add(configureHazardsButton, {
         flex : 1
@@ -1298,7 +1297,10 @@ qx.Class.define("mobileedd.page.Map",
 
       // Menu Button
       var menuButton = new qx.ui.mobile.navigationbar.Button("Menu");
-      menuButton.addListener("tap", function(e) {
+      menuButton.addListener("tap", function(e)
+      {
+        e.preventDefault();
+        e.stopPropagation();
         me.drawer.show();
       }, this);
       this.getRightContainer().add(menuButton);
