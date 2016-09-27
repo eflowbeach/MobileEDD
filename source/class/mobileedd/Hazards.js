@@ -148,13 +148,17 @@ qx.Class.define("mobileedd.Hazards",
 
 
           // WWA
-          if (!new qx.data.Array(me.mapObject.getWwaList()).contains(feature.get('significance'))) {
-            return null;
+          if(me.mapObject.getWwaList()!=null){
+            if (!new qx.data.Array(me.mapObject.getWwaList()).contains(feature.get('significance'))) {
+              return null;
+            }
           }
 
           // Type
+          if(me.mapObject.getSingularHazardArray()!=null){
           if (!me.mapObject.getSingularHazardArray().contains(feature.get('phenomenon'))) {
             return null;
+          }
           }
 
           // Show the hazard text
