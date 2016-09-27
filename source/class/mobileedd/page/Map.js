@@ -22,6 +22,12 @@ qx.Class.define("mobileedd.page.Map",
   type : "singleton",
   properties :
   {
+    defaultCenter:{
+      init:[-99,40]
+    },
+    defaultZoom:{
+      init:4
+    },
     jsonpRoot : {
       init : ""
     },
@@ -59,6 +65,7 @@ qx.Class.define("mobileedd.page.Map",
     countyBorderColor : {
       init : "#717171"
     }
+    
   },
   construct : function()
   {
@@ -90,7 +97,7 @@ qx.Class.define("mobileedd.page.Map",
     // A list of hazards to display
     me.hazard_types =
     {
-      "Hydrologic" : ["Coastal Flood", "Areal Flood", "Flash Flood", "Flood", "Lakeshore Flood"],
+      "Flooding" : ["Coastal Flood", "Areal Flood", "Flash Flood", "Flood", "Lakeshore Flood"],
       "Winter" : ["Freezing Rain", "Freezing Fog", "Winter Storm", "Winter Weather", "Wind Chill", "Ice Accretion", "Snow", "Snow and Blowing Snow", "Lake Effect Snow and Blowing Snow", "Ice Storm", "Sleet", "Heavy Snow", "Heavy Sleet", "Extreme Cold", "Lake Effect Snow", "Avalanche", "Blowing Snow", "Blizzard"],
       "Marine" : ["Wind", "Storm", "Inland Tropical Storm", "Tropical Storm", "Tsunami", "Typhoon", "Small Craft", "Hazardous Seas", "Small Craft for Winds", "Low Water", "Lakeshore Flood", "Lake Wind", "Small Craft for Rough Bar", "Hurricane", "High Wind", "Gale", "Hurricane Force Wind", "Inland Hurricane Wind", "Coastal Flood", "Marine", "Volcanic Ashfall", "Ice Accretion"],
       "Fire" : ["Red Flag", "Fire Weather"],
@@ -600,10 +607,12 @@ qx.Class.define("mobileedd.page.Map",
         {
           me.hazardObject.hazardRequestTimer.start();
           me.showHazardLabelContainer.setVisibility("visible");
+          me.hazardConfigureContainer.setVisibility("visible");
         } else
         {
           me.hazardObject.hazardRequestTimer.stop();
           me.showHazardLabelContainer.setVisibility("excluded");
+          me.hazardConfigureContainer.setVisibility("excluded");
         }
       }, this);
       composite.add(me.hazardToggleButton);
@@ -742,18 +751,18 @@ qx.Class.define("mobileedd.page.Map",
         e.stopPropagation();
         me.hazardToggleButtons.forEach(function(obj, index) {
           if (me.toggle % 2 == 0) {
-            obj.setValue(true);
-          } else {
             obj.setValue(false);
+          } else {
+            obj.setValue(true);
           }
         })
 
         // Save them to properties and local storage
         me.hazardToggleWwaButtons.forEach(function(obj, index) {
           if (me.toggle % 2 == 0) {
-            obj.setValue(true);
-          } else {
             obj.setValue(false);
+          } else {
+            obj.setValue(true);
           }
         })
         me.toggle++;
@@ -1378,6 +1387,10 @@ qx.Class.define("mobileedd.page.Map",
 
       // More Layers
       mobileedd.MoreLayers.getInstance().showLegendVisibilityOfAll(false);
+      
+      // Default view
+       me.map.getView().setCenter(ol.proj.transform(me.getDefaultCenter(), 'EPSG:4326', 'EPSG:3857'));
+       me.map.getView().setZoom(me.getDefaultZoom());
     },
 
     /**
@@ -1668,8 +1681,8 @@ qx.Class.define("mobileedd.page.Map",
       {
         me.defaultView = new ol.View(
         {
-          center : ol.proj.transform([-99, 40], 'EPSG:4326', 'EPSG:3857'),
-          zoom : 4
+          center : ol.proj.transform(me.getDefaultCenter(), 'EPSG:4326', 'EPSG:3857'),
+          zoom : me.getDefaultZoom()
         });
 
         // Firefox never triggers geolocation fail
@@ -2142,7 +2155,7 @@ qx.Class.define("mobileedd.page.Map",
           view.setCenter(view.constrainCenter(center));
         });
 
-        // Turn on radar and hazards
+        // Turn on radar
         me.radarToggleButton.setValue(true);
 
         // Turn on looping radar
@@ -2804,7 +2817,12 @@ qx.Class.define("mobileedd.page.Map",
       var me = this;
       var display_hazards = new qx.data.Array();
       values.forEach(function(obj) {
+        try{
         display_hazards.append(me.hazard_types[obj]);
+        }catch(e){
+          // The hazard list likely changed from what was saved
+          console.log(e);
+        }
       })
       me.setSingularHazardArray(display_hazards);
     }

@@ -159,14 +159,14 @@ qx.Class.define("mobileedd.Hazards",
 
           // Show the hazard text
           if (me.mapObject.showHazardLabel.getValue()) {
-            if (me.mapObject.longfuseButton.getValue()) {
+            // if (me.mapObject.longfuseButton.getValue()) {
               label = feature.get('phenomenon') + '\n' + feature.get('significance');
-            } else {
-              var key = Object.keys(me.hazardMap).filter(function(key) {
-                return me.hazardMap[key] === feature.get('phenomenon')
-              })[0];
-              label = key + '\n' + 'Warning';
-            }
+            // } else {
+            //   var key = Object.keys(me.hazardMap).filter(function(key) {
+            //     return me.hazardMap[key] === feature.get('phenomenon')
+            //   })[0];
+            //   label = key + '\n' + 'Warning';
+            // }
           }
           var contrast = getContrast50(color);
           var textStroke = new ol.style.Stroke(

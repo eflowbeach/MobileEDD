@@ -268,6 +268,51 @@ qx.Class.define("mobileedd.page.Observation",
               }
             }]
           });
+          
+          
+          $.plot("#visibilitygraph", [
+          {
+            label : "Visibility",
+            data : aryVSBY,
+            color : '#000000'//,
+            // points : {
+            //   show : true
+            // }
+          }],
+          {
+            units : '"',
+            grid : {
+              backgroundColor : {
+                colors : ["#F8E6BC", "#FFFFFF"]
+              }
+            },
+            legend :
+            {
+              show : true,
+              position : 'nw'
+            },
+            xaxis :
+            {
+              mode : "time",
+              tickFormatter : function(val, axis) {
+                return new moment(val).format(axisFormat);
+              }
+            },
+            axisLabels : {
+              show : true
+            },
+            yaxes : [
+            {
+              min:0,
+              max:10,
+              position : 'left',
+              axisLabel : 'miles',
+              tickFormatter : function(val, axis) {
+                return val.toFixed(1);
+              }
+            }]
+          });
+          
           $.plot("#pressuregraph", [
           {
             label : "Sea Level Pressure",
@@ -359,6 +404,7 @@ qx.Class.define("mobileedd.page.Observation",
         html += '<div id="windgraph" class="demo-placeholder"></div>';
         html += '<div id="precipgraph" class="demo-placeholder"></div>';
         html += '<div id="pressuregraph" class="demo-placeholder"></div>';
+        html += '<div id="visibilitygraph" class="demo-placeholder"></div>';
         html += '<div id="wavegraph" class="demo-placeholder"></div>';
         html += '<hr><table><tr><td><b>Station ID:</b></td><td>' + feature.get('STID') + '</td></tr><tr>';
         var data = feature.get(service_type);

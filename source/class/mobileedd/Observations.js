@@ -370,23 +370,23 @@ qx.Class.define("mobileedd.Observations",
         {
           if (me.getExtent() != extent.toString())
           {
-            // if (typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible())
+            if (typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible())
 
-            // {
+            {
 
-            //   if (resolution < 1500) {
+              if (resolution < 1500) {
 
-            //     me.setNetworks('');
+                me.setNetworks('');
 
-            //   } else {
+              } else {
 
-            //     me.setNetworks('1,14,96');
+                me.setNetworks('1,14,96');
 
-            //   }
+              }
             me.getUpdatedServiceUrl();
             me.observationReq.send();
 
-            // }
+            }
           }
           me.setExtent(extent.toString());
         }
