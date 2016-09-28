@@ -10,6 +10,8 @@
 
 /*global qx*/
 
+/*global ol*/
+
 /**
  */
 qx.Class.define("mobileedd.page.PageTravelHazards",
@@ -24,6 +26,11 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
     this.setTitle("Travel Hazards");
     this.setShowBackButton(true);
     this.setBackButtonText("Back");
+    if (typeof (Storage) !== "undefined") {
+      if (localStorage.getItem("mapquestkey") != null) {
+        this.c.setMapQuestKey(JSON.parse(localStorage.getItem("mapquestkey")));
+      }
+    }
   },
   members :
   {
@@ -46,23 +53,41 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
 
       // START FIELD
       this.__start = new qx.ui.mobile.form.TextField().set( {
-        placeholder : "Get from map tap or type it"
+        placeholder : "Type location or tap the map."
       });
       this.getContent().add(this.__start);
       this.waypointContainer = new qx.ui.mobile.container.Composite();
       this.waypointContainer.setLayout(new qx.ui.mobile.layout.VBox());
       this.waypointContainer.addCssClass("hboxPad");
       this.getContent().add(this.waypointContainer)
+      
+      
+      
+      
+      // Destination
       endLabel = new qx.ui.mobile.basic.Label("Destination");
       endLabel.addCssClass("menuLabels");
       this.getContent().add(endLabel);
       this.__end = new qx.ui.mobile.form.TextField().set( {
-        placeholder : "Get from map tap or type it"
+        placeholder : "Type location or tap the map."
       });
       this.getContent().add(this.__end)
       var spacer = new qx.ui.mobile.container.Composite();
       spacer.addCssClass("hboxPad");
       this.getContent().add(spacer)
+      
+      
+      // Use map
+       var useMap = new qx.ui.mobile.form.Button("Use Map...", "resource/mobileedd/images/map.png");
+      useMap.addListener("tap", function(e) {
+        qx.core.Init.getApplication().getRouting().executeGet("/");
+           var text = new qx.event.message.Message("edd.message");
+          text.setData(['<b>Tap map to:<br>"Set Travel Origin" or<br>"Set Travel Destination".</b>', 5000]);
+          this.bus.dispatch(text);
+      }, this);
+      this.getContent().add(useMap)
+      
+      // Leave at
       this.showPickerButton = new qx.ui.mobile.form.Button("Leave at:", "resource/mobileedd/images/calendar.png");
       this.showPickerButton.addListener("tap", function(e) {
         this.__pickerDialog.show();
@@ -105,9 +130,26 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         widget.addListener("tap", function()
         {
           this.c.setMapQuestKey(tf.getValue());
+          if (typeof (Storage) !== "undefined") {
+            localStorage.setItem("mapquestkey", JSON.stringify(tf.getValue()))
+          }
           popup.hide();
         }, this);
         composite.add(widget);
+
+        // Reset
+        var widget = new qx.ui.mobile.form.Button("Reset");
+        widget.addListener("tap", function()
+        {
+          this.c.setMapQuestKey(this.c.getMapQuestKeyBackup());
+          if (typeof (Storage) !== "undefined") {
+            localStorage.setItem("mapquestkey", JSON.stringify(this.c.getMapQuestKeyBackup()));
+          }
+          popup.hide();
+        }, this);
+        composite.add(widget);
+
+        // Close
         var widget = new qx.ui.mobile.form.Button("Close");
         widget.addListener("tap", function() {
           popup.hide();
@@ -243,7 +285,22 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
       }
       var selectedDate = new moment(timestring, "h A, MMM D YYYY").toDate();
       this.showPickerButton.setValue("Leave at: " + timestring);
-      mobileedd.TravelHazards.getInstance().setLeaveAt(selectedDate);
+      if (!new moment(timestring, "h A, MMM D YYYY").isAfter(new moment().subtract(1, 'hours')))
+      {
+        var closeDialogButton = new qx.ui.mobile.form.Button("Close");
+        var popup = new qx.ui.mobile.dialog.Popup(closeDialogButton);
+        popup.setTitle("Depart time is in the past.");
+        closeDialogButton.addListener("tap", function()
+        {
+          popup.hide();
+          this.__pickerDialog.show();
+        }, this);
+        popup.show();
+        return;
+      } else
+      {
+        mobileedd.TravelHazards.getInstance().setLeaveAt(selectedDate);
+      }
     },
 
     /**
@@ -397,7 +454,10 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         try
         {
           var address = response.address.Match_addr;
-          this.__end.setValue(address)
+          this.__end.setValue(address);
+          var text = new qx.event.message.Message("edd.message");
+          text.setData(['<b>Destination set to:</b><br>' + address, 3000]);
+          this.bus.dispatch(text);
         }catch (e)
         {
           this.__popup.setTitle("Unable to find address for the specified location.");
@@ -421,7 +481,10 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         try
         {
           var address = response.address.Match_addr;
-          this.__start.setValue(address)
+          this.__start.setValue(address);
+          var text = new qx.event.message.Message("edd.message");
+          text.setData(['<b>Origin set to:</b><br>' + address, 3000]);
+          this.bus.dispatch(text);
         }catch (e)
         {
           this.__popup.setTitle("Unable to find address for the specified location.");
@@ -430,7 +493,8 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         }
       }, this)
       geo.reverseGeoRequest(ll[1], ll[0]);
-      qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+
+      // qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
     },
 
     /**
@@ -449,7 +513,10 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
             this.addWaypointContainer();
           }
           this.waypointsLonLat[index] = ll;
-          this.waypoints[index].setValue(address)
+          this.waypoints[index].setValue(address);
+          var text = new qx.event.message.Message("edd.message");
+          text.setData(['<b>Waypoint ' + index + 1 + ' set to:</b><br>' + address, 3000]);
+          this.bus.dispatch(text);
         }catch (e)
         {
           this.__popup.setTitle("Unable to find address for the specified waypoint location.");
@@ -458,7 +525,8 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         }
       }, this)
       geo.reverseGeoRequest(ll[1], ll[0]);
-      qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+
+      // qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
     },
 
     /**

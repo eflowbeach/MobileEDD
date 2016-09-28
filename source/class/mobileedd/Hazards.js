@@ -148,28 +148,35 @@ qx.Class.define("mobileedd.Hazards",
 
 
           // WWA
-          if(me.mapObject.getWwaList()!=null){
+          if (me.mapObject.getWwaList() != null) {
             if (!new qx.data.Array(me.mapObject.getWwaList()).contains(feature.get('significance'))) {
               return null;
             }
           }
 
           // Type
-          if(me.mapObject.getSingularHazardArray()!=null){
-          if (!me.mapObject.getSingularHazardArray().contains(feature.get('phenomenon'))) {
-            return null;
-          }
+          if (me.mapObject.getSingularHazardArray() != null) {
+            if (!me.mapObject.getSingularHazardArray().contains(feature.get('phenomenon'))) {
+              return null;
+            }
           }
 
           // Show the hazard text
-          if (me.mapObject.showHazardLabel.getValue()) {
+          if (me.mapObject.showHazardLabel.getValue())
+          {
             // if (me.mapObject.longfuseButton.getValue()) {
-              label = feature.get('phenomenon') + '\n' + feature.get('significance');
+            label = feature.get('phenomenon') + '\n' + feature.get('significance');
+
             // } else {
+
             //   var key = Object.keys(me.hazardMap).filter(function(key) {
+
             //     return me.hazardMap[key] === feature.get('phenomenon')
+
             //   })[0];
+
             //   label = key + '\n' + 'Warning';
+
             // }
           }
           var contrast = getContrast50(color);

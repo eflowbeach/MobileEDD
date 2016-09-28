@@ -20,10 +20,11 @@ qx.Class.define("mobileedd.page.Forecast",
 {
   extend : qx.ui.mobile.page.NavigationPage,
   type : 'singleton',
-  properties:{
-    plotLength:{
-      init: 72,
-      apply:"redrawPlots"
+  properties : {
+    plotLength :
+    {
+      init : 72,
+      apply : "redrawPlots"
     }
   },
   construct : function()
@@ -37,17 +38,19 @@ qx.Class.define("mobileedd.page.Forecast",
   },
   members :
   {
-    redrawPlots: function(){
+    redrawPlots : function()
+    {
       var me = this;
       var newEndTime = new moment().add(me.getPlotLength(), 'hours');
       var plots = [me.tplot, me.pplot, me.qplot, me.wplot, me.waveplot];
-      plots.forEach(function(obj){
-        obj.getOptions().xaxes[0].max = newEndTime;  
+      plots.forEach(function(obj)
+      {
+        obj.getOptions().xaxes[0].max = newEndTime;
         obj.setupGrid();
         obj.draw();
       })
-      
     },
+
     // overridden
     _initialize : function()
     {
@@ -57,39 +60,39 @@ qx.Class.define("mobileedd.page.Forecast",
       // Busy indicator
       var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
       this.busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
-      
-       /**
-       * Plot Period
-       * */
+
+      /**
+      * Plot Period
+      * */
       var container = new qx.ui.mobile.container.Composite();
-      container.setLayout(new qx.ui.mobile.layout.HBox().set({alignX:"center"}));
+      container.setLayout(new qx.ui.mobile.layout.HBox().set( {
+        alignX : "center"
+      }));
       var label = new qx.ui.mobile.basic.Label("Plot Period (Days)&nbsp;");
-      
       label.addCssClass("menuLabels");
-      container.add(label,{flex:0.1});
-      
-      
-       // ANCHORED MENU POPUP
+      container.add(label, {
+        flex : 0.1
+      });
+
+      // ANCHORED MENU POPUP
       var showAnchorMenuButton = new qx.ui.mobile.form.Button("3");
       showAnchorMenuButton.addListener("tap", function(e) {
         this.__anchorMenu.show();
       }, this);
-
-      var anchorMenuModel = new qx.data.Array(["1","2","3","4", "5","6", "7","8"]);
+      var anchorMenuModel = new qx.data.Array(["1", "2", "3", "4", "5", "6", "7", "8"]);
       this.__anchorMenu = new qx.ui.mobile.dialog.Menu(anchorMenuModel, showAnchorMenuButton);
       this.__anchorMenu.setTitle("Days");
-      this.__anchorMenu.addListener("changeSelection", function(e){
-         me.setPlotLength(e.getData().item * 24);
-         showAnchorMenuButton.setValue(e.getData().item);
+      this.__anchorMenu.addListener("changeSelection", function(e)
+      {
+        me.setPlotLength(e.getData().item * 24);
+        showAnchorMenuButton.setValue(e.getData().item);
       }, this);
       container.add(showAnchorMenuButton);
+
       // setTimeout(function() {
-     
+
       // },2000)
-      
-      
       this.getContent().add(container);
-      
       this.embedHtml = new qx.ui.mobile.embed.Html();
       this.getContent().add(this.embedHtml);
 
@@ -190,7 +193,7 @@ qx.Class.define("mobileedd.page.Forecast",
         me.fxReq.send();
       }, this);
     },
-    
+
     /**
      * Plot the data
      * */
@@ -204,8 +207,6 @@ qx.Class.define("mobileedd.page.Forecast",
         this.busyPopup.hide();
         return;
       }
-      
-     
 
       // Check to see if we need to include a freezing line
       var cold = false;
@@ -220,18 +221,20 @@ qx.Class.define("mobileedd.page.Forecast",
         label : "Temperature",
         data : response.t,
         color : 'red',
-        lines : {
+        lines :
+        {
           show : true,
-          lineWidth:4
+          lineWidth : 4
         }
       },
       {
         label : "Dew Point",
         data : response.td,
         color : 'green',
-        lines : {
+        lines :
+        {
           show : true,
-          lineWidth:4
+          lineWidth : 4
         }
       }];
       if (cold) {
@@ -243,9 +246,10 @@ qx.Class.define("mobileedd.page.Forecast",
           dashes : {
             show : true
           },
-          lines : {
+          lines :
+          {
             show : false,
-          lineWidth:4
+            lineWidth : 4
           },
           units : "&deg;F",
           grid : {
@@ -297,9 +301,10 @@ qx.Class.define("mobileedd.page.Forecast",
         label : "Wind Speed",
         data : response.windspd,
         color : 'purple',
-        lines : {
+        lines :
+        {
           show : true,
-          lineWidth:4
+          lineWidth : 4
         }
       },
       {
@@ -419,7 +424,7 @@ qx.Class.define("mobileedd.page.Forecast",
         {
           show : true,
           fill : true,
-          lineWidth:4
+          lineWidth : 4
 
           //barWidth : 3600 * 1000 * 12// * 0.25 * 0.05
         }
@@ -449,8 +454,8 @@ qx.Class.define("mobileedd.page.Forecast",
         },
         yaxes : [
         {
-          max:100,
-          min:0,
+          max : 100,
+          min : 0,
           position : 'left',
           axisLabel : 'Chance of Precipitation, %',
           tickFormatter : function(val, axis) {
@@ -469,7 +474,7 @@ qx.Class.define("mobileedd.page.Forecast",
       } else {
         $('#fwavegraph').hide();
       }
-     me.waveplot = $.plot("#fwavegraph", [
+      me.waveplot = $.plot("#fwavegraph", [
       {
         label : "Wave Height",
         data : response.waveheight,

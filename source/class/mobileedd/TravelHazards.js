@@ -2,6 +2,22 @@
  *
  * Creates a travel forecast colored by weather hazards along the route
  *
+
+   Copyright: 2016
+
+   License: MIT
+
+   Authors: Jonathan Wolfe
+
+************************************************************************ */
+
+/*global qx*/
+
+/*global ol*/
+
+/*global mobileedd*/
+
+/**
  */
 qx.Class.define("mobileedd.TravelHazards",
 {
@@ -288,7 +304,30 @@ qx.Class.define("mobileedd.TravelHazards",
             if (image != "resource/mobileedd/images/grayball.png") {
               anchor = [20, 40];
             }
-            return [new ol.style.Style( {
+            var label = feature.get("Temperature");
+            var color = '#000000';
+            var width = 3;
+            if (label < 32)
+            {
+              color = '#FF0000';
+              width = 6;
+            } else if (label < 37)
+            {
+              color = '#0011B8';
+              width = 4;
+            }
+
+            var contrast = '#FFFFFF';  //getContrast50(color);
+            var textStroke = new ol.style.Stroke(
+            {
+              color : contrast,
+              width : width
+            });
+            var textFill = new ol.style.Fill( {
+              color : color
+            });
+            return [new ol.style.Style(
+            {
               image : new ol.style.Icon(
               {
                 anchor : anchor,
@@ -296,6 +335,14 @@ qx.Class.define("mobileedd.TravelHazards",
                 anchorYUnits : 'pixels',
                 src : image,
                 scale : 0.75
+              }),
+              text : new ol.style.Text(
+              {
+                font : '20px Calibri,sans-serif',
+                text : label,
+                fill : textFill,
+                stroke : textStroke,
+                offsetY : 15
               })
             })]
           }
@@ -490,16 +537,19 @@ qx.Class.define("mobileedd.TravelHazards",
       var days = Math.floor(displayTime / 86400);
       var hours = Math.floor(displayTime / 3600) % 24;
       var minutes = Math.floor(displayTime / 60) % 60;
-
-      // if (days == 0) {
-
-      //   me.routeTime.setLabel(Math.round(response.route.distance) + " mi.<br>" + hours + 'h ' + minutes + 'm');
-
-      // } else {
-
-      //   me.routeTime.setLabel(Math.round(response.route.distance) + " mi.<br>" + days + 'd ' + hours + 'h ' + minutes + 'm');
-
-      // }
+      if (days == 0)
+      {
+        var tlength = Math.round(response.route.distance) + " mi.<br>" + hours + 'h ' + minutes + 'm';
+        var text = new qx.event.message.Message("edd.message");
+        text.setData(['<b>This trip:</b><br>' + tlength, 5000]);
+        this.bus.dispatch(text);
+      } else
+      {
+        var tlength = Math.round(response.route.distance) + " mi.<br>" + days + 'd ' + hours + 'h ' + minutes + 'm';
+        var text = new qx.event.message.Message("edd.message");
+        text.setData(['<b>This trip:</b><br>' + tlength, 5000]);
+        this.bus.dispatch(text);
+      }
       var totaltime_hours = response.route.time / 3600;  // Convert form seconds to hours
       var total_points = lonLatPlotArray;
       var total_segments = total_points / pointsToSkip;

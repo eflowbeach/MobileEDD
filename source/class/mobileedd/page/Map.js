@@ -22,11 +22,11 @@ qx.Class.define("mobileedd.page.Map",
   type : "singleton",
   properties :
   {
-    defaultCenter:{
-      init:[-99,40]
+    defaultCenter : {
+      init : [-99, 40]
     },
-    defaultZoom:{
-      init:4
+    defaultZoom : {
+      init : 4
     },
     jsonpRoot : {
       init : ""
@@ -65,7 +65,6 @@ qx.Class.define("mobileedd.page.Map",
     countyBorderColor : {
       init : "#717171"
     }
-    
   },
   construct : function()
   {
@@ -124,7 +123,7 @@ qx.Class.define("mobileedd.page.Map",
 
     // Busy indicator
     var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
-    this.busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
+    me.busyPopup = new qx.ui.mobile.dialog.Popup(busyIndicator);
 
     /**
      * Set up common urls for "More Layers"
@@ -135,7 +134,7 @@ qx.Class.define("mobileedd.page.Map",
     var qpf = 'NWS_Forecasts_Guidance_Warnings/wpc_qpf' + msExport;
     var spc = 'NWS_Forecasts_Guidance_Warnings/SPC_wx_outlks' + msExport;
     var npsg = me.c.getSecure() + '//psgeodata.fs.fed.us/arcgis/rest/services/NPSG/';
-    this.layer_list =
+    me.layer_list =
     {
       "Lightning Density" :
       {
@@ -788,7 +787,7 @@ qx.Class.define("mobileedd.page.Map",
         // Save them to properties and local storage
         me.setHazardList(hazardlist);
         if (typeof (Storage) !== "undefined") {
-          localStorage.setItem("hazardlist", JSON.stringify(hazardlist))
+          localStorage.setItem("hazardlist", JSON.stringify(hazardlist));
         }
 
         // WWA
@@ -1093,7 +1092,7 @@ qx.Class.define("mobileedd.page.Map",
       /**
       * Travel Hazards
       */
-      var travelButton = new qx.ui.mobile.form.Button("Weather Travel Hazards", "mobileedd/images/car.png");
+      var travelButton = new qx.ui.mobile.form.Button("Travel Weather Hazards", "mobileedd/images/car.png");
       travelButton.addListener("tap", function(e)
       {
         this.c.setTravelActive(true);
@@ -1133,19 +1132,19 @@ qx.Class.define("mobileedd.page.Map",
           req.addListenerOnce("success", function(e)
           {
             tf.setValue(e.getTarget().getResponse().response.data.entry[0].short_url);
-            this.busyPopup.hide();
-          });
+            me.busyPopup.hide();
+          }, this);
           req.addListener("fail", function(e)
           {
             tf.setValue(this.makeUrl());
             me.goUsaAtom.setIcon("edd/images/close_button.png");
-            this.busyPopup.hide();
+            me.busyPopup.hide();
           }, this);
           req.addListener("readyStateChange", function(e) {
             if (this.getPhase() == "sent") {
-              this.busyPopup.show();
+              me.busyPopup.show();
             }
-          });
+          }, this);
           req.send();
         }, this);
         composite.add(widget);
@@ -1387,10 +1386,10 @@ qx.Class.define("mobileedd.page.Map",
 
       // More Layers
       mobileedd.MoreLayers.getInstance().showLegendVisibilityOfAll(false);
-      
+
       // Default view
-       me.map.getView().setCenter(ol.proj.transform(me.getDefaultCenter(), 'EPSG:4326', 'EPSG:3857'));
-       me.map.getView().setZoom(me.getDefaultZoom());
+      me.map.getView().setCenter(ol.proj.transform(me.getDefaultCenter(), 'EPSG:4326', 'EPSG:3857'));
+      me.map.getView().setZoom(me.getDefaultZoom());
     },
 
     /**
@@ -2521,14 +2520,16 @@ qx.Class.define("mobileedd.page.Map",
         {
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           mobileedd.page.PageTravelHazards.getInstance().setDestination(ll);
-          qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+
+          //qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
           return;
         }
         if (selectedItem == "Set Travel Origin")
         {
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           mobileedd.page.PageTravelHazards.getInstance().setOrigin(ll);
-          qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+
+          //qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
           return;
         }
         if (selectedItem.indexOf("Set Travel Waypoint") !== -1)
@@ -2536,7 +2537,8 @@ qx.Class.define("mobileedd.page.Map",
           var indexToChange = selectedItem.split('#')[1] - 1;
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           mobileedd.page.PageTravelHazards.getInstance().setWaypoint(ll, indexToChange);
-          qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+
+          //qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
           return;
         }
 
@@ -2817,9 +2819,9 @@ qx.Class.define("mobileedd.page.Map",
       var me = this;
       var display_hazards = new qx.data.Array();
       values.forEach(function(obj) {
-        try{
-        display_hazards.append(me.hazard_types[obj]);
-        }catch(e){
+        try {
+          display_hazards.append(me.hazard_types[obj]);
+        }catch (e) {
           // The hazard list likely changed from what was saved
           console.log(e);
         }

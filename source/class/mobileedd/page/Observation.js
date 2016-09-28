@@ -268,15 +268,16 @@ qx.Class.define("mobileedd.page.Observation",
               }
             }]
           });
-          
-          
           $.plot("#visibilitygraph", [
           {
             label : "Visibility",
             data : aryVSBY,
-            color : '#000000'//,
+            color : '#000000'  //,
+
             // points : {
+
             //   show : true
+
             // }
           }],
           {
@@ -303,8 +304,8 @@ qx.Class.define("mobileedd.page.Observation",
             },
             yaxes : [
             {
-              min:0,
-              max:10,
+              min : 0,
+              max : 10,
               position : 'left',
               axisLabel : 'miles',
               tickFormatter : function(val, axis) {
@@ -312,7 +313,6 @@ qx.Class.define("mobileedd.page.Observation",
               }
             }]
           });
-          
           $.plot("#pressuregraph", [
           {
             label : "Sea Level Pressure",

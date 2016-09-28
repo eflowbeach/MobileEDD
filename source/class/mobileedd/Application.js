@@ -56,6 +56,7 @@ qx.Class.define("mobileedd.Application",
         Remove or edit the following code to create your application.
       -------------------------------------------------------------------------
       */
+      this.bus = qx.event.message.Bus.getInstance();
 
       // Get my libs
       var req = new qx.bom.request.Script();
@@ -176,6 +177,26 @@ qx.Class.define("mobileedd.Application",
         }
         this.status = message;
       }, this);
+      this.bus.subscribe("edd.message", function(e)
+      {
+        var message = e.getData()[0];
+        var showTimeout = e.getData()[1];
+        this.statusMessage.setHtml(e.getData()[0]);
+        qx.bom.element.Animation.animateReverse(this.statusMessage.getContentElement(), slideRight, 1000);
+        new qx.event.Timer.once(function(e) {
+          qx.bom.element.Animation.animate(this.statusMessage.getContentElement(), slideRight, 1000);
+        }, this, showTimeout)
+      }, this)
+
+      // new qx.event.Timer.once(function(e){
+
+      // var text = new qx.event.message.Message("edd.message");
+
+      //     text.setData(['<b>testing a message</b>', 3000]);
+
+      //     this.bus.dispatch(text);
+
+      // },this,2000);
 
       // Check for new messages every 5 minutes
       var messageTimer = new qx.event.Timer(0);

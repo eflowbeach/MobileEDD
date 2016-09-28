@@ -13,6 +13,9 @@ qx.Class.define("mobileedd.config.Config",
     mapQuestKey : {
       init : "6hcuidlVtrh41AFzsdKyGxUfuuzz1LAu"
     },
+    mapQuestKeyBackup : {
+      init : "6hcuidlVtrh41AFzsdKyGxUfuuzz1LAu"
+    },
     obDisplayedField : {
       init : "Temperature"
     },

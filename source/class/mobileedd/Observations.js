@@ -368,24 +368,16 @@ qx.Class.define("mobileedd.Observations",
         strategy : ol.loadingstrategy.bbox,
         loader : function(extent, resolution, projection)
         {
-          if (me.getExtent() != extent.toString())
-          {
+          if (me.getExtent() != extent.toString()) {
             if (typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible())
-
             {
-
               if (resolution < 1500) {
-
                 me.setNetworks('');
-
               } else {
-
                 me.setNetworks('1,14,96');
-
               }
-            me.getUpdatedServiceUrl();
-            me.observationReq.send();
-
+              me.getUpdatedServiceUrl();
+              me.observationReq.send();
             }
           }
           me.setExtent(extent.toString());
