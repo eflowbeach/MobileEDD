@@ -1008,12 +1008,18 @@ qx.Class.define("mobileedd.page.Map",
       var ndfdRegionAnchorMenuModel = new qx.data.Array(Object.keys(regions).sort());
       this.__ndfdRegionAnchorMenu = new qx.ui.mobile.dialog.Menu(ndfdRegionAnchorMenuModel, setRegionNdfdButton);
       this.__ndfdRegionAnchorMenu.setTitle("Region");
-      this.__ndfdRegionAnchorMenu.addListener("changeSelection", function(e) {
+      this.__ndfdRegionAnchorMenu.addListener("changeSelection", function(e)
+      {
         mobileedd.Ndfd.getInstance().setRegion(regions[e.getData().item]);
         setRegionNdfdButton.setValue(e.getData().item);
       }, this);
       me.showNdfdLabelContainer.add(setRegionNdfdButton);
       scrollContainer.add(me.showNdfdLabelContainer);
+
+      // Separation between quick layers and other options
+      var spacer = new qx.ui.mobile.container.Composite();
+      spacer.addCssClass("thinseparator");
+      scrollContainer.add(spacer)
 
       /**
        * NDFD Field
@@ -1034,8 +1040,7 @@ qx.Class.define("mobileedd.page.Map",
       var fields =
       {
         "Amount of Precip (in)" : "qpf",
-        "Apparent Temperature (ºF)" : "apparentt",
-        "Cold Advisory for Newborn Livestock" : "canl",
+        "Wind Chill/Heat Index (ºF)" : "apparentt",
         "Convective Outlook" : "convoutlook",
         "Damaging T-storm Wind Prob.(%)" : "windprob",
         "Dew Point (ºF)" : "td",
@@ -1062,18 +1067,28 @@ qx.Class.define("mobileedd.page.Map",
         "Total New Snow (in)" : "totalsnowamt",
         "Total Prob. Extreme T-Storms (%)" : "totalxtrmprob",
         "Total Prob. Severe T-Storms (%)" : "totalsvrprob",
-        "Tropical Cyclone Flooding Rain Threat" : "tcrain",
-        "Tropical Cyclone Storm Surge Threat" : "tcsurge",
-        "Tropical Cyclone Tornado Threat" : "tctornado",
-        "Tropical Cyclone Wind Threat" : "tcwind",
+
+        // "Tropical Cyclone Flooding Rain Threat" : "tcrain",
+
+        // "Tropical Cyclone Storm Surge Threat" : "tcsurge",
+
+        // "Tropical Cyclone Tornado Threat" : "tctornado",
+
+        // "Tropical Cyclone Wind Threat" : "tcwind",
         "Wave Height (ft)" : "waveheight",
         "Weather" : "wx",
-        "Wind >34kts (Cumulative Prob.)" : "probwindspd34c",
-        "Wind >34kts (Incremental Prob.)" : "probwindspd34i",
-        "Wind >50kts (Cumulative Prob.)" : "probwindspd50c",
-        "Wind >50kts (Incremental Prob.)" : "probwindspd50i",
-        "Wind >64kts (Cumulative Prob.)" : "probwindspd64c",
-        "Wind >64kts (Incremental Prob.)" : "probwindspd64i",
+
+        // "Wind >34kts (Cumulative Prob.)" : "probwindspd34c",
+
+        // "Wind >34kts (Incremental Prob.)" : "probwindspd34i",
+
+        // "Wind >50kts (Cumulative Prob.)" : "probwindspd50c",
+
+        // "Wind >50kts (Incremental Prob.)" : "probwindspd50i",
+
+        // "Wind >64kts (Cumulative Prob.)" : "probwindspd64c",
+
+        // "Wind >64kts (Incremental Prob.)" : "probwindspd64i",
         "Wind Gust (Kts)" : "windgust",
         "Wind Gust (MPH)" : "windgust",
         "Wind Speed (Kts)" : "windspd",
@@ -1082,12 +1097,48 @@ qx.Class.define("mobileedd.page.Map",
       var ndfdFieldAnchorMenuModel = new qx.data.Array(Object.keys(fields).sort());
       this.__ndfdFieldAnchorMenu = new qx.ui.mobile.dialog.Menu(ndfdFieldAnchorMenuModel, me.setFieldNdfdButton);
       this.__ndfdFieldAnchorMenu.setTitle("Field");
-      this.__ndfdFieldAnchorMenu.addListener("changeSelection", function(e) {
+      this.__ndfdFieldAnchorMenu.addListener("changeSelection", function(e)
+      {
         mobileedd.Ndfd.getInstance().setField(fields[e.getData().item]);
         me.setFieldNdfdButton.setValue(e.getData().item);
       }, this);
       me.showNdfdLabelContainer.add(me.setFieldNdfdButton);
       scrollContainer.add(me.showNdfdLabelContainer);
+
+      // ndfd Loop Slider
+      var ndfdLoopSliderComposite = new qx.ui.mobile.container.Composite();
+      ndfdLoopSliderComposite.setLayout(new qx.ui.mobile.layout.HBox());
+      me.ndfdLoopSlider = new qx.ui.mobile.form.Slider().set(
+      {
+        minimum : 0,
+        maximum : 4,
+        step : 1
+      });
+      me.ndfdLoopSlider.addListener("changeValue", function(e)
+      {
+        var ndfd = mobileedd.Ndfd.getInstance();
+        ndfd.setValidTime(ndfd.validTimes[e.getData()][0]);
+      }, this);
+      ndfdLoopSliderComposite.add(me.ndfdLoopSlider, {
+        flex : 1
+      });
+      scrollContainer.add(ndfdLoopSliderComposite)
+
+      /**
+             * NDFD Time Label
+             */
+      var ndfdTimeComposite = new qx.ui.mobile.container.Composite();
+      me.ndfdTimeLabel = new qx.ui.mobile.basic.Label();
+      ndfdTimeComposite.setLayout(new qx.ui.mobile.layout.HBox().set( {
+        alignX : "center"
+      }));
+      ndfdTimeComposite.add(me.ndfdTimeLabel);
+      me.ndfdTimeLabel.addCssClass("timeLabel");
+
+      // me.ndfdContainer.add(ndfdTimeComposite);
+      scrollContainer.add(ndfdTimeComposite);
+
+      // Separation between quick layers and other options
       var spacer = new qx.ui.mobile.container.Composite();
       spacer.addCssClass("thinseparator");
       scrollContainer.add(spacer)
@@ -1782,7 +1833,7 @@ qx.Class.define("mobileedd.page.Map",
       // Radar Label on map
       me.legendContainer = new qx.ui.mobile.container.Composite();
       me.legendContainer.setId("mapMenu");
-      
+
       // Radar legend
       me.radarLegendContainer = new qx.ui.mobile.container.Composite();
       me.radarLegendLabel = new qx.ui.mobile.basic.Label("");
@@ -1790,7 +1841,7 @@ qx.Class.define("mobileedd.page.Map",
       var image = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legend/radar.png");
       me.radarLegendContainer.add(image);
       me.legendContainer.add(me.radarLegendContainer);
-      
+
       // NDFD legend
       me.ndfdLegendContainer = new qx.ui.mobile.container.Composite();
       me.ndfdLegendLabel = new qx.ui.mobile.basic.Label("");

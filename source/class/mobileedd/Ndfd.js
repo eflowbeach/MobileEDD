@@ -14,15 +14,18 @@ qx.Class.define("mobileedd.Ndfd",
   type : "singleton",
   properties :
   {
-    field : {
+    field :
+    {
       init : 'maxt',
       apply : "getValidTimes"
     },
-    region : {
+    region :
+    {
       init : 'conus',
       apply : "getValidTimes"
     },
-    validTime : {
+    validTime :
+    {
       init : '',
       apply : "updateLayer"
     },
@@ -46,8 +49,11 @@ qx.Class.define("mobileedd.Ndfd",
     me.validTimeRequest.setCallbackParam('callback');
     me.validTimeRequest.addListener("success", function(e)
     {
-      var validTimes = e.getTarget().getResponse();
-      me.setValidTime(validTimes[0][0])
+      me.validTimes = e.getTarget().getResponse();
+
+      // Update Slider
+      me.mapObject.ndfdLoopSlider.setMaximum(me.validTimes.length - 1);
+      me.setValidTime(me.validTimes[0][0]);
       if (typeof me.ndfd == "undefined") {
         me.addLayers();
       } else {
@@ -63,35 +69,32 @@ qx.Class.define("mobileedd.Ndfd",
     updateLayer : function(value)
     {
       var me = this;
-        if (typeof me.ndfd !== "undefined") {
-      var layers = 'ndfd.' + me.getRegion() + '.' + me.getField();
-      me.ndfd.getSource().updateParams(
+      if (typeof me.ndfd !== "undefined")
       {
-        'LAYERS' : layers,
-        'VT' : me.getValidTime()
-      });
-      me.ndfdPoints.getSource().updateParams(
-      {
-        'LAYERS' : layers + '.points',
-        'VT' : me.getValidTime()
-      });
+        var layers = 'ndfd.' + me.getRegion() + '.' + me.getField();
+        me.ndfd.getSource().updateParams(
+        {
+          'LAYERS' : layers,
+          'VT' : me.getValidTime()
+        });
+        var units = '';
+        if (me.mapObject.setFieldNdfdButton.getValue().indexOf('MPH') !== -1) {
+          units = '.english';
         }
-        
-        // Update legend
-        //http://digital.weather.gov/scripts/wxmap_legendImage.php?dataset=ndfd&element=maxt&region=conus&opacity=1.0&vt=2016-10-02T00:00&width=272&ms=english
-        me.mapObject.ndfdLegend.setSource('http://digital.weather.gov/scripts/wxmap_legendImage.php?dataset=ndfd&element=maxt&region=conus&opacity=1.0&vt=2016-10-02T00:00&width=272&ms=english');
-        me.mapObject.ndfdLegendLabel.setValue(me.mapObject.setFieldNdfdButton.getValue() + '&nbsp;Forecast<br>Valid: ' + new moment(me.getValidTime()).format('h:mm a ddd M/DD/YYYY'));
+        me.ndfdPoints.getSource().updateParams(
+        {
+          'LAYERS' : layers + '.points' + units,
+          'VT' : me.getValidTime()
+        });
+      }
+
+      // Update legend
+
+      //http://digital.weather.gov/scripts/wxmap_legendImage.php?dataset=ndfd&element=maxt&region=conus&opacity=1.0&vt=2016-10-02T00:00&width=272&ms=english
+      me.mapObject.ndfdLegend.setSource('http://digital.weather.gov/scripts/wxmap_legendImage.php?dataset=ndfd&element=maxt&region=conus&opacity=1.0&vt=2016-10-02T00:00&width=272&ms=english');
+      me.mapObject.ndfdLegendLabel.setValue('<b>' + me.mapObject.setFieldNdfdButton.getValue() + '&nbsp;Forecast</b><br>Valid: ' + new moment.utc(me.getValidTime()).local().format('h:mm a ddd M/DD/YYYY'));
+      me.mapObject.ndfdTimeLabel.setValue('Valid: ' + new moment.utc(me.getValidTime()).local().format('h:mm a ddd M/DD/YYYY'));
     },
-    // updateValidTime : function(value)
-    // {
-    //   var me = this;
-    //   me.ndfd.getSource().updateParams( {
-    //     'VT' : value
-    //   });
-    //   me.ndfdPoints.getSource().updateParams( {
-    //     'VT' : value
-    //   });
-    // },
     changeVisibility : function(value) {
       if (typeof this.ndfd !== "undefined")
       {
