@@ -60,10 +60,7 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
       this.waypointContainer.setLayout(new qx.ui.mobile.layout.VBox());
       this.waypointContainer.addCssClass("hboxPad");
       this.getContent().add(this.waypointContainer)
-      
-      
-      
-      
+
       // Destination
       endLabel = new qx.ui.mobile.basic.Label("Destination");
       endLabel.addCssClass("menuLabels");
@@ -75,18 +72,18 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
       var spacer = new qx.ui.mobile.container.Composite();
       spacer.addCssClass("hboxPad");
       this.getContent().add(spacer)
-      
-      
+
       // Use map
-       var useMap = new qx.ui.mobile.form.Button("Use Map...", "resource/mobileedd/images/map.png");
-      useMap.addListener("tap", function(e) {
+      var useMap = new qx.ui.mobile.form.Button("Use Map...", "resource/mobileedd/images/map.png");
+      useMap.addListener("tap", function(e)
+      {
         qx.core.Init.getApplication().getRouting().executeGet("/");
-           var text = new qx.event.message.Message("edd.message");
-          text.setData(['<b>Tap map to:<br>"Set Travel Origin" or<br>"Set Travel Destination".</b>', 5000]);
-          this.bus.dispatch(text);
+        var text = new qx.event.message.Message("edd.message");
+        text.setData(['<b>Tap map to:<br>"Set Travel Origin" or<br>"Set Travel Destination".</b>', 5000]);
+        this.bus.dispatch(text);
       }, this);
       this.getContent().add(useMap)
-      
+
       // Leave at
       this.showPickerButton = new qx.ui.mobile.form.Button("Leave at:", "resource/mobileedd/images/calendar.png");
       this.showPickerButton.addListener("tap", function(e) {

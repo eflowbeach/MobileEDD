@@ -953,6 +953,141 @@ qx.Class.define("mobileedd.page.Map",
       }, this);
       me.obPeriodContainer.add(me.obPeriodButton);
       scrollContainer.add(me.obPeriodContainer);
+
+      /**
+           * NDFD Container
+           */
+      var composite = new qx.ui.mobile.container.Composite();
+      composite.addCssClass("hboxPad");
+      composite.setLayout(new qx.ui.mobile.layout.HBox());
+      var ndfdLabel = new qx.ui.mobile.basic.Label("Forecast: ");
+      composite.add(ndfdLabel, {
+        flex : 1
+      });
+      ndfdLabel.addCssClass("menuLabels");
+      me.ndfdToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
+      me.ndfdToggleButton.addListener("changeValue", function(e)
+      {
+        var ndfd = mobileedd.Ndfd.getInstance();
+        ndfd.setVisibility(e.getData());
+      }, this);
+      composite.add(me.ndfdToggleButton);
+      scrollContainer.add(composite);
+
+      /**
+            * Configure NDFD
+            * */
+
+      /**
+       * NDFD Region
+       * */
+      me.showNdfdLabelContainer = new qx.ui.mobile.container.Composite();
+      me.showNdfdLabelContainer.setLayout(new qx.ui.mobile.layout.HBox());
+      var showHazardLabels = new qx.ui.mobile.basic.Label("Region: ");
+      showHazardLabels.addCssClass("loopLabel");
+      me.showNdfdLabelContainer.add(showHazardLabels, {
+        flex : 1
+      });
+
+      // NDFD Region
+      var setRegionNdfdButton = new qx.ui.mobile.form.Button("U.S. Lower 48");
+      setRegionNdfdButton.addListener("tap", function(e) {
+        this.__ndfdRegionAnchorMenu.show();
+      }, this);
+      var regions =
+      {
+        "U.S. Lower 48" : "conus",
+        "Alaska" : "alaska",
+        "Hawaii" : "hawaii",
+        "Guam" : "guam",
+        "Puerto Rico" : "puertori",
+        "Northern Hemisphere" : "nhemi",
+        "North Pacific Ocean" : "npacocn",
+        "Oceanic" : "oceanic"
+      };
+      var ndfdRegionAnchorMenuModel = new qx.data.Array(Object.keys(regions).sort());
+      this.__ndfdRegionAnchorMenu = new qx.ui.mobile.dialog.Menu(ndfdRegionAnchorMenuModel, setRegionNdfdButton);
+      this.__ndfdRegionAnchorMenu.setTitle("Region");
+      this.__ndfdRegionAnchorMenu.addListener("changeSelection", function(e) {
+        mobileedd.Ndfd.getInstance().setRegion(regions[e.getData().item]);
+        setRegionNdfdButton.setValue(e.getData().item);
+      }, this);
+      me.showNdfdLabelContainer.add(setRegionNdfdButton);
+      scrollContainer.add(me.showNdfdLabelContainer);
+
+      /**
+       * NDFD Field
+       * */
+      me.showNdfdLabelContainer = new qx.ui.mobile.container.Composite();
+      me.showNdfdLabelContainer.setLayout(new qx.ui.mobile.layout.HBox());
+      var showHazardLabels = new qx.ui.mobile.basic.Label("Field: ");
+      showHazardLabels.addCssClass("loopLabel");
+      me.showNdfdLabelContainer.add(showHazardLabels, {
+        flex : 1
+      });
+
+      // NDFD Region
+      me.setFieldNdfdButton = new qx.ui.mobile.form.Button("Maximum Temperature");
+      me.setFieldNdfdButton.addListener("tap", function(e) {
+        this.__ndfdFieldAnchorMenu.show();
+      }, this);
+      var fields =
+      {
+        "Amount of Precip (in)" : "qpf",
+        "Apparent Temperature (ºF)" : "apparentt",
+        "Cold Advisory for Newborn Livestock" : "canl",
+        "Convective Outlook" : "convoutlook",
+        "Damaging T-storm Wind Prob.(%)" : "windprob",
+        "Dew Point (ºF)" : "td",
+        "Extreme Hail Prob.(%)" : "xtrmhailprob",
+        "Extreme T-Storm Wind Prob. (%)" : "xtrmwindprob",
+        "Extreme Tornado Prob. (%)" : "xtrmtornprob",
+        "Hail Probability (%)" : "hailprob",
+        "Hazards" : "wwa",
+        "Ice Accumulation (in)" : "iceaccum",
+        "Maximum Humidity (%)" : "maxrh",
+        "Maximum Temperature (ºF)" : "maxt",
+        "Minimum Humidity (%)" : "minrh",
+        "Minimum Temperature (ºF)" : "mint",
+        "Prob. of Precipitation - 12 hour (%)" : "pop12",
+        "Relative Humidity (%)" : "rh",
+        "SPC - Critical Fire Weather" : "probfirewx24",
+        "SPC - Prob. Dry Lightning (%)" : "probdrylightning24",
+        "Sky Cover (%)" : "sky",
+        "Snow Amount (in)" : "snowamt",
+        "Temperature (ºF)" : "t",
+        "Tornado Probability (%)" : "tornadoprob",
+        "Total New Ice (in)" : "totaliceaccum",
+        "Total New Precip (in)" : "totalqpf",
+        "Total New Snow (in)" : "totalsnowamt",
+        "Total Prob. Extreme T-Storms (%)" : "totalxtrmprob",
+        "Total Prob. Severe T-Storms (%)" : "totalsvrprob",
+        "Tropical Cyclone Flooding Rain Threat" : "tcrain",
+        "Tropical Cyclone Storm Surge Threat" : "tcsurge",
+        "Tropical Cyclone Tornado Threat" : "tctornado",
+        "Tropical Cyclone Wind Threat" : "tcwind",
+        "Wave Height (ft)" : "waveheight",
+        "Weather" : "wx",
+        "Wind >34kts (Cumulative Prob.)" : "probwindspd34c",
+        "Wind >34kts (Incremental Prob.)" : "probwindspd34i",
+        "Wind >50kts (Cumulative Prob.)" : "probwindspd50c",
+        "Wind >50kts (Incremental Prob.)" : "probwindspd50i",
+        "Wind >64kts (Cumulative Prob.)" : "probwindspd64c",
+        "Wind >64kts (Incremental Prob.)" : "probwindspd64i",
+        "Wind Gust (Kts)" : "windgust",
+        "Wind Gust (MPH)" : "windgust",
+        "Wind Speed (Kts)" : "windspd",
+        "Wind Speed (MPH)" : "windspd"
+      };
+      var ndfdFieldAnchorMenuModel = new qx.data.Array(Object.keys(fields).sort());
+      this.__ndfdFieldAnchorMenu = new qx.ui.mobile.dialog.Menu(ndfdFieldAnchorMenuModel, me.setFieldNdfdButton);
+      this.__ndfdFieldAnchorMenu.setTitle("Field");
+      this.__ndfdFieldAnchorMenu.addListener("changeSelection", function(e) {
+        mobileedd.Ndfd.getInstance().setField(fields[e.getData().item]);
+        me.setFieldNdfdButton.setValue(e.getData().item);
+      }, this);
+      me.showNdfdLabelContainer.add(me.setFieldNdfdButton);
+      scrollContainer.add(me.showNdfdLabelContainer);
       var spacer = new qx.ui.mobile.container.Composite();
       spacer.addCssClass("thinseparator");
       scrollContainer.add(spacer)
@@ -1388,6 +1523,20 @@ qx.Class.define("mobileedd.page.Map",
       mobileedd.MoreLayers.getInstance().showLegendVisibilityOfAll(false);
 
       // Default view
+
+      // pan from the current center
+      var pan = ol.animation.pan( {
+        source : me.map.getView().getCenter()
+      });
+
+      // zoom out
+      var zoom = ol.animation.zoom( {
+        resolution : me.map.getView().getResolution()
+      });
+      me.map.beforeRender(zoom);
+      me.map.beforeRender(pan);
+
+      // when we set the new location, the map will pan smoothly to it
       me.map.getView().setCenter(ol.proj.transform(me.getDefaultCenter(), 'EPSG:4326', 'EPSG:3857'));
       me.map.getView().setZoom(me.getDefaultZoom());
     },
@@ -1633,12 +1782,22 @@ qx.Class.define("mobileedd.page.Map",
       // Radar Label on map
       me.legendContainer = new qx.ui.mobile.container.Composite();
       me.legendContainer.setId("mapMenu");
+      
+      // Radar legend
       me.radarLegendContainer = new qx.ui.mobile.container.Composite();
       me.radarLegendLabel = new qx.ui.mobile.basic.Label("");
       me.radarLegendContainer.add(me.radarLegendLabel);
       var image = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legend/radar.png");
       me.radarLegendContainer.add(image);
       me.legendContainer.add(me.radarLegendContainer);
+      
+      // NDFD legend
+      me.ndfdLegendContainer = new qx.ui.mobile.container.Composite();
+      me.ndfdLegendLabel = new qx.ui.mobile.basic.Label("");
+      me.ndfdLegendContainer.add(me.ndfdLegendLabel);
+      me.ndfdLegend = new qx.ui.mobile.basic.Image();
+      me.ndfdLegendContainer.add(me.ndfdLegend);
+      me.legendContainer.add(me.ndfdLegendContainer);
 
       //qpe
       me.qpeContainer = new qx.ui.mobile.container.Composite();
@@ -2155,13 +2314,25 @@ qx.Class.define("mobileedd.page.Map",
         });
 
         // Turn on radar
-        me.radarToggleButton.setValue(true);
 
-        // Turn on looping radar
-        me.loopControl.setValue(true);
+        // me.radarToggleButton.setValue(true);
 
-        // Turn on hazards
+        // // Turn on looping radar
+
+        // me.loopControl.setValue(true);
+
+        // // Turn on hazards
         me.hazardToggleButton.setValue(true);
+
+        // setTimeout(function(){
+
+        //   ndfd.getSource().updateParams({'VT':"2016-10-04T00:00"});
+
+        //   //ndfd.getSource().dispatchEvent('change');
+
+        //   console.log('now');
+
+        // }, 2000)
 
         // State Border
         me.stateBorder = new ol.layer.Vector(
