@@ -198,9 +198,7 @@ qx.Class.define("mobileedd.StormReports",
       me.map.addLayer(me.srLayer);
 
       // Silly way to get Vector Layer on top...
-      var layer = me.mapObject.getLayerByName(layername);
-      me.map.removeLayer(layer);
-      me.map.getLayers().setAt(me.map.getLayers().getArray().length, layer);
+      me.mapObject.putVectorLayerOnTop(layername);
 
       // Hazard Request
       me.srRequest = new qx.io.request.Jsonp();

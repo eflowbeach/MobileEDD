@@ -42,7 +42,7 @@ qx.Class.define("mobileedd.page.Forecast",
     {
       var me = this;
       var newEndTime = new moment().add(me.getPlotLength(), 'hours');
-      var plots = [me.tplot, me.pplot, me.qplot, me.wplot, me.waveplot];
+      var plots = [me.tplot, me.pplot, me.qplot, me.wplot, me.waveplot, me.rhplot];
       plots.forEach(function(obj)
       {
         obj.getOptions().xaxes[0].max = newEndTime;
@@ -135,6 +135,7 @@ qx.Class.define("mobileedd.page.Forecast",
         html += '<div id="fprecipgraph" class="demo-placeholder"></div>';
         html += '<div id="fqpf" class="demo-placeholder"></div>';
         html += '<div id="fwavegraph" class="demo-placeholder"></div>';
+        html += '<div id="rhgraph" class="demo-placeholder"></div>';
         html += '<hr>';
         var forecastFor = "<b>Forecast for:</b> " + response.location.areaDescription + "<font style=\"padding-left:10px;\">(Elevation: </font>" + response.location.elevation + " ft.)<br>";
 
@@ -347,6 +348,8 @@ qx.Class.define("mobileedd.page.Forecast",
           }
         }]
       });
+
+      // QPF
       me.qplot = $.plot("#fqpf", [
       {
         label : "Liquid Precipitation",
@@ -415,6 +418,8 @@ qx.Class.define("mobileedd.page.Forecast",
           }
         }]
       });
+
+      // Precip
       me.pplot = $.plot("#fprecipgraph", [
       {
         label : "Chance of Precipitation, %",
@@ -463,6 +468,65 @@ qx.Class.define("mobileedd.page.Forecast",
           }
         }]
       });
+
+      // RH
+      me.rhplot = $.plot("#rhgraph", [
+      {
+        label : "Relative Humidity",
+        data : response.rh,
+        color : 'brown',
+        lines :
+        {
+          show : true,
+          lineWidth : 4
+        }
+      },
+      {
+        label : "Sky",
+        data : response.windgust,
+        color : 'gray',
+        lines :
+        {
+          show : true,
+          lineWidth : 4
+        }
+      }],
+      {
+        units : '%',
+        grid : {
+          backgroundColor : {
+            colors : ["#F8E6BC", "#FFFFFF"]
+          }
+        },
+        legend :
+        {
+          show : true,
+          position : 'ne'
+        },
+        xaxis :
+        {
+          mode : "time",
+          max : new moment().add(me.getPlotLength(), 'hours'),
+          tickFormatter : function(val, axis) {
+            return new moment(val).format(axisFormat);
+          }
+        },
+        axisLabels : {
+          show : true
+        },
+        yaxes : [
+        {
+          min : 0,
+          max : 100,
+          position : 'left',
+          axisLabel : 'RH and Sky, %',
+          tickFormatter : function(val, axis) {
+            return val.toFixed(0);
+          }
+        }]
+      });
+
+      // Marine
       var marine = false;
       response.waveheight.forEach(function(obj) {
         if (obj[1] != null) {

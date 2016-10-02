@@ -415,9 +415,7 @@ qx.Class.define("mobileedd.Observations",
         me.timer.restart();
 
         // Silly way to get Vector Layer on top...
-        var observationLayer = me.mapObject.getLayerByName('Observations');
-        me.map.removeLayer(observationLayer);
-        me.map.getLayers().setAt(me.map.getLayers().getArray().length, observationLayer);
+        me.mapObject.putVectorLayerOnTop('Observations');
       });
       me.observationReq.addListener("fail", function(e) {
         console.log('MesoWest Observations request failed...')

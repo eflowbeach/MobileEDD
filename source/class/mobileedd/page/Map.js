@@ -969,7 +969,15 @@ qx.Class.define("mobileedd.page.Map",
       me.ndfdToggleButton.addListener("changeValue", function(e)
       {
         var ndfd = mobileedd.Ndfd.getInstance();
+        
         ndfd.setVisibility(e.getData());
+         if(e.getData()){
+             // Query server for valid times
+        ndfd.getValidTimes();
+         me.ndfdOptionsContainer.setVisibility('visible');
+         }else{
+            me.ndfdOptionsContainer.setVisibility('excluded');
+         }
       }, this);
       composite.add(me.ndfdToggleButton);
       scrollContainer.add(composite);
@@ -977,6 +985,11 @@ qx.Class.define("mobileedd.page.Map",
       /**
             * Configure NDFD
             * */
+            
+      me.ndfdOptionsContainer = new qx.ui.mobile.container.Composite();
+      me.ndfdOptionsContainer.setLayout(new qx.ui.mobile.layout.VBox());
+      scrollContainer.add(me.ndfdOptionsContainer);
+      me.ndfdOptionsContainer.setVisibility('excluded');
 
       /**
        * NDFD Region
@@ -990,36 +1003,26 @@ qx.Class.define("mobileedd.page.Map",
       });
 
       // NDFD Region
-      var setRegionNdfdButton = new qx.ui.mobile.form.Button("U.S. Lower 48");
-      setRegionNdfdButton.addListener("tap", function(e) {
+      me.setRegionNdfdButton = new qx.ui.mobile.form.Button("U.S. Lower 48");
+      me.setRegionNdfdButton.addListener("tap", function(e) {
         this.__ndfdRegionAnchorMenu.show();
       }, this);
-      var regions =
-      {
-        "U.S. Lower 48" : "conus",
-        "Alaska" : "alaska",
-        "Hawaii" : "hawaii",
-        "Guam" : "guam",
-        "Puerto Rico" : "puertori",
-        "Northern Hemisphere" : "nhemi",
-        "North Pacific Ocean" : "npacocn",
-        "Oceanic" : "oceanic"
-      };
-      var ndfdRegionAnchorMenuModel = new qx.data.Array(Object.keys(regions).sort());
-      this.__ndfdRegionAnchorMenu = new qx.ui.mobile.dialog.Menu(ndfdRegionAnchorMenuModel, setRegionNdfdButton);
+    
+      var ndfdRegionAnchorMenuModel = new qx.data.Array(Object.keys(this.c.getNdfdRegions()).sort());
+      this.__ndfdRegionAnchorMenu = new qx.ui.mobile.dialog.Menu(ndfdRegionAnchorMenuModel, me.setRegionNdfdButton);
       this.__ndfdRegionAnchorMenu.setTitle("Region");
       this.__ndfdRegionAnchorMenu.addListener("changeSelection", function(e)
       {
-        mobileedd.Ndfd.getInstance().setRegion(regions[e.getData().item]);
-        setRegionNdfdButton.setValue(e.getData().item);
+        mobileedd.Ndfd.getInstance().setRegion(this.c.getNdfdRegions()[e.getData().item]);
+        me.setRegionNdfdButton.setValue(e.getData().item);
       }, this);
-      me.showNdfdLabelContainer.add(setRegionNdfdButton);
-      scrollContainer.add(me.showNdfdLabelContainer);
+      me.showNdfdLabelContainer.add(me.setRegionNdfdButton);
+      me.ndfdOptionsContainer.add(me.showNdfdLabelContainer);
 
       // Separation between quick layers and other options
       var spacer = new qx.ui.mobile.container.Composite();
       spacer.addCssClass("thinseparator");
-      scrollContainer.add(spacer)
+      me.ndfdOptionsContainer.add(spacer)
 
       /**
        * NDFD Field
@@ -1037,73 +1040,27 @@ qx.Class.define("mobileedd.page.Map",
       me.setFieldNdfdButton.addListener("tap", function(e) {
         this.__ndfdFieldAnchorMenu.show();
       }, this);
-      var fields =
-      {
-        "Amount of Precip (in)" : "qpf",
-        "Wind Chill/Heat Index (ºF)" : "apparentt",
-        "Convective Outlook" : "convoutlook",
-        "Damaging T-storm Wind Prob.(%)" : "windprob",
-        "Dew Point (ºF)" : "td",
-        "Extreme Hail Prob.(%)" : "xtrmhailprob",
-        "Extreme T-Storm Wind Prob. (%)" : "xtrmwindprob",
-        "Extreme Tornado Prob. (%)" : "xtrmtornprob",
-        "Hail Probability (%)" : "hailprob",
-        "Hazards" : "wwa",
-        "Ice Accumulation (in)" : "iceaccum",
-        "Maximum Humidity (%)" : "maxrh",
-        "Maximum Temperature (ºF)" : "maxt",
-        "Minimum Humidity (%)" : "minrh",
-        "Minimum Temperature (ºF)" : "mint",
-        "Prob. of Precipitation - 12 hour (%)" : "pop12",
-        "Relative Humidity (%)" : "rh",
-        "SPC - Critical Fire Weather" : "probfirewx24",
-        "SPC - Prob. Dry Lightning (%)" : "probdrylightning24",
-        "Sky Cover (%)" : "sky",
-        "Snow Amount (in)" : "snowamt",
-        "Temperature (ºF)" : "t",
-        "Tornado Probability (%)" : "tornadoprob",
-        "Total New Ice (in)" : "totaliceaccum",
-        "Total New Precip (in)" : "totalqpf",
-        "Total New Snow (in)" : "totalsnowamt",
-        "Total Prob. Extreme T-Storms (%)" : "totalxtrmprob",
-        "Total Prob. Severe T-Storms (%)" : "totalsvrprob",
-
-        // "Tropical Cyclone Flooding Rain Threat" : "tcrain",
-
-        // "Tropical Cyclone Storm Surge Threat" : "tcsurge",
-
-        // "Tropical Cyclone Tornado Threat" : "tctornado",
-
-        // "Tropical Cyclone Wind Threat" : "tcwind",
-        "Wave Height (ft)" : "waveheight",
-        "Weather" : "wx",
-
-        // "Wind >34kts (Cumulative Prob.)" : "probwindspd34c",
-
-        // "Wind >34kts (Incremental Prob.)" : "probwindspd34i",
-
-        // "Wind >50kts (Cumulative Prob.)" : "probwindspd50c",
-
-        // "Wind >50kts (Incremental Prob.)" : "probwindspd50i",
-
-        // "Wind >64kts (Cumulative Prob.)" : "probwindspd64c",
-
-        // "Wind >64kts (Incremental Prob.)" : "probwindspd64i",
-        "Wind Gust (Kts)" : "windgust",
-        "Wind Gust (MPH)" : "windgust",
-        "Wind Speed (Kts)" : "windspd",
-        "Wind Speed (MPH)" : "windspd"
-      };
-      var ndfdFieldAnchorMenuModel = new qx.data.Array(Object.keys(fields).sort());
+    
+      var ndfdFieldAnchorMenuModel = new qx.data.Array(Object.keys(this.c.getNdfdFields()).sort());
       this.__ndfdFieldAnchorMenu = new qx.ui.mobile.dialog.Menu(ndfdFieldAnchorMenuModel, me.setFieldNdfdButton);
       this.__ndfdFieldAnchorMenu.setTitle("Field");
       this.__ndfdFieldAnchorMenu.addListener("changeSelection", function(e)
       {
-        mobileedd.Ndfd.getInstance().setField(fields[e.getData().item]);
+        var ndfd = mobileedd.Ndfd.getInstance();
+        ndfd.setField(this.c.getNdfdFields()[e.getData().item]);
+        
+        // Trigger a refresh on wind speed to change units
+        if(fields[e.getData().item] == "windgust" || fields[e.getData().item] == "windspd"){
+        ndfd.changeLayerTimer.start();
+        }
+        
         me.setFieldNdfdButton.setValue(e.getData().item);
+        
+        
       }, this);
+      
       me.showNdfdLabelContainer.add(me.setFieldNdfdButton);
-      scrollContainer.add(me.showNdfdLabelContainer);
+      me.ndfdOptionsContainer.add(me.showNdfdLabelContainer);
 
       // ndfd Loop Slider
       var ndfdLoopSliderComposite = new qx.ui.mobile.container.Composite();
@@ -1118,17 +1075,19 @@ qx.Class.define("mobileedd.page.Map",
       {
         var ndfd = mobileedd.Ndfd.getInstance();
         ndfd.setValidTime(ndfd.validTimes[e.getData()][0]);
+        ndfd.setIssuedTime(ndfd.validTimes[e.getData()][1]);
       }, this);
       ndfdLoopSliderComposite.add(me.ndfdLoopSlider, {
         flex : 1
       });
-      scrollContainer.add(ndfdLoopSliderComposite)
+      me.ndfdOptionsContainer.add(ndfdLoopSliderComposite)
 
       /**
              * NDFD Time Label
              */
       var ndfdTimeComposite = new qx.ui.mobile.container.Composite();
       me.ndfdTimeLabel = new qx.ui.mobile.basic.Label();
+      qx.bom.element.Style.setCss(me.ndfdTimeLabel.getContainerElement(), 'font-size: 1.2em;');
       ndfdTimeComposite.setLayout(new qx.ui.mobile.layout.HBox().set( {
         alignX : "center"
       }));
@@ -1136,7 +1095,7 @@ qx.Class.define("mobileedd.page.Map",
       me.ndfdTimeLabel.addCssClass("timeLabel");
 
       // me.ndfdContainer.add(ndfdTimeComposite);
-      scrollContainer.add(ndfdTimeComposite);
+      me.ndfdOptionsContainer.add(ndfdTimeComposite);
 
       // Separation between quick layers and other options
       var spacer = new qx.ui.mobile.container.Composite();
@@ -1507,18 +1466,10 @@ qx.Class.define("mobileedd.page.Map",
       this.getLeftContainer().add(resetButton);
 
       // Radar Time
-      var weekday = new Array(7);
-      weekday[0] = "Sun";
-      weekday[1] = "Mon";
-      weekday[2] = "Tue";
-      weekday[3] = "Wed";
-      weekday[4] = "Thu";
-      weekday[5] = "Fri";
-      weekday[6] = "Sat";
       me.bus.subscribe("edd.view.radar.time", function(e)
       {
         var myDate = e.getData();
-        var dateString = me.formatDate(myDate) + ' ' + weekday[myDate.getDay()] + ' ' + myDate.getMonth() + '/' + myDate.getDate() + '/' + myDate.getFullYear();
+        var dateString = new moment(myDate).format('h:mm a ddd M/DD/YYYY');
         me.radarTimeLabel.setValue('<b>' + dateString + '</b>');
         me.radarLegendLabel.setValue('<b>Radar - ' + dateString + '</b>');
       }, this);
@@ -1569,6 +1520,9 @@ qx.Class.define("mobileedd.page.Map",
           obj.setVisible(false);
         }
       })
+
+// NDFD
+me.ndfdToggleButton.setValue(false);
 
       // More Layers
       mobileedd.MoreLayers.getInstance().showLegendVisibilityOfAll(false);
@@ -1630,6 +1584,15 @@ qx.Class.define("mobileedd.page.Map",
       url += '&obs=';
       url += me.observationToggleButton.getValue() ? 'T' : 'F';
       url += '&obfield=' + me.c.getObDisplayedField();
+      
+      // NDFD
+      var ndfd = mobileedd.Ndfd.getInstance();
+      url += '&ndfd=';
+      url += me.ndfdToggleButton.getValue() ? 'T' : 'F';
+      url += '&ndfdregion=' + ndfd.getRegion();
+      url += '&ndfdfield=' + ndfd.getField();
+      url += '&ndfdvt=' + ndfd.getValidTime();
+      
 
       // Zoom
       url += '&z=';
@@ -1729,6 +1692,34 @@ qx.Class.define("mobileedd.page.Map",
         me.obDisplayButton.setValue(field);
       }
 
+
+// NDFD
+      var ndfd = mobileedd.Ndfd.getInstance();
+      var bool = me.getURLParameter('ndfd') == "T" ? true : false;
+      me.ndfdToggleButton.setValue(bool);
+       
+       ndfd.setRegion(me.getURLParameter('ndfdregion'));
+       ndfd.setField(me.getURLParameter('ndfdfield'));
+       ndfd.setValidTime(me.getURLParameter('ndfdvt'));
+      
+        // Set REGION button value from key/value pair
+      Object.keys(this.c.getNdfdRegions()).forEach(function(obj, index) {
+          if(this.c.getNdfdRegions()[obj] == ndfd.getRegion()){
+       me.setRegionNdfdButton.setValue(obj);      
+          }
+      },this)
+      
+      // Set FIELD button value from key/value pair
+      Object.keys(this.c.getNdfdFields()).forEach(function(obj, index) {
+          if(this.c.getNdfdFields()[obj] == ndfd.getField()){
+       me.setFieldNdfdButton.setValue(obj);      
+          }
+      },this)
+      
+     
+      
+      
+
       // More Layers
       var ml = me.getURLParameter('ml');
       if (ml != null)
@@ -1790,21 +1781,7 @@ qx.Class.define("mobileedd.page.Map",
       }
     },
 
-    /**
-     * Format the Radar Date
-     */
-    formatDate : function(date)
-    {
-      var hours = date.getHours();
-      var minutes = date.getMinutes();
-      var ampm = hours >= 12 ? 'pm' : 'am';
-      hours = hours % 12;
-      hours = hours ? hours : 12;  // the hour '0' should be '12'
-      minutes = minutes < 10 ? '0' + minutes : minutes;
-      var strTime = hours + ':' + minutes + ' ' + ampm;
-      return strTime;
-    },
-
+   
     // overridden
     _createScrollContainer : function()
     {
@@ -2365,25 +2342,15 @@ qx.Class.define("mobileedd.page.Map",
         });
 
         // Turn on radar
+        me.radarToggleButton.setValue(true);
 
-        // me.radarToggleButton.setValue(true);
+        // Turn on looping radar
+        me.loopControl.setValue(true);
 
-        // // Turn on looping radar
-
-        // me.loopControl.setValue(true);
-
-        // // Turn on hazards
+        // Turn on hazards
         me.hazardToggleButton.setValue(true);
 
-        // setTimeout(function(){
-
-        //   ndfd.getSource().updateParams({'VT':"2016-10-04T00:00"});
-
-        //   //ndfd.getSource().dispatchEvent('change');
-
-        //   console.log('now');
-
-        // }, 2000)
+        
 
         // State Border
         me.stateBorder = new ol.layer.Vector(
@@ -2852,10 +2819,7 @@ qx.Class.define("mobileedd.page.Map",
             popup.show();
             toTopButton.addListener("tap", function()
             {
-              // Silly way to get Vector Layer on top...
-              var layer = me.getLayerByName(me.opacityName);
-              me.map.removeLayer(layer);
-              me.map.getLayers().setAt(me.map.getLayers().getArray().length, layer);
+             me.putVectorLayerOnTop(selectedItem);
             }, this);
             cancelButton.addListener("tap", function()
             {
@@ -2960,6 +2924,14 @@ qx.Class.define("mobileedd.page.Map",
         return null;
       }
     },
+
+putVectorLayerOnTop: function(name){
+  var me = this;
+    // Silly way to get Vector Layer on top...
+      var statesLayer = me.getLayerByName(name);
+      me.map.removeLayer(statesLayer);
+      me.map.getLayers().setAt(me.map.getLayers().getArray().length, statesLayer);
+},
 
     /**
      * Set the basemap

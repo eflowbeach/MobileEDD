@@ -339,10 +339,8 @@ qx.Class.define("mobileedd.MoreLayers",
       me.layers[name].setOpacity((typeof opacity == "undefined") ? me.getOpacity() : opacity);
       me.layers[name].group = group;
 
-      // Silly way to get Vector Layer on top...
-      var statesLayer = me.mapObject.getLayerByName("U.S. States");
-      me.map.removeLayer(statesLayer);
-      me.map.getLayers().setAt(me.map.getLayers().getArray().length, statesLayer);
+      // State border on top
+      me.mapObject.putVectorLayerOnTop("U.S. States");
 
       /**
        * Generate the Legend

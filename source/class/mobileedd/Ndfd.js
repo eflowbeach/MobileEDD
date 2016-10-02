@@ -29,6 +29,9 @@ qx.Class.define("mobileedd.Ndfd",
       init : '',
       apply : "updateLayer"
     },
+    issuedTime : {
+      init : ''
+    },
     visibility :
     {
       init : true,
@@ -53,6 +56,7 @@ qx.Class.define("mobileedd.Ndfd",
 
       // Update Slider
       me.mapObject.ndfdLoopSlider.setMaximum(me.validTimes.length - 1);
+      me.setIssuedTime(me.validTimes[0][1]);
       me.setValidTime(me.validTimes[0][0]);
       if (typeof me.ndfd == "undefined") {
         me.addLayers();
@@ -60,15 +64,9 @@ qx.Class.define("mobileedd.Ndfd",
         me.updateLayer();
       }
     }, this);
-
-    // Query server for valid times
-    me.getValidTimes();
-  },
-  members :
-  {
-    updateLayer : function(value)
+    me.changeLayerTimer = new qx.event.Timer(1000);
+    me.changeLayerTimer.addListener("interval", function(e)
     {
-      var me = this;
       if (typeof me.ndfd !== "undefined")
       {
         var layers = 'ndfd.' + me.getRegion() + '.' + me.getField();
@@ -86,14 +84,38 @@ qx.Class.define("mobileedd.Ndfd",
           'LAYERS' : layers + '.points' + units,
           'VT' : me.getValidTime()
         });
+        me.ndfdBarbs.getSource().updateParams(
+        {
+          'LAYERS' : 'ndfd.' + me.getRegion() + '.' + 'windspd.windbarbs' + units,
+          'VT' : me.getValidTime()
+        });
+
+        // Update legend
+        me.mapObject.ndfdLegend.setSource('http://digital.weather.gov/scripts/wxmap_legendImage.php?dataset=ndfd&element=' + me.getField() + '&region=' + me.getRegion() + '&opacity=1.0&vt=' + me.getValidTime() + '&width=272&ms=english');
       }
+      me.changeLayerTimer.stop();
+    }, this);
+  },
+  members :
+  {
+    /**
+     * Update all appropriate layers
+     * */
+    updateLayer : function(value)
+    {
+      var me = this;
 
-      // Update legend
+      // Trigger layer updates, but do not do it immediately (too many requests...)
+      me.changeLayerTimer.restart();
 
-      //http://digital.weather.gov/scripts/wxmap_legendImage.php?dataset=ndfd&element=maxt&region=conus&opacity=1.0&vt=2016-10-02T00:00&width=272&ms=english
-      me.mapObject.ndfdLegend.setSource('http://digital.weather.gov/scripts/wxmap_legendImage.php?dataset=ndfd&element=maxt&region=conus&opacity=1.0&vt=2016-10-02T00:00&width=272&ms=english');
+      // Update Labels
       me.mapObject.ndfdLegendLabel.setValue('<b>' + me.mapObject.setFieldNdfdButton.getValue() + '&nbsp;Forecast</b><br>Valid: ' + new moment.utc(me.getValidTime()).local().format('h:mm a ddd M/DD/YYYY'));
-      me.mapObject.ndfdTimeLabel.setValue('Valid: ' + new moment.utc(me.getValidTime()).local().format('h:mm a ddd M/DD/YYYY'));
+      var label = 'Valid: ' + new moment.utc(me.getValidTime()).local().format('h:mm a ddd M/DD/YYYY');
+      label += "<br>Issued: " + new moment.utc(me.getIssuedTime()).local().format('h:mm a ddd M/DD/YYYY');
+      me.mapObject.ndfdTimeLabel.setValue(label);
+
+      // State border on top
+      me.mapObject.putVectorLayerOnTop("U.S. States");
     },
     changeVisibility : function(value) {
       if (typeof this.ndfd !== "undefined")
@@ -108,6 +130,13 @@ qx.Class.define("mobileedd.Ndfd",
       var url = me.mapObject.getJsonpRoot() + "ndfd/getNDFDTimes.php";
       url += "?region=" + me.getRegion();
       url += "&elmt=" + me.getField();
+      if (typeof (me.ndfdBarbs) !== "undefined") {
+        if (me.getField() == "windgust" || me.getField() == "windspd") {
+          me.ndfdBarbs.setVisible(true);
+        } else {
+          me.ndfdBarbs.setVisible(false);
+        }
+      }
       me.validTimeRequest.setUrl(url);
       me.validTimeRequest.send();
     },
@@ -122,6 +151,7 @@ qx.Class.define("mobileedd.Ndfd",
       me.ndfd = new ol.layer.Tile(
       {
         name : 'NDFD',
+        opacity : 0.7,
         source : new ol.source.TileWMS(
         {
           url : 'http://digital.weather.gov/wms.php',
@@ -169,10 +199,40 @@ qx.Class.define("mobileedd.Ndfd",
           }
         })
       })
+      me.ndfdBarbs = new ol.layer.Tile(
+      {
+        name : 'NDFD Wind Barbs',
+        source : new ol.source.TileWMS(
+        {
+          url : 'http://digital.weather.gov/wms.php',
+          params :
+          {
+            'LAYERS' : 'ndfd.' + me.getRegion() + '.' + 'windspd.windbarbs',
+            'FORMAT' : "image/png",
+            'TRANSPARENT' : "TRUE",
+            'TRANSITIONEFFECT' : "resize",
+            'VERSION' : "1.3.0",
+            'VT' : me.getValidTime(),
+            'EXCEPTIONS' : "INIMAGE",
+            'SERVICE' : "WMS",
+            'REQUEST' : "GetMap",
+            'STYLES' : "",
+            'REGION' : "conus",
+            'CRS' : "EPSG:3857",
+            'WIDTH' : '512',
+            'HEIGHT' : '512'
+          }
+        })
+      })
       me.ndfd.setVisible(me.getVisibility());
       me.ndfdPoints.setVisible(me.getVisibility());
+      me.ndfdBarbs.setVisible(false);
       me.map.addLayer(me.ndfd);
+
+      // State border on top
+      me.mapObject.putVectorLayerOnTop("U.S. States");
       me.map.addLayer(me.ndfdPoints);
+      me.map.addLayer(me.ndfdBarbs);
     }
   }
 });
