@@ -1689,9 +1689,8 @@ qx.Class.define("mobileedd.page.Map",
       var ndfd = mobileedd.Ndfd.getInstance();
       var bool = me.getURLParameter('ndfd') == "T" ? true : false;
       me.ndfdToggleButton.setValue(bool);
-      ndfd.setRegion(me.getURLParameter('ndfdregion'));
-      ndfd.setField(me.getURLParameter('ndfdfield'));
-      ndfd.setValidTime(me.getURLParameter('ndfdvt'));
+     
+      // ndfd.setValidTime(me.getURLParameter('ndfdvt'));
 
       // Set REGION button value from key/value pair
       Object.keys(this.c.getNdfdRegions()).forEach(function(obj, index) {

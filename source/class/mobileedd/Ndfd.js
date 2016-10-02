@@ -56,14 +56,44 @@ qx.Class.define("mobileedd.Ndfd",
 
       // Update Slider
       me.mapObject.ndfdLoopSlider.setMaximum(me.validTimes.length - 1);
+      
+      // Set to first value
       me.setIssuedTime(me.validTimes[0][1]);
       me.setValidTime(me.validTimes[0][0]);
-      if (typeof me.ndfd == "undefined") {
+       me.validTimes.forEach(function(obj, index) {
+          if (obj[0] ==  me.getValidTime()) {
+            me.mapObject.ndfdLoopSlider.setValue(index);
+          }
+        })
+      
+      if (typeof me.ndfd == "undefined")
+      {
         me.addLayers();
-      } else {
+
+        // Set the slider - a special case
+        me.validTimes.forEach(function(obj, index) {
+          if (obj[0] == me.mapObject.getURLParameter('ndfdvt')) {
+            me.setRegion(me.mapObject.getURLParameter('ndfdregion'));
+            me.setField(me.mapObject.getURLParameter('ndfdfield'));
+            me.mapObject.ndfdLoopSlider.setValue(index);
+          }
+        })
+      } else
+      {
         me.updateLayer();
       }
     }, this);
+    
+    
+    // Limit update calls
+     me.timeStepTimer = new qx.event.Timer(1000);
+    me.timeStepTimer.addListener("interval", function(e)
+    {
+     
+      me.validTimeRequest.send();
+      me.timeStepTimer.stop();
+    }, this);
+    // Limit wms calls
     me.changeLayerTimer = new qx.event.Timer(1000);
     me.changeLayerTimer.addListener("interval", function(e)
     {
@@ -138,7 +168,7 @@ qx.Class.define("mobileedd.Ndfd",
         }
       }
       me.validTimeRequest.setUrl(url);
-      me.validTimeRequest.send();
+      me.timeStepTimer.restart();
     },
 
     /**
