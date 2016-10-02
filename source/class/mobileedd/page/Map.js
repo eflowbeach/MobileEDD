@@ -969,15 +969,16 @@ qx.Class.define("mobileedd.page.Map",
       me.ndfdToggleButton.addListener("changeValue", function(e)
       {
         var ndfd = mobileedd.Ndfd.getInstance();
-        
         ndfd.setVisibility(e.getData());
-         if(e.getData()){
-             // Query server for valid times
-        ndfd.getValidTimes();
-         me.ndfdOptionsContainer.setVisibility('visible');
-         }else{
-            me.ndfdOptionsContainer.setVisibility('excluded');
-         }
+        if (e.getData())
+        {
+          // Query server for valid times
+          ndfd.getValidTimes();
+          me.ndfdOptionsContainer.setVisibility('visible');
+        } else
+        {
+          me.ndfdOptionsContainer.setVisibility('excluded');
+        }
       }, this);
       composite.add(me.ndfdToggleButton);
       scrollContainer.add(composite);
@@ -985,7 +986,6 @@ qx.Class.define("mobileedd.page.Map",
       /**
             * Configure NDFD
             * */
-            
       me.ndfdOptionsContainer = new qx.ui.mobile.container.Composite();
       me.ndfdOptionsContainer.setLayout(new qx.ui.mobile.layout.VBox());
       scrollContainer.add(me.ndfdOptionsContainer);
@@ -1007,7 +1007,6 @@ qx.Class.define("mobileedd.page.Map",
       me.setRegionNdfdButton.addListener("tap", function(e) {
         this.__ndfdRegionAnchorMenu.show();
       }, this);
-    
       var ndfdRegionAnchorMenuModel = new qx.data.Array(Object.keys(this.c.getNdfdRegions()).sort());
       this.__ndfdRegionAnchorMenu = new qx.ui.mobile.dialog.Menu(ndfdRegionAnchorMenuModel, me.setRegionNdfdButton);
       this.__ndfdRegionAnchorMenu.setTitle("Region");
@@ -1040,7 +1039,6 @@ qx.Class.define("mobileedd.page.Map",
       me.setFieldNdfdButton.addListener("tap", function(e) {
         this.__ndfdFieldAnchorMenu.show();
       }, this);
-    
       var ndfdFieldAnchorMenuModel = new qx.data.Array(Object.keys(this.c.getNdfdFields()).sort());
       this.__ndfdFieldAnchorMenu = new qx.ui.mobile.dialog.Menu(ndfdFieldAnchorMenuModel, me.setFieldNdfdButton);
       this.__ndfdFieldAnchorMenu.setTitle("Field");
@@ -1048,17 +1046,13 @@ qx.Class.define("mobileedd.page.Map",
       {
         var ndfd = mobileedd.Ndfd.getInstance();
         ndfd.setField(this.c.getNdfdFields()[e.getData().item]);
-        
+
         // Trigger a refresh on wind speed to change units
-        if(fields[e.getData().item] == "windgust" || fields[e.getData().item] == "windspd"){
-        ndfd.changeLayerTimer.start();
+        if (fields[e.getData().item] == "windgust" || fields[e.getData().item] == "windspd") {
+          ndfd.changeLayerTimer.start();
         }
-        
         me.setFieldNdfdButton.setValue(e.getData().item);
-        
-        
       }, this);
-      
       me.showNdfdLabelContainer.add(me.setFieldNdfdButton);
       me.ndfdOptionsContainer.add(me.showNdfdLabelContainer);
 
@@ -1521,8 +1515,8 @@ qx.Class.define("mobileedd.page.Map",
         }
       })
 
-// NDFD
-me.ndfdToggleButton.setValue(false);
+      // NDFD
+      me.ndfdToggleButton.setValue(false);
 
       // More Layers
       mobileedd.MoreLayers.getInstance().showLegendVisibilityOfAll(false);
@@ -1584,7 +1578,7 @@ me.ndfdToggleButton.setValue(false);
       url += '&obs=';
       url += me.observationToggleButton.getValue() ? 'T' : 'F';
       url += '&obfield=' + me.c.getObDisplayedField();
-      
+
       // NDFD
       var ndfd = mobileedd.Ndfd.getInstance();
       url += '&ndfd=';
@@ -1592,7 +1586,6 @@ me.ndfdToggleButton.setValue(false);
       url += '&ndfdregion=' + ndfd.getRegion();
       url += '&ndfdfield=' + ndfd.getField();
       url += '&ndfdvt=' + ndfd.getValidTime();
-      
 
       // Zoom
       url += '&z=';
@@ -1692,33 +1685,27 @@ me.ndfdToggleButton.setValue(false);
         me.obDisplayButton.setValue(field);
       }
 
-
-// NDFD
+      // NDFD
       var ndfd = mobileedd.Ndfd.getInstance();
       var bool = me.getURLParameter('ndfd') == "T" ? true : false;
       me.ndfdToggleButton.setValue(bool);
-       
-       ndfd.setRegion(me.getURLParameter('ndfdregion'));
-       ndfd.setField(me.getURLParameter('ndfdfield'));
-       ndfd.setValidTime(me.getURLParameter('ndfdvt'));
-      
-        // Set REGION button value from key/value pair
+      ndfd.setRegion(me.getURLParameter('ndfdregion'));
+      ndfd.setField(me.getURLParameter('ndfdfield'));
+      ndfd.setValidTime(me.getURLParameter('ndfdvt'));
+
+      // Set REGION button value from key/value pair
       Object.keys(this.c.getNdfdRegions()).forEach(function(obj, index) {
-          if(this.c.getNdfdRegions()[obj] == ndfd.getRegion()){
-       me.setRegionNdfdButton.setValue(obj);      
-          }
-      },this)
-      
+        if (this.c.getNdfdRegions()[obj] == ndfd.getRegion()) {
+          me.setRegionNdfdButton.setValue(obj);
+        }
+      }, this)
+
       // Set FIELD button value from key/value pair
       Object.keys(this.c.getNdfdFields()).forEach(function(obj, index) {
-          if(this.c.getNdfdFields()[obj] == ndfd.getField()){
-       me.setFieldNdfdButton.setValue(obj);      
-          }
-      },this)
-      
-     
-      
-      
+        if (this.c.getNdfdFields()[obj] == ndfd.getField()) {
+          me.setFieldNdfdButton.setValue(obj);
+        }
+      }, this)
 
       // More Layers
       var ml = me.getURLParameter('ml');
@@ -1781,7 +1768,6 @@ me.ndfdToggleButton.setValue(false);
       }
     },
 
-   
     // overridden
     _createScrollContainer : function()
     {
@@ -2350,8 +2336,6 @@ me.ndfdToggleButton.setValue(false);
         // Turn on hazards
         me.hazardToggleButton.setValue(true);
 
-        
-
         // State Border
         me.stateBorder = new ol.layer.Vector(
         {
@@ -2817,9 +2801,8 @@ me.ndfdToggleButton.setValue(false);
             var popup = new qx.ui.mobile.dialog.Popup(buttonsWidget);
             popup.setTitle("Change Opacity");
             popup.show();
-            toTopButton.addListener("tap", function()
-            {
-             me.putVectorLayerOnTop(selectedItem);
+            toTopButton.addListener("tap", function() {
+              me.putVectorLayerOnTop(selectedItem);
             }, this);
             cancelButton.addListener("tap", function()
             {
@@ -2924,14 +2907,15 @@ me.ndfdToggleButton.setValue(false);
         return null;
       }
     },
+    putVectorLayerOnTop : function(name)
+    {
+      var me = this;
 
-putVectorLayerOnTop: function(name){
-  var me = this;
-    // Silly way to get Vector Layer on top...
+      // Silly way to get Vector Layer on top...
       var statesLayer = me.getLayerByName(name);
       me.map.removeLayer(statesLayer);
       me.map.getLayers().setAt(me.map.getLayers().getArray().length, statesLayer);
-},
+    },
 
     /**
      * Set the basemap
