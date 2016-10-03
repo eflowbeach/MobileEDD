@@ -62,38 +62,45 @@ qx.Class.define("mobileedd.Observations",
       me.timer.addListener("interval", function(e)
       {
         me.timer.setInterval(1000 * refreshRate);
-        me.getUpdatedServiceUrl();
-        me.observationReq.send();
+        me.limitTimer.restart();
       });
 
       // Start the auto-refresh timer
       me.timer.start();
+      
+      me.limitTimer = new qx.event.Timer(1000);  //1000 * refreshRate);//0);
+      me.limitTimer.addListener("interval", function(e)
+      {
+        if(typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible()){
+        me.getUpdatedServiceUrl();
+        me.observationReq.send();
+        }
+        me.limitTimer.stop();
+      });
 
       // Set up a listener for map move.
 
-      // me.map.getView().on('change:resolution', function(evt) {
+      me.map.getView().on('change:resolution', function(evt) {
 
-      //   if (typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible())
+        if (typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible())
 
-      //   {
+        {
 
-      //     if (evt.target.get('resolution') < 1500) {
+          if (evt.target.get('resolution') < 1500) {
 
-      //       me.setNetworks('');
+            me.setNetworks('');
 
-      //     } else {
+          } else {
 
-      //       me.setNetworks('1,14,96');
+            me.setNetworks('1,14,96');
 
-      //     }
+          }
 
-      //     me.getUpdatedServiceUrl();
+       me.limitTimer.restart();
 
-      //     me.observationReq.send();
+        }
 
-      //   }
-
-      // });
+      });
     }.bind(this);
     req.open("GET", "resource/mobileedd/libs/geojsonlibs.js");
     req.send();
@@ -154,8 +161,6 @@ qx.Class.define("mobileedd.Observations",
         var curve = ['#edf8e9', '#c7e9c0', '#a1d99b', '#74c476', '#41ab5d', '#238b45', '#005a32'];
         me.threshold_x = d3.scaleThreshold().domain(breakpoints).range(curve);
         me.getUpdatedServiceUrl();
-
-        // me.observationReq.send();
       }
 
 
@@ -164,20 +169,17 @@ qx.Class.define("mobileedd.Observations",
 
       if (value != "Precipitation" && old == "Precipitation")
       {
-        me.getUpdatedServiceUrl();
-        me.observationReq.send();
+       me.limitTimer.restart();
       }
       if (value == "Precipitation" && old != "Precipitation")
       {
-        me.getUpdatedServiceUrl();
-        me.observationReq.send();
+      me.limitTimer.restart();
       }
 
       // Check for period change
       if (!isNaN(Number(value)))
       {
-        me.getUpdatedServiceUrl();
-        me.observationReq.send();
+       me.limitTimer.restart();
       }
       if (typeof (this.observationLayer) !== "undefined" && this.observationLayer.getSource() != null) {
         this.observationLayer.getSource().dispatchEvent('change');
@@ -257,8 +259,6 @@ qx.Class.define("mobileedd.Observations",
                 }
               }
               var label = maxPrecip.toFixed(2);
-
-              //? '' + Number(precip).toFixed(2) : '');
             } else
             {
               // Ob
@@ -271,7 +271,7 @@ qx.Class.define("mobileedd.Observations",
               imageUrl += (wp !== undefined && wp[value_type] > 15 ? '&PEAK=' + Math.round(wp[value_type]) : '');
               imageUrl += (wh !== undefined ? '&WH=' + Math.round(wh[value_type]) : '');
               imageUrl += '&FFu=mph&FFGUSTu=mph';
-              imageUrl += '&size=1';  // + me.met_scale_slider.getValue() / 10;
+              imageUrl += '&size=1'; 
               return [new ol.style.Style( {
                 image : new ol.style.Icon(
                 {
@@ -294,6 +294,8 @@ qx.Class.define("mobileedd.Observations",
 
             if (label == '' && i != features.length - 1) {
               continue;
+            }else if (label!=''){
+               break;
             }
           }
           var radius = 6;
@@ -376,8 +378,7 @@ qx.Class.define("mobileedd.Observations",
               } else {
                 me.setNetworks('1,14,96');
               }
-              me.getUpdatedServiceUrl();
-              me.observationReq.send();
+             me.limitTimer.restart();
             }
           }
           me.setExtent(extent.toString());

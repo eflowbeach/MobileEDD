@@ -859,6 +859,7 @@ qx.Class.define("mobileedd.page.Map",
         {
           observationObject.addLayer();
           observationObject.observationLayer.setVisible(true);
+          observationObject.limitTimer.restart();
         } else if (typeof observationObject.observationLayer == "undefined" && !e.getData()) {
           return;
         } else {
@@ -903,7 +904,7 @@ qx.Class.define("mobileedd.page.Map",
         flex : 1
       });
 
-      // // fieldDisplayED MENU POPUP
+      // fieldDisplayED MENU POPUP
       me.obDisplayButton = new qx.ui.mobile.form.Button("Temperature");
       me.obDisplayButton.addListener("tap", function(e) {
         this.__fieldDisplayMenu.show();
@@ -975,9 +976,11 @@ qx.Class.define("mobileedd.page.Map",
           // Query server for valid times
           ndfd.getValidTimes();
           me.ndfdOptionsContainer.setVisibility('visible');
+          me.ndfdLegendContainer.setVisibility('visible');
         } else
         {
           me.ndfdOptionsContainer.setVisibility('excluded');
+          me.ndfdLegendContainer.setVisibility('excluded');
         }
       }, this);
       composite.add(me.ndfdToggleButton);
@@ -1081,7 +1084,7 @@ qx.Class.define("mobileedd.page.Map",
              */
       var ndfdTimeComposite = new qx.ui.mobile.container.Composite();
       me.ndfdTimeLabel = new qx.ui.mobile.basic.Label();
-      qx.bom.element.Style.setCss(me.ndfdTimeLabel.getContainerElement(), 'font-size: 1.2em;');
+      qx.bom.element.Style.setCss(me.ndfdTimeLabel.getContainerElement(), 'font-size: 1.1em;');
       ndfdTimeComposite.setLayout(new qx.ui.mobile.layout.HBox().set( {
         alignX : "center"
       }));
@@ -1689,7 +1692,7 @@ qx.Class.define("mobileedd.page.Map",
       var ndfd = mobileedd.Ndfd.getInstance();
       var bool = me.getURLParameter('ndfd') == "T" ? true : false;
       me.ndfdToggleButton.setValue(bool);
-     
+
       // ndfd.setValidTime(me.getURLParameter('ndfdvt'));
 
       // Set REGION button value from key/value pair
