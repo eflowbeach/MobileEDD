@@ -150,6 +150,10 @@ qx.Class.define("mobileedd.Application",
       statusRequest.setUrl(url);
       statusRequest.setCache(false);
       statusRequest.setCallbackParam('callback');
+       statusRequest.addListener("fail", function(e)
+      {
+       // console.log('ok')
+      })
       statusRequest.addListener("success", function(e)
       {
         var message = e.getTarget().getResponse().Message;
