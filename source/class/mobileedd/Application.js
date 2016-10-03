@@ -31,7 +31,6 @@ qx.Class.define("mobileedd.Application",
 
       // Don't allow users to go to routing pages
       if (window.location.href.indexOf('#%2F') !== -1) {
-        //window.location = window.location.href.replace(/#%2F\S+/gi,'');
         location.hash = '';
       }
 
@@ -147,7 +146,7 @@ qx.Class.define("mobileedd.Application",
         this.hide = true;
       }, this);
       var statusRequest = new qx.io.request.Jsonp();
-      var url = "http://dev.nids.noaa.gov/~jwolfe/edd/edd/build/resource/edd/getEddMobileStatus.php";  //me.mapObject.getJsonpRoot() + "hazards/getShortFusedHazards.php";
+      var url = "http://preview.weather.gov/edd/build/resource/edd/getEddMobileStatus.php";  //me.mapObject.getJsonpRoot() + "hazards/getShortFusedHazards.php";
       statusRequest.setUrl(url);
       statusRequest.setCache(false);
       statusRequest.setCallbackParam('callback');
