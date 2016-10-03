@@ -349,6 +349,7 @@ qx.Class.define("mobileedd.Observations",
         }
       });
       me.map.addLayer(me.observationLayer);
+      
     },
 
     /**

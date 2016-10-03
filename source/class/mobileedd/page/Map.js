@@ -57,6 +57,12 @@ qx.Class.define("mobileedd.page.Map",
     myPosition :
     {
       init : null,
+      nullable : true,
+      apply:"findName"
+    },
+     myPositionName :
+    {
+      init : null,
       nullable : true
     },
     stateBorderColor : {
@@ -107,19 +113,7 @@ qx.Class.define("mobileedd.page.Map",
       "Wind" : ["Wind", "Typhoon", "Inland Hurricane Wind", "High Wind", "Blowing Dust", "Dust Storm", "Lake Wind", "Small Craft", "Small Craft for Winds", "Storm", "Inland Tropical Storm", "Hurricane Force Wind", "Gale"]
     };
 
-    // Set the Users position
-    if (typeof (Storage) !== "undefined")
-    {
-      if (localStorage.getItem("monitor") != null) {
-        me.setMyPosition(JSON.parse(localStorage.getItem("monitor")));
-      }
-      if (localStorage.getItem("hazardlist") != null) {
-        me.setHazardList(JSON.parse(localStorage.getItem("hazardlist")));
-      }
-      if (localStorage.getItem("wwalist") != null) {
-        me.setWwaList(JSON.parse(localStorage.getItem("wwalist")));
-      }
-    }
+    
 
     // Busy indicator
     var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
@@ -742,7 +736,7 @@ qx.Class.define("mobileedd.page.Map",
 
       // Toggle All
       me.toggle = 0;
-      var widget = new qx.ui.mobile.form.Button("Toggle All");
+      var widget = new qx.ui.mobile.form.Button("Toggle All Groups");
       widget.addListener("tap", function(e)
       {
         // Don't click map...
@@ -756,15 +750,29 @@ qx.Class.define("mobileedd.page.Map",
           }
         })
 
+      
+        me.toggle++;
+      }, this);
+      composite.add(widget);
+      
+       // Toggle All
+      me.toggleType = 0;
+      var widget = new qx.ui.mobile.form.Button("Toggle All Types");
+      widget.addListener("tap", function(e)
+      {
+        // Don't click map...
+        e.preventDefault();
+        e.stopPropagation();
+       
         // Save them to properties and local storage
         me.hazardToggleWwaButtons.forEach(function(obj, index) {
-          if (me.toggle % 2 == 0) {
+          if (me.toggleType % 2 == 0) {
             obj.setValue(false);
           } else {
             obj.setValue(true);
           }
         })
-        me.toggle++;
+        me.toggleType++;
       }, this);
       composite.add(widget);
 
@@ -859,7 +867,6 @@ qx.Class.define("mobileedd.page.Map",
         {
           observationObject.addLayer();
           observationObject.observationLayer.setVisible(true);
-          observationObject.limitTimer.restart();
         } else if (typeof observationObject.observationLayer == "undefined" && !e.getData()) {
           return;
         } else {
@@ -1346,92 +1353,7 @@ qx.Class.define("mobileedd.page.Map",
       }, this);
       scrollContainer.add(showPopupButton);
 
-      // /**
-
-      //       * Configure
-
-      //       * */
-
-      //       var showPopupButton = new qx.ui.mobile.form.Button("Appearance", "resource/mobileedd/images/paintbrush.png");
-
-      //       showPopupButton.addListener("tap", function(e)
-
-      //       {
-
-      //         this.__popup.show();
-
-      //         me.drawer.hide();
-
-      //       }, this);
-
-      //       var composite = new qx.ui.mobile.container.Composite();
-
-      //       composite.setLayout(new qx.ui.mobile.layout.VBox());
-
-      //       var html = new qx.ui.mobile.embed.Html();
-
-      //       html.setHtml('<div id="test"></div>');
-
-      //       showPopupButton.addListener("appear", function()
-
-      //       {
-
-      //         document.getElementById('test').appendChild(document.getElementById('foo'));
-
-      //         document.getElementById('test').appendChild(document.getElementById('foo2'));
-
-      //       })
-
-      //       var closeDialogButton1 = new qx.ui.mobile.form.Button("Close");
-
-      //       // Add to popup
-
-      //       var countyContainer = new qx.ui.mobile.container.Composite();
-
-      //       countyContainer.addCssClass("hboxPad");
-
-      //       countyContainer.setLayout(new qx.ui.mobile.layout.HBox('left', 'middle'));
-
-      //       var countyLabel = new qx.ui.mobile.basic.Label("County Borders");
-
-      //       countyContainer.add(countyLabel);
-
-      //       //countyLabel.addCssClass("menuLabels");
-
-      //       me.countyToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
-
-      //       me.countyToggleButton.addListener("changeValue", function(e) {
-
-      //         me.countyBorder.setVisible(e.getData());
-
-      //       })
-
-      //       countyContainer.add(me.countyToggleButton);
-
-      //       composite.add(html);
-
-      //       composite.add(countyContainer);
-
-      //       composite.add(closeDialogButton1);
-
-      //       this.__popup = new qx.ui.mobile.dialog.Popup(composite);
-
-      //       this.__popup.setTitle("Appearance");
-
-      //       closeDialogButton1.addListener("tap", function(e)
-
-      //       {
-
-      //         this.__popup.hide();
-
-      //         e.preventDefault();
-
-      //         e.stopPropagation();
-
-      //       }, this);
-
-      //       scrollContainer.add(showPopupButton);
-
+  
       /**
       * Close
       * */
@@ -1458,6 +1380,10 @@ qx.Class.define("mobileedd.page.Map",
       // Reset Button
       var resetButton = new qx.ui.mobile.navigationbar.Button("Reset");
       resetButton.addListener("tap", function(e) {
+         // Don't click map...
+        e.preventDefault();
+        e.stopPropagation();
+       
         me.reset();
       }, this);
       this.getLeftContainer().add(resetButton);
@@ -1633,6 +1559,23 @@ qx.Class.define("mobileedd.page.Map",
       return url;
     },
 
+findName: function(value){
+  var me = this;
+ // Get address
+      var ll = ol.proj.transform(value, 'EPSG:3857', 'EPSG:4326');
+      var geo = new mobileedd.geo.EsriGeo();
+      geo.reverseGeocodeReq.addListenerOnce("success", function(e)
+      {
+        var response = e.getTarget().getResponse();
+        if (typeof response.address !== "undefined" && response.address.City != null) {
+          var address = response.address.City + ', ' + response.address.Region;
+        } else {
+          address = 'Lon:' + ll[0].toFixed(2) + ' Lat:' + ll[1].toFixed(2);
+        }
+       me.setMyPositionName(address);
+      }, this)
+      geo.reverseGeoRequest(ll[1], ll[0]);
+},
     /**
      * Set the URL parameters
      * */
@@ -1798,6 +1741,15 @@ qx.Class.define("mobileedd.page.Map",
       // Radar Label on map
       me.legendContainer = new qx.ui.mobile.container.Composite();
       me.legendContainer.setId("mapMenu");
+      
+       // Scroll
+      me.dynamicLegendScrollContainer = new qx.ui.mobile.container.Scroll();
+       
+    
+      // Ensure contents do not get too big
+      qx.bom.element.Style.setCss(me.dynamicLegendScrollContainer.getContainerElement(), 'width:260px;color:white;');
+      me.dynamicLegendContainer = new qx.ui.mobile.container.Composite();
+      me.dynamicLegendScrollContainer.add(me.dynamicLegendContainer); 
 
       // Radar legend
       me.radarLegendContainer = new qx.ui.mobile.container.Composite();
@@ -1805,7 +1757,7 @@ qx.Class.define("mobileedd.page.Map",
       me.radarLegendContainer.add(me.radarLegendLabel);
       var image = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legend/radar.png");
       me.radarLegendContainer.add(image);
-      me.legendContainer.add(me.radarLegendContainer);
+     me.dynamicLegendContainer.add(me.radarLegendContainer);
 
       // NDFD legend
       me.ndfdLegendContainer = new qx.ui.mobile.container.Composite();
@@ -1813,7 +1765,7 @@ qx.Class.define("mobileedd.page.Map",
       me.ndfdLegendContainer.add(me.ndfdLegendLabel);
       me.ndfdLegend = new qx.ui.mobile.basic.Image();
       me.ndfdLegendContainer.add(me.ndfdLegend);
-      me.legendContainer.add(me.ndfdLegendContainer);
+     me.dynamicLegendContainer.add(me.ndfdLegendContainer);
 
       //qpe
       me.qpeContainer = new qx.ui.mobile.container.Composite();
@@ -1822,7 +1774,7 @@ qx.Class.define("mobileedd.page.Map",
       var image = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legend/precipitation.png");
       me.qpeContainer.add(me.qpeLegendLabel);
       me.qpeContainer.add(image);
-      me.legendContainer.add(me.qpeContainer);
+     me.dynamicLegendContainer.add(me.qpeContainer);
 
       //lightning
       me.lightningContainer = new qx.ui.mobile.container.Composite();
@@ -1831,15 +1783,9 @@ qx.Class.define("mobileedd.page.Map",
       var image = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legend/lightningstrikedensity.png");
       me.lightningContainer.add(me.lightningLegendLabel);
       me.lightningContainer.add(image);
-      me.legendContainer.add(me.lightningContainer);
+     me.dynamicLegendContainer.add(me.lightningContainer);
 
-      // Scroll
-      me.dynamicLegendScrollContainer = new qx.ui.mobile.container.Scroll();
-
-      // Ensure contents do not get too big
-      qx.bom.element.Style.setCss(me.dynamicLegendScrollContainer.getContainerElement(), 'width:250px;');
-      me.dynamicLegendContainer = new qx.ui.mobile.container.Composite();
-      me.dynamicLegendScrollContainer.add(me.dynamicLegendContainer);
+     
       me.legendContainer.add(me.dynamicLegendScrollContainer);
       return me.legendContainer;
     },
@@ -1853,6 +1799,21 @@ qx.Class.define("mobileedd.page.Map",
       var req = new qx.bom.request.Script();
       req.onload = function()
       {
+        
+        // Set the Users position
+    if (typeof (Storage) !== "undefined")
+    {
+      if (localStorage.getItem("monitor") != null) {
+        me.setMyPosition(JSON.parse(localStorage.getItem("monitor")));
+      }
+      if (localStorage.getItem("hazardlist") != null) {
+        me.setHazardList(JSON.parse(localStorage.getItem("hazardlist")));
+      }
+      if (localStorage.getItem("wwalist") != null) {
+        me.setWwaList(JSON.parse(localStorage.getItem("wwalist")));
+      }
+    }
+        
         me.defaultView = new ol.View(
         {
           center : ol.proj.transform(me.getDefaultCenter(), 'EPSG:4326', 'EPSG:3857'),

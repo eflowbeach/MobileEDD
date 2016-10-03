@@ -225,6 +225,10 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
       }, this);
       this.getContent().add(this.goButton);
       this.getSelectedTime();
+      
+      
+      //Add legend
+      mobileedd.MoreLayers.getInstance().addTravelHazardLegend();
     },
 
     /**

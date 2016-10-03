@@ -233,6 +233,7 @@ qx.Class.define("mobileedd.Hazards",
       me.cycleCount = 0;
       me.cycleWwaTimer.addListener("interval", function(e)
       {
+        try{
         var feature = me.hazardsAtMyPosition[me.cycleCount];
         var htype = feature.get('warn_type');
         var hsig = 'Warning';
@@ -251,6 +252,8 @@ qx.Class.define("mobileedd.Hazards",
           color = "#ffeb00"
         } else if (hsig == "Statement") {
           color = "#A67C45"
+        }}catch(e){
+          qx.bom.Selector.query('.navigationbar>h1')[0].innerHTML =  me.hazardsAtMyPosition[me.cycleCount];
         }
 
 
@@ -266,23 +269,19 @@ qx.Class.define("mobileedd.Hazards",
     {
       var me = this;
       var myPosition = me.mapObject.getMyPosition();
-
-      // var myPosition = ol.proj.transform([-93.26, 37.19], 'EPSG:4326', 'EPSG:3857');
-
-      //var myPosition = ol.proj.transform([-112.94, 40.54], 'EPSG:4326', 'EPSG:3857');
-
-      //var myPosition = ol.proj.transform([-82.9, 29.28], 'EPSG:4326', 'EPSG:3857');
       if (myPosition != null)
       {
         me.hazardsAtMyPosition = me.hazardVectorSource.getFeaturesAtCoordinate(myPosition);
-        if (me.hazardsAtMyPosition.length >= 1) {
+        me.hazardsAtMyPosition.push("for " + me.mapObject.getMyPositionName() );
+        
+        if (me.hazardsAtMyPosition.length >= 2) {
           me.cycleWwaTimer.start();
         } else {
           me.cycleWwaTimer.stop();
 
           // Reset to original
           qx.bom.element.Style.setCss(qx.bom.Selector.query('.navigationbar')[0], 'background-image: linear-gradient(#646464,#383838)');
-          qx.bom.Selector.query('.navigationbar>h1')[0].innerHTML = 'Mobile EDD';
+          qx.bom.Selector.query('.navigationbar>h1')[0].innerHTML = 'NWS Mobile EDD';
         }
       }
     }

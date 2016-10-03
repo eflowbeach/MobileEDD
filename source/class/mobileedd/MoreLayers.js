@@ -139,6 +139,55 @@ qx.Class.define("mobileedd.MoreLayers",
       }
     },
 
+ /**
+    * Add Travel Hazard Legend
+    * */
+    addTravelHazardLegend : function()
+    {
+      var me = this;
+ var legend = [
+      {
+        color : "#ff6cff",
+        label : "Extreme Hazards - Blizzard, Ice Storm, High Wind Warnings.",  // Flooding doesn't show up in NDFD as of 6/19/2014
+        shape : "box"
+      },
+      {
+        color : "#ff0000",
+        label : "Winter and Areal Flood Warnings. Max Wind Gusts >= 50 mph.",
+        shape : "box"
+      },
+      {
+        color : "orange",
+        label : "Winter, Wind, Areal Flood and Dense Fog Advisories. Max Wind Gusts >= 40 mph.  Temperatures <= -20 \xBAF.",
+        shape : "box"
+      },
+      {
+        color : "yellow",
+        label : "Sub-Advisory Snow, Sleet, Freezing Rain, or Fog. Max Wind Gusts >= 30 mph.",
+        shape : "box"
+      },
+      {
+        color : "#4486b8",
+        label : "Rain or Drizzle. Temperatures <= 32 \xBAF.",
+        shape : "box"
+      },
+      {
+        color : "#7bb043",
+        label : "No Forecasted Weather Hazards",
+        shape : "box"
+      },
+      {
+        color : "#bdbdbd",
+        label : "Missing or Invalid Forecast Data",
+        shape : "box"
+      }];
+      var layerName = "Travel Hazard Forecast";
+       var subtitle = '';
+       
+        me.html[layerName] = new mobileedd.LegendCreator(layerName, legend, subtitle);
+        me.mapObject.dynamicLegendContainer.add(me.html[layerName]);
+        me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
+  },
     /**
     * Add River Levels
     * */
