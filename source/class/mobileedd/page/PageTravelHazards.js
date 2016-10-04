@@ -225,8 +225,7 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
       }, this);
       this.getContent().add(this.goButton);
       this.getSelectedTime();
-      
-      
+
       //Add legend
       mobileedd.MoreLayers.getInstance().addTravelHazardLegend();
     },
@@ -456,9 +455,9 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         {
           var address = response.address.Match_addr;
           this.__end.setValue(address);
-          var text = new qx.event.message.Message("edd.message");
-          text.setData(['<b>Destination set to:</b><br>' + address, 3000]);
-          this.bus.dispatch(text);
+          // var text = new qx.event.message.Message("edd.message");
+          // text.setData(['<b>Destination set to:</b><br>' + address, 3000]);
+          // this.bus.dispatch(text);
         }catch (e)
         {
           this.__popup.setTitle("Unable to find address for the specified location.");
@@ -483,15 +482,26 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         {
           var address = response.address.Match_addr;
           this.__start.setValue(address);
-          var text = new qx.event.message.Message("edd.message");
-          text.setData(['<b>Origin set to:</b><br>' + address, 3000]);
-          this.bus.dispatch(text);
+          
+        
+          // var text = new qx.event.message.Message("edd.message");
+          // text.setData(['<b>Origin set to:</b><br>' + address, 3000]);
+          // this.bus.dispatch(text);
         }catch (e)
         {
           this.__popup.setTitle("Unable to find address for the specified location.");
           this.__popup.show();
           return;
         }
+        
+        var text = new qx.event.message.Message("edd.message");
+          text.setData(['<b>Origin set to:</b><br>' + address, 3000]);
+          this.bus.dispatch(text);
+          
+            setTimeout(function() {
+            qx.core.Init.getApplication().getRouting().executeGet("/");
+          }, 2000);
+        
       }, this)
       geo.reverseGeoRequest(ll[1], ll[0]);
 
@@ -515,9 +525,9 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
           }
           this.waypointsLonLat[index] = ll;
           this.waypoints[index].setValue(address);
-          var text = new qx.event.message.Message("edd.message");
-          text.setData(['<b>Waypoint ' + index + 1 + ' set to:</b><br>' + address, 3000]);
-          this.bus.dispatch(text);
+          // var text = new qx.event.message.Message("edd.message");
+          // text.setData(['<b>Waypoint ' + index + 1 + ' set to:</b><br>' + address, 3000]);
+          // this.bus.dispatch(text);
         }catch (e)
         {
           this.__popup.setTitle("Unable to find address for the specified waypoint location.");

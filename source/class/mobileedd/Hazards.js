@@ -233,31 +233,33 @@ qx.Class.define("mobileedd.Hazards",
       me.cycleCount = 0;
       me.cycleWwaTimer.addListener("interval", function(e)
       {
-        try{
-        var feature = me.hazardsAtMyPosition[me.cycleCount];
-        var htype = feature.get('warn_type');
-        var hsig = 'Warning';
-        if (typeof htype == "undefined")
+        try
         {
-          htype = feature.get('phenomenon');
-          hsig = feature.get('significance');
+          var feature = me.hazardsAtMyPosition[me.cycleCount];
+          var htype = feature.get('warn_type');
+          var hsig = 'Warning';
+          if (typeof htype == "undefined")
+          {
+            htype = feature.get('phenomenon');
+            hsig = feature.get('significance');
+          }
+          qx.bom.Selector.query('.navigationbar>h1')[0].innerHTML = htype + ' ' + hsig;
+          var color = "#646464";
+          if (hsig == "Warning") {
+            color = "#dc2d2d"
+          } else if (hsig == "Watch") {
+            color = "#ffa500"
+          } else if (hsig == "Advisory") {
+            color = "#ffeb00"
+          } else if (hsig == "Statement") {
+            color = "#A67C45"
+          }
+
+
+
+        }catch (e) {
+          qx.bom.Selector.query('.navigationbar>h1')[0].innerHTML = me.hazardsAtMyPosition[me.cycleCount];
         }
-        qx.bom.Selector.query('.navigationbar>h1')[0].innerHTML = htype + ' ' + hsig;
-        var color = "#646464";
-        if (hsig == "Warning") {
-          color = "#dc2d2d"
-        } else if (hsig == "Watch") {
-          color = "#ffa500"
-        } else if (hsig == "Advisory") {
-          color = "#ffeb00"
-        } else if (hsig == "Statement") {
-          color = "#A67C45"
-        }}catch(e){
-          qx.bom.Selector.query('.navigationbar>h1')[0].innerHTML =  me.hazardsAtMyPosition[me.cycleCount];
-        }
-
-
-
         qx.bom.element.Style.setCss(qx.bom.Selector.query('.navigationbar')[0], 'background-image: linear-gradient(' + color + ',#383838)');
         me.cycleCount++;
         if (me.cycleCount >= me.hazardsAtMyPosition.length) {
@@ -272,8 +274,7 @@ qx.Class.define("mobileedd.Hazards",
       if (myPosition != null)
       {
         me.hazardsAtMyPosition = me.hazardVectorSource.getFeaturesAtCoordinate(myPosition);
-        me.hazardsAtMyPosition.push("for " + me.mapObject.getMyPositionName() );
-        
+        me.hazardsAtMyPosition.push("for " + me.mapObject.getMyPositionName());
         if (me.hazardsAtMyPosition.length >= 2) {
           me.cycleWwaTimer.start();
         } else {

@@ -58,9 +58,9 @@ qx.Class.define("mobileedd.page.Map",
     {
       init : null,
       nullable : true,
-      apply:"findName"
+      apply : "findName"
     },
-     myPositionName :
+    myPositionName :
     {
       init : null,
       nullable : true
@@ -86,9 +86,9 @@ qx.Class.define("mobileedd.page.Map",
     /**
      * Mapping Library
      * */
-    me.setMapUri("resource/mobileedd/ol.js");
 
-    //me.setMapUri("resource/mobileedd/ol-debug.js");
+    //me.setMapUri("resource/mobileedd/ol.js");
+    me.setMapUri("resource/mobileedd/ol-debug.js");
 
     // Warning types
     me.sigMap =
@@ -112,8 +112,6 @@ qx.Class.define("mobileedd.page.Map",
       "Temperature" : ["Wind Chill", "Heat", "Excessive Heat", "Extreme Cold", "Frost", "Freeze"],
       "Wind" : ["Wind", "Typhoon", "Inland Hurricane Wind", "High Wind", "Blowing Dust", "Dust Storm", "Lake Wind", "Small Craft", "Small Craft for Winds", "Storm", "Inland Tropical Storm", "Hurricane Force Wind", "Gale"]
     };
-
-    
 
     // Busy indicator
     var busyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
@@ -548,6 +546,7 @@ qx.Class.define("mobileedd.page.Map",
       // Radar Loop Slider
       var radarLoopSliderComposite = new qx.ui.mobile.container.Composite();
       radarLoopSliderComposite.setLayout(new qx.ui.mobile.layout.HBox());
+      radarLoopSliderComposite.addCssClass("sliderPadding");
       me.radarLoopSlider = new qx.ui.mobile.form.Slider().set(
       {
         minimum : 0,
@@ -749,13 +748,11 @@ qx.Class.define("mobileedd.page.Map",
             obj.setValue(true);
           }
         })
-
-      
         me.toggle++;
       }, this);
       composite.add(widget);
-      
-       // Toggle All
+
+      // Toggle All
       me.toggleType = 0;
       var widget = new qx.ui.mobile.form.Button("Toggle All Types");
       widget.addListener("tap", function(e)
@@ -763,7 +760,7 @@ qx.Class.define("mobileedd.page.Map",
         // Don't click map...
         e.preventDefault();
         e.stopPropagation();
-       
+
         // Save them to properties and local storage
         me.hazardToggleWwaButtons.forEach(function(obj, index) {
           if (me.toggleType % 2 == 0) {
@@ -1069,6 +1066,7 @@ qx.Class.define("mobileedd.page.Map",
       // ndfd Loop Slider
       var ndfdLoopSliderComposite = new qx.ui.mobile.container.Composite();
       ndfdLoopSliderComposite.setLayout(new qx.ui.mobile.layout.HBox());
+      ndfdLoopSliderComposite.addCssClass("sliderPadding");
       me.ndfdLoopSlider = new qx.ui.mobile.form.Slider().set(
       {
         minimum : 0,
@@ -1286,11 +1284,10 @@ qx.Class.define("mobileedd.page.Map",
           req.addListener("fail", function(e)
           {
             tf.setValue(this.makeUrl());
-            me.goUsaAtom.setIcon("edd/images/close_button.png");
             me.busyPopup.hide();
           }, this);
           req.addListener("readyStateChange", function(e) {
-            if (this.getPhase() == "sent") {
+            if (e.getTarget().getPhase() == "sent") {
               me.busyPopup.show();
             }
           }, this);
@@ -1353,7 +1350,6 @@ qx.Class.define("mobileedd.page.Map",
       }, this);
       scrollContainer.add(showPopupButton);
 
-  
       /**
       * Close
       * */
@@ -1379,11 +1375,11 @@ qx.Class.define("mobileedd.page.Map",
 
       // Reset Button
       var resetButton = new qx.ui.mobile.navigationbar.Button("Reset");
-      resetButton.addListener("tap", function(e) {
-         // Don't click map...
+      resetButton.addListener("tap", function(e)
+      {
+        // Don't click map...
         e.preventDefault();
         e.stopPropagation();
-       
         me.reset();
       }, this);
       this.getLeftContainer().add(resetButton);
@@ -1558,10 +1554,11 @@ qx.Class.define("mobileedd.page.Map",
       url += '&ml=' + ml;
       return url;
     },
+    findName : function(value)
+    {
+      var me = this;
 
-findName: function(value){
-  var me = this;
- // Get address
+      // Get address
       var ll = ol.proj.transform(value, 'EPSG:3857', 'EPSG:4326');
       var geo = new mobileedd.geo.EsriGeo();
       geo.reverseGeocodeReq.addListenerOnce("success", function(e)
@@ -1572,10 +1569,14 @@ findName: function(value){
         } else {
           address = 'Lon:' + ll[0].toFixed(2) + ' Lat:' + ll[1].toFixed(2);
         }
-       me.setMyPositionName(address);
+        me.setMyPositionName(address);
+         var text = new qx.event.message.Message("edd.message");
+          text.setData(['<b>Now monitoring:</b><br>' + address + '<br>Alerts will appear on the menubar.', 5000]);
+          this.bus.dispatch(text);
       }, this)
       geo.reverseGeoRequest(ll[1], ll[0]);
-},
+    },
+
     /**
      * Set the URL parameters
      * */
@@ -1741,15 +1742,14 @@ findName: function(value){
       // Radar Label on map
       me.legendContainer = new qx.ui.mobile.container.Composite();
       me.legendContainer.setId("mapMenu");
-      
-       // Scroll
+
+      // Scroll
       me.dynamicLegendScrollContainer = new qx.ui.mobile.container.Scroll();
-       
-    
+
       // Ensure contents do not get too big
       qx.bom.element.Style.setCss(me.dynamicLegendScrollContainer.getContainerElement(), 'width:260px;color:white;');
       me.dynamicLegendContainer = new qx.ui.mobile.container.Composite();
-      me.dynamicLegendScrollContainer.add(me.dynamicLegendContainer); 
+      me.dynamicLegendScrollContainer.add(me.dynamicLegendContainer);
 
       // Radar legend
       me.radarLegendContainer = new qx.ui.mobile.container.Composite();
@@ -1757,7 +1757,7 @@ findName: function(value){
       me.radarLegendContainer.add(me.radarLegendLabel);
       var image = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legend/radar.png");
       me.radarLegendContainer.add(image);
-     me.dynamicLegendContainer.add(me.radarLegendContainer);
+      me.dynamicLegendContainer.add(me.radarLegendContainer);
 
       // NDFD legend
       me.ndfdLegendContainer = new qx.ui.mobile.container.Composite();
@@ -1765,7 +1765,7 @@ findName: function(value){
       me.ndfdLegendContainer.add(me.ndfdLegendLabel);
       me.ndfdLegend = new qx.ui.mobile.basic.Image();
       me.ndfdLegendContainer.add(me.ndfdLegend);
-     me.dynamicLegendContainer.add(me.ndfdLegendContainer);
+      me.dynamicLegendContainer.add(me.ndfdLegendContainer);
 
       //qpe
       me.qpeContainer = new qx.ui.mobile.container.Composite();
@@ -1774,7 +1774,7 @@ findName: function(value){
       var image = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legend/precipitation.png");
       me.qpeContainer.add(me.qpeLegendLabel);
       me.qpeContainer.add(image);
-     me.dynamicLegendContainer.add(me.qpeContainer);
+      me.dynamicLegendContainer.add(me.qpeContainer);
 
       //lightning
       me.lightningContainer = new qx.ui.mobile.container.Composite();
@@ -1783,9 +1783,7 @@ findName: function(value){
       var image = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legend/lightningstrikedensity.png");
       me.lightningContainer.add(me.lightningLegendLabel);
       me.lightningContainer.add(image);
-     me.dynamicLegendContainer.add(me.lightningContainer);
-
-     
+      me.dynamicLegendContainer.add(me.lightningContainer);
       me.legendContainer.add(me.dynamicLegendScrollContainer);
       return me.legendContainer;
     },
@@ -1799,21 +1797,19 @@ findName: function(value){
       var req = new qx.bom.request.Script();
       req.onload = function()
       {
-        
         // Set the Users position
-    if (typeof (Storage) !== "undefined")
-    {
-      if (localStorage.getItem("monitor") != null) {
-        me.setMyPosition(JSON.parse(localStorage.getItem("monitor")));
-      }
-      if (localStorage.getItem("hazardlist") != null) {
-        me.setHazardList(JSON.parse(localStorage.getItem("hazardlist")));
-      }
-      if (localStorage.getItem("wwalist") != null) {
-        me.setWwaList(JSON.parse(localStorage.getItem("wwalist")));
-      }
-    }
-        
+        if (typeof (Storage) !== "undefined")
+        {
+          if (localStorage.getItem("monitor") != null) {
+            me.setMyPosition(JSON.parse(localStorage.getItem("monitor")));
+          }
+          if (localStorage.getItem("hazardlist") != null) {
+            me.setHazardList(JSON.parse(localStorage.getItem("hazardlist")));
+          }
+          if (localStorage.getItem("wwalist") != null) {
+            me.setWwaList(JSON.parse(localStorage.getItem("wwalist")));
+          }
+        }
         me.defaultView = new ol.View(
         {
           center : ol.proj.transform(me.getDefaultCenter(), 'EPSG:4326', 'EPSG:3857'),
@@ -2495,8 +2491,8 @@ findName: function(value){
       });
 
       // Travel items
-      if (this.c.getTravelActive())
-      {
+      // if (this.c.getTravelActive())
+      // {
         travelSegment.forEach(function(obj, index) {
           items.push('Travel Hazard Segment - #' + index);
         })
@@ -2512,7 +2508,7 @@ findName: function(value){
           })
         }
         items.push("Set Travel Destination");
-      }
+      // }
       items.push("Layer Options");
 
       // Cancel
@@ -2648,28 +2644,41 @@ findName: function(value){
             localStorage.setItem("monitor", JSON.stringify(me.getMyPosition()))
           }
           me.hazardObject.checkWwaAtLocation();
+          
+           
           return;
         }
 
         // Travel Forecast
+         if (selectedItem == "Set Travel Origin")
+        {
+          if(!this.c.getTravelActive()){
+          qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+          }
+          var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
+          mobileedd.page.PageTravelHazards.getInstance().setOrigin(ll);
+          
+          
+          
+          return;
+        }
         if (selectedItem == "Set Travel Destination")
         {
+          if(!this.c.getTravelActive()){
+          qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+          }
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           mobileedd.page.PageTravelHazards.getInstance().setDestination(ll);
 
-          //qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+          
           return;
         }
-        if (selectedItem == "Set Travel Origin")
-        {
-          var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
-          mobileedd.page.PageTravelHazards.getInstance().setOrigin(ll);
-
-          //qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
-          return;
-        }
+       
         if (selectedItem.indexOf("Set Travel Waypoint") !== -1)
         {
+          if(!this.c.getTravelActive()){
+          qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+          }
           var indexToChange = selectedItem.split('#')[1] - 1;
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           mobileedd.page.PageTravelHazards.getInstance().setWaypoint(ll, indexToChange);
@@ -2765,7 +2774,14 @@ findName: function(value){
             popup.setTitle("Change Opacity");
             popup.show();
             toTopButton.addListener("tap", function() {
-              me.putVectorLayerOnTop(selectedItem);
+              // Special layer
+              if (me.opacityName == "Radar") {
+                Object.keys(mobileedd.Radar.getInstance().radarLayers).forEach(function(obj) {
+                  me.putVectorLayerOnTop("MRMS - " + obj);
+                })
+              } else {
+                me.putVectorLayerOnTop(me.opacityName);
+              }
             }, this);
             cancelButton.addListener("tap", function()
             {

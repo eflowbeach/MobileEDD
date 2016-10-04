@@ -67,39 +67,28 @@ qx.Class.define("mobileedd.Observations",
 
       // Start the auto-refresh timer
       me.timer.start();
-      
       me.limitTimer = new qx.event.Timer(1000);  //1000 * refreshRate);//0);
       me.limitTimer.addListener("interval", function(e)
       {
-        if(typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible()){
-        me.getUpdatedServiceUrl();
-        me.observationReq.send();
+        if (typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible())
+        {
+          me.getUpdatedServiceUrl();
+          me.observationReq.send();
         }
         me.limitTimer.stop();
       });
 
       // Set up a listener for map move.
-
       me.map.getView().on('change:resolution', function(evt) {
-
         if (typeof me.observationLayer !== "undefined" && me.observationLayer.getVisible())
-
         {
-
           if (evt.target.get('resolution') < 1500) {
-
             me.setNetworks('');
-
           } else {
-
             me.setNetworks('1,14,96');
-
           }
-
-       me.limitTimer.restart();
-
+          me.limitTimer.restart();
         }
-
       });
     }.bind(this);
     req.open("GET", "resource/mobileedd/libs/geojsonlibs.js");
@@ -167,19 +156,16 @@ qx.Class.define("mobileedd.Observations",
 
 
 
-      if (value != "Precipitation" && old == "Precipitation")
-      {
-       me.limitTimer.restart();
+      if (value != "Precipitation" && old == "Precipitation") {
+        me.limitTimer.restart();
       }
-      if (value == "Precipitation" && old != "Precipitation")
-      {
-      me.limitTimer.restart();
+      if (value == "Precipitation" && old != "Precipitation") {
+        me.limitTimer.restart();
       }
 
       // Check for period change
-      if (!isNaN(Number(value)))
-      {
-       me.limitTimer.restart();
+      if (!isNaN(Number(value))) {
+        me.limitTimer.restart();
       }
       if (typeof (this.observationLayer) !== "undefined" && this.observationLayer.getSource() != null) {
         this.observationLayer.getSource().dispatchEvent('change');
@@ -271,7 +257,7 @@ qx.Class.define("mobileedd.Observations",
               imageUrl += (wp !== undefined && wp[value_type] > 15 ? '&PEAK=' + Math.round(wp[value_type]) : '');
               imageUrl += (wh !== undefined ? '&WH=' + Math.round(wh[value_type]) : '');
               imageUrl += '&FFu=mph&FFGUSTu=mph';
-              imageUrl += '&size=1'; 
+              imageUrl += '&size=1';
               return [new ol.style.Style( {
                 image : new ol.style.Icon(
                 {
@@ -294,9 +280,10 @@ qx.Class.define("mobileedd.Observations",
 
             if (label == '' && i != features.length - 1) {
               continue;
-            }else if (label!=''){
-               break;
+            } else if (label != '') {
+              break;
             }
+
           }
           var radius = 6;
           if (label == '') {
@@ -349,7 +336,6 @@ qx.Class.define("mobileedd.Observations",
         }
       });
       me.map.addLayer(me.observationLayer);
-      
     },
 
     /**
@@ -379,7 +365,7 @@ qx.Class.define("mobileedd.Observations",
               } else {
                 me.setNetworks('1,14,96');
               }
-             me.limitTimer.restart();
+              me.limitTimer.restart();
             }
           }
           me.setExtent(extent.toString());

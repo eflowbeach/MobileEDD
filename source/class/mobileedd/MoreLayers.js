@@ -83,9 +83,11 @@ qx.Class.define("mobileedd.MoreLayers",
           if (obj.indexOf("QPE") !== -1) {
             me.qpeReq.send();
           }
+          if(obj!= "Travel Hazard Forecast"){
           this.layers[obj].getSource().updateParams( {
             "refresh" : new Date()
           })
+          }
         }
       }, this)
     }, this);
@@ -97,7 +99,11 @@ qx.Class.define("mobileedd.MoreLayers",
     {
       var me = this;
       Object.keys(me.layers).forEach(function(obj) {
-        me.html[obj].setVisibility('excluded');
+        if(bool){
+        me.html[obj].setVisibility('visible');
+        }else{
+        me.html[obj].setVisibility('excluded');  
+        }
       })
       if (bool) {
         me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
@@ -139,13 +145,13 @@ qx.Class.define("mobileedd.MoreLayers",
       }
     },
 
- /**
-    * Add Travel Hazard Legend
-    * */
+    /**
+       * Add Travel Hazard Legend
+       * */
     addTravelHazardLegend : function()
     {
       var me = this;
- var legend = [
+      var legend = [
       {
         color : "#ff6cff",
         label : "Extreme Hazards - Blizzard, Ice Storm, High Wind Warnings.",  // Flooding doesn't show up in NDFD as of 6/19/2014
@@ -182,12 +188,14 @@ qx.Class.define("mobileedd.MoreLayers",
         shape : "box"
       }];
       var layerName = "Travel Hazard Forecast";
-       var subtitle = '';
-       
-        me.html[layerName] = new mobileedd.LegendCreator(layerName, legend, subtitle);
-        me.mapObject.dynamicLegendContainer.add(me.html[layerName]);
-        me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
-  },
+      var subtitle = '';
+      me.html[layerName] = new mobileedd.LegendCreator(layerName, legend, subtitle);
+       // Add layer to more layers Object
+        me.layers[layerName] = mobileedd.TravelHazards.getInstance().thLayer;
+      me.mapObject.dynamicLegendContainer.add(me.html[layerName]);
+      me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
+    },
+
     /**
     * Add River Levels
     * */

@@ -357,6 +357,7 @@ qx.Class.define("mobileedd.TravelHazards",
     plotRoute : function(response)
     {
       var me = this;
+      
       var error = false;
       if (me.thLayer.getSource() !== null)
       {
@@ -652,6 +653,9 @@ qx.Class.define("mobileedd.TravelHazards",
     getRoutePoints : function()
     {
       var me = this;
+      mobileedd.MoreLayers.getInstance().showLegendVisibilityOfAll(true);
+      me.thLayer.setVisible(true);
+      me.pointLayer.setVisible(true);
       var start = me.getStartLocationLL();
       var end = me.getEndLocationLL()
 
