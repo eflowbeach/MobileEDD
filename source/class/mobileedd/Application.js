@@ -217,13 +217,12 @@ qx.Class.define("mobileedd.Application",
      */
     _show : function(data)
     {
-     
       try {
-         if(data.path=="/"){
-        new qx.bom.Selector.query('#hideButton')[0].style.visibility = "visible";
-      }else{
-        new qx.bom.Selector.query('#hideButton')[0].style.visibility = "hidden";
-      }
+        if (data.path == "/") {
+          new qx.bom.Selector.query('#hideButton')[0].style.visibility = "visible";
+        } else {
+          new qx.bom.Selector.query('#hideButton')[0].style.visibility = "hidden";
+        }
       }catch (e)
       {
         // not ready yet

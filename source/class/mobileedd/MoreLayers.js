@@ -83,11 +83,12 @@ qx.Class.define("mobileedd.MoreLayers",
           if (obj.indexOf("QPE") !== -1) {
             me.qpeReq.send();
           }
+
           // Done update travel, but update others
-          if(obj!= "Travel Hazard Forecast"){
-          this.layers[obj].getSource().updateParams( {
-            "refresh" : new Date().getTime()
-          })
+          if (obj != "Travel Hazard Forecast") {
+            this.layers[obj].getSource().updateParams( {
+              "refresh" : new Date().getTime()
+            })
           }
         }
       }, this)
@@ -100,10 +101,10 @@ qx.Class.define("mobileedd.MoreLayers",
     {
       var me = this;
       Object.keys(me.layers).forEach(function(obj) {
-        if(bool){
-        me.html[obj].setVisibility('visible');
-        }else{
-        me.html[obj].setVisibility('excluded');  
+        if (bool) {
+          me.html[obj].setVisibility('visible');
+        } else {
+          me.html[obj].setVisibility('excluded');
         }
       })
       if (bool) {
@@ -191,8 +192,9 @@ qx.Class.define("mobileedd.MoreLayers",
       var layerName = "Travel Hazard Forecast";
       var subtitle = '';
       me.html[layerName] = new mobileedd.LegendCreator(layerName, legend, subtitle);
-       // Add layer to more layers Object
-        me.layers[layerName] = mobileedd.TravelHazards.getInstance().thLayer;
+
+      // Add layer to more layers Object
+      me.layers[layerName] = mobileedd.TravelHazards.getInstance().thLayer;
       me.mapObject.dynamicLegendContainer.add(me.html[layerName]);
       me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
     },
@@ -387,6 +389,7 @@ qx.Class.define("mobileedd.MoreLayers",
             'BBOXSR' : '3857',
             'IMAGESR' : '3857',
             'SIZE' : '256,256',
+
             // 'DPI' : 90,
             'time' : time_range
           },
@@ -444,28 +447,25 @@ qx.Class.define("mobileedd.MoreLayers",
         } else {
           html += "Layer legend could not be found.";
         }
-        
-        
         var timeRequest = new qx.io.request.Jsonp(source.replace('export', layer.split(':')[1]) + "?f=json&returnUpdates=true", "GET", "application/json");
-      timeRequest.setCache(false);
-      timeRequest.addListenerOnce("success", function(e)
-      {
-        //debugger;
-        try{
-          var timeExtent = e.getTarget().getResponse().timeExtent;
-          var timeRange = '<br>Valid:<br>' + new moment(timeExtent[0]).format('h:mm a ddd M/DD/YYYY') + ' to<br> ' + new moment(timeExtent[1]).format('h:mm a ddd M/DD/YYYY') ;
-        var title = html.split('<br>')[0];
-        var combineHtml = title + timeRange +  html.split(title)[1];
-        }catch(e){
-          //Problem with time response
-          combineHtml = html;
-        }
-        me.html[name] = new qx.ui.mobile.embed.Html(combineHtml);
-        me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
-        me.mapObject.dynamicLegendContainer.add(me.html[name]);
-      },this);
-        
-        
+        timeRequest.setCache(false);
+        timeRequest.addListenerOnce("success", function(e)
+        {
+          //debugger;
+          try
+          {
+            var timeExtent = e.getTarget().getResponse().timeExtent;
+            var timeRange = '<br>Valid:<br>' + new moment(timeExtent[0]).format('h:mm a ddd M/DD/YYYY') + ' to<br> ' + new moment(timeExtent[1]).format('h:mm a ddd M/DD/YYYY');
+            var title = html.split('<br>')[0];
+            var combineHtml = title + timeRange + html.split(title)[1];
+          }catch (e) {
+            //Problem with time response
+            combineHtml = html;
+          }
+          me.html[name] = new qx.ui.mobile.embed.Html(combineHtml);
+          me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
+          me.mapObject.dynamicLegendContainer.add(me.html[name]);
+        }, this);
         timeRequest.send();
       }, this);
       me.reqArcGIS.send();

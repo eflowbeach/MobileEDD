@@ -260,24 +260,27 @@ qx.Class.define("mobileedd.TravelHazards",
         source : me.pointSource,
         style : function(feature, resolution)
         {
-          if(feature.get("image") == "origin" || feature.get("image") == "destination" || feature.get("image") == "waypoint"){
-            if(feature.get("image") == "origin"){
+          if (feature.get("image") == "origin" || feature.get("image") == "destination" || feature.get("image") == "waypoint")
+          {
+            if (feature.get("image") == "origin") {
               image = "resource/mobileedd/images/map-marker-icon-green.png";
-            }else if(feature.get("image") == "waypoint"){
+            } else if (feature.get("image") == "waypoint") {
               image = "resource/mobileedd/images/map-marker-icon-blue.png";
-            }else if(feature.get("image") == "destination"){
+            } else if (feature.get("image") == "destination") {
               image = "resource/mobileedd/images/map-marker-icon.png";
             }
-                   var textStroke = new ol.style.Stroke(
+
+
+            var textStroke = new ol.style.Stroke(
             {
               color : 'white',
               width : 4
             });
-                  return [new ol.style.Style(
+            return [new ol.style.Style(
             {
               image : new ol.style.Icon(
               {
-                anchor : [12,12],
+                anchor : [12, 12],
                 anchorXUnits : 'pixels',
                 anchorYUnits : 'pixels',
                 src : image,
@@ -292,9 +295,7 @@ qx.Class.define("mobileedd.TravelHazards",
                 offsetY : 15
               })
             })]
-            }
-            
-          
+          }
           var image = "resource/mobileedd/images/grayball.png";
           var anchor = [8, 12];
           if (feature.get("Watches_Warnings_Advisories") != null) {
@@ -302,9 +303,6 @@ qx.Class.define("mobileedd.TravelHazards",
               image = "resource/mobileedd/images/lsr/wind.png";
             }
           }
-          
-           
-          
           if (feature.get("Weather") != null)
           {
             var wx = feature.get("Weather").toLowerCase();
@@ -395,16 +393,15 @@ qx.Class.define("mobileedd.TravelHazards",
     plotRoute : function(response)
     {
       var me = this;
-      
       var error = false;
-      
+
       // Check for old data
       var oldData = false;
-      mobileedd.TravelHazards.getInstance().pointSource.getFeatures().forEach(function(obj){
-if(typeof obj.get('image') == "undefined"){
- oldData = true; 
-}
-})
+      mobileedd.TravelHazards.getInstance().pointSource.getFeatures().forEach(function(obj) {
+        if (typeof obj.get('image') == "undefined") {
+          oldData = true;
+        }
+      })
       if (me.thLayer.getSource() !== null && oldData)
       {
         me.thLayer.getSource().clear();
@@ -782,10 +779,10 @@ if(typeof obj.get('image') == "undefined"){
           wg.max = kt2mph(wg.max);
         }catch (e)
         {
-            var text = new qx.event.message.Message("edd.message");
+          var text = new qx.event.message.Message("edd.message");
           text.setData(["There appears to be a problem with the database. Please try back later.", 5000]);
           this.bus.dispatch(text);
-            return;
+          return;
         }
         var winddir = new qx.data.Array();
         var pop12 = (typeof (response.pop12) === "undefined") ? "NA" : response.pop12[0];
