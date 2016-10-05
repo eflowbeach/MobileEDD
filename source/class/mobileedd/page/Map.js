@@ -2862,7 +2862,7 @@ qx.Class.define("mobileedd.page.Map",
             var eventid = feature.get('etn').replace(/ /g, '');
             var sig = (typeof feature.get('significance') == "undefined") ? 'W' : me.hazardObject.sigMap[feature.get('significance')];
             var url = me.getJsonpRoot() + 'getWarningText.php';
-            url += '?year=' + new Date(feature.get('end') * 1000).getFullYear();
+            url += '?year=' + new Date(feature.get('issuance') * 1000).getFullYear();
             url += '&wfo=' + wfo;
             url += '&phenomena=' + phenom;
             url += '&eventid=' + eventid;
