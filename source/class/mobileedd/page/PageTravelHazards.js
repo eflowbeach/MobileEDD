@@ -83,6 +83,13 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         this.bus.dispatch(text);
       }, this);
       this.getContent().add(useMap)
+      
+      // Use location
+      this.myLocationButton = new qx.ui.mobile.form.Button("Use My Location...", "resource/mobileedd/images/map-marker-icon.png");
+      this.myLocationButton.addListener("tap", function(e) {
+        this.setMyLocation();
+      }, this);
+      this.getContent().add(this.myLocationButton);
 
       // Leave at
       this.showPickerButton = new qx.ui.mobile.form.Button("Leave at:", "resource/mobileedd/images/calendar.png");
@@ -92,25 +99,20 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
       this._createPicker(this.showPickerButton);
       this.getContent().add(this.showPickerButton);
 
-      // Use location
-      this.myLocationButton = new qx.ui.mobile.form.Button("Use my location...", "resource/mobileedd/images/map-marker-icon.png");
-      this.myLocationButton.addListener("tap", function(e) {
-        this.setMyLocation();
-      }, this);
-      this.getContent().add(this.myLocationButton);
+      
 
       // Add waypoint
-      this.waypoints = [];
-      this.waypointsLonLat = [];
-      this.waypointsNumber = 0;
-      this.myWaypointButton = new qx.ui.mobile.form.Button("Add Waypoint...", "resource/mobileedd/images/map-marker-icon-blue.png");
-      this.myWaypointButton.addListener("tap", function(e) {
-        this.addWaypointContainer();
-      }, this);
-      this.getContent().add(this.myWaypointButton);
+       this.waypoints = [];
+       this.waypointsLonLat = [];
+       this.waypointsNumber = 0;
+      // this.myWaypointButton = new qx.ui.mobile.form.Button("Add Waypoint...", "resource/mobileedd/images/map-marker-icon-blue.png");
+      // this.myWaypointButton.addListener("tap", function(e) {
+      //   this.addWaypointContainer();
+      // }, this);
+      // this.getContent().add(this.myWaypointButton);
 
       // Use your own key
-      this.myKeyButton = new qx.ui.mobile.form.Button("MapQuest Key...", "resource/mobileedd/images/key.png");
+      this.myKeyButton = new qx.ui.mobile.form.Button("Change MapQuest Key...", "resource/mobileedd/images/key.png");
       this.myKeyButton.addListener("tap", function(e)
       {
         var composite = new qx.ui.mobile.container.Composite();
@@ -122,8 +124,20 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         form.add(tf, "Your MapQuest Key: ");
         composite.add(new qx.ui.mobile.form.renderer.Single(form))
 
+
+  // Get a key
+        var widget = new qx.ui.mobile.form.Button("Get a Key...");
+        widget.addListener("tap", function()
+        {
+           window.open(
+  'https://developer.mapquest.com/plan_purchase/steps/business_edition/business_edition_free/register',
+  '_blank' // <- This is what makes it open in a new window.
+);
+        }, this);
+        composite.add(widget);
+        
         // Go to link
-        var widget = new qx.ui.mobile.form.Button("Apply");
+        var widget = new qx.ui.mobile.form.Button("Apply the Above Key");
         widget.addListener("tap", function()
         {
           this.c.setMapQuestKey(tf.getValue());
@@ -133,6 +147,9 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
           popup.hide();
         }, this);
         composite.add(widget);
+        
+      
+        
 
         // Reset
         var widget = new qx.ui.mobile.form.Button("Reset");
@@ -179,6 +196,7 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
             var lon = response.locations[0].feature.geometry.x;
             th.setEndLocationLL(lat + ',' + lon);
             var waypoints = '';
+            if(typeof this.waypointsLonLat !== "undefined"){
             this.waypointsLonLat.forEach(function(obj)
             {
               var lonlat = obj.slice();
@@ -186,6 +204,7 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
               waypoints += '&to=' + latlon.toString();
             })
             th.setWaypointString(waypoints);
+            }
 
             // *** Make the directions request now that we have start/end lat/lons. ***
             th.getRoutePoints();
@@ -455,16 +474,32 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         {
           var address = response.address.Match_addr;
           this.__end.setValue(address);
+          var iconFeature = new ol.Feature( {
+          geometry : new ol.geom.Point( ol.proj.transform([ll[0],ll[1]], 'EPSG:4326', 'EPSG:3857'))
+        });
+        iconFeature.setProperties({"image":"destination","address":response.address.City +','+response.address.Region});
+        var test = mobileedd.TravelHazards.getInstance();
+        test.pointSource.addFeature(iconFeature);
           // var text = new qx.event.message.Message("edd.message");
           // text.setData(['<b>Destination set to:</b><br>' + address, 3000]);
           // this.bus.dispatch(text);
         }catch (e)
         {
-          this.__popup.setTitle("Unable to find address for the specified location.");
-          this.__popup.show();
+          
+          var text = new qx.event.message.Message("edd.message");
+          text.setData(["Unable to find address<br> for the specified location.", 3000]);
+          this.bus.dispatch(text);
+          qx.core.Init.getApplication().getRouting().executeGet("/");
           return;
         }
       }, this)
+      
+       mobileedd.TravelHazards.getInstance().pointSource.getFeatures().forEach(function(obj){
+if(obj.get('image') == "destination"){
+mobileedd.TravelHazards.getInstance().pointSource.removeFeature(obj);
+};
+})
+      
       geo.reverseGeoRequest(ll[1], ll[0]);
       qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
     },
@@ -489,21 +524,49 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
           // this.bus.dispatch(text);
         }catch (e)
         {
-          this.__popup.setTitle("Unable to find address for the specified location.");
-          this.__popup.show();
+          // this.__popup.setTitle("Unable to find address<br> for the specified location.");
+          // this.__popup.show();
+          
+          var text = new qx.event.message.Message("edd.message");
+          text.setData(["Unable to find address<br> for the specified location.", 3000]);
+          this.bus.dispatch(text);
+          setTimeout(function() {
+          qx.core.Init.getApplication().getRouting().executeGet("/");
+          }, 1000);
+          
           return;
         }
+        
+        
+           var iconFeature = new ol.Feature( {
+          geometry : new ol.geom.Point( ol.proj.transform([ll[0],ll[1]], 'EPSG:4326', 'EPSG:3857'))
+        });
+        iconFeature.setProperties({"image":"origin","address":response.address.City +','+response.address.Region});
+        var test = mobileedd.TravelHazards.getInstance();
+        test.pointSource.addFeature(iconFeature);
+      // test.pointLayer.setVisible(true);
         
         var text = new qx.event.message.Message("edd.message");
           text.setData(['<b>Origin set to:</b><br>' + address, 3000]);
           this.bus.dispatch(text);
           
+          // Slight delay
             setTimeout(function() {
             qx.core.Init.getApplication().getRouting().executeGet("/");
-          }, 2000);
+          }, 1000);
         
       }, this)
+      
+      mobileedd.TravelHazards.getInstance().pointSource.getFeatures().forEach(function(obj){
+if(obj.get('image') == "origin"){
+mobileedd.TravelHazards.getInstance().pointSource.removeFeature(obj);
+};
+})
+      
       geo.reverseGeoRequest(ll[1], ll[0]);
+      
+      
+  
 
       // qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
     },
@@ -525,13 +588,23 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
           }
           this.waypointsLonLat[index] = ll;
           this.waypoints[index].setValue(address);
-          // var text = new qx.event.message.Message("edd.message");
-          // text.setData(['<b>Waypoint ' + index + 1 + ' set to:</b><br>' + address, 3000]);
-          // this.bus.dispatch(text);
+          var text = new qx.event.message.Message("edd.message");
+          text.setData(['<b>Waypoint ' + index + 1 + ' set to:</b><br>' + address, 3000]);
+          this.bus.dispatch(text);
+          
+           var iconFeature = new ol.Feature( {
+          geometry : new ol.geom.Point( ol.proj.transform([ll[0],ll[1]], 'EPSG:4326', 'EPSG:3857'))
+        });
+        iconFeature.setProperties({"image":"waypoint","address":response.address.City +','+response.address.Region});
+        var test = mobileedd.TravelHazards.getInstance();
+        test.pointSource.addFeature(iconFeature);
         }catch (e)
         {
-          this.__popup.setTitle("Unable to find address for the specified waypoint location.");
-          this.__popup.show();
+          
+          var text = new qx.event.message.Message("edd.message");
+          text.setData(["Unable to find address<br> for the specified location.", 3000]);
+          this.bus.dispatch(text);
+          
           return;
         }
       }, this)

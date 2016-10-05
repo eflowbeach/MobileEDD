@@ -1463,6 +1463,10 @@ qx.Class.define("mobileedd.page.Map",
       // when we set the new location, the map will pan smoothly to it
       me.map.getView().setCenter(ol.proj.transform(me.getDefaultCenter(), 'EPSG:4326', 'EPSG:3857'));
       me.map.getView().setZoom(me.getDefaultZoom());
+      
+      // Ensure map is in view
+      qx.core.Init.getApplication().getRouting().executeGet("/");
+        me.map.updateSize();
     },
 
     /**
@@ -1571,7 +1575,7 @@ qx.Class.define("mobileedd.page.Map",
         }
         me.setMyPositionName(address);
          var text = new qx.event.message.Message("edd.message");
-          text.setData(['<b>Now monitoring:</b><br>' + address + '<br>Alerts will appear on the menubar.', 5000]);
+          text.setData(['<b>Monitoring:</b><br>' + address + '<br>Active Weather Alerts will appear on the menubar.', 5000]);
           this.bus.dispatch(text);
       }, this)
       geo.reverseGeoRequest(ll[1], ll[0]);
@@ -2502,10 +2506,19 @@ qx.Class.define("mobileedd.page.Map",
         items.push("Set Travel Origin");
 
         // Handle Waypoints
-        if (typeof mobileedd.page.PageTravelHazards.getInstance().waypoints !== "undefined") {
-          mobileedd.page.PageTravelHazards.getInstance().waypoints.forEach(function(obj, index) {
+        var pth = mobileedd.page.PageTravelHazards.getInstance();
+        if(typeof pth.__end !== "undefined" && (pth.__start.getValue()!="" || pth.__end.getValue()!=""  )){
+        if (typeof pth.waypoints !== "undefined") {
+          if(pth.waypoints.length>0){
+            pth.waypoints.forEach(function(obj, index) {
+           
             items.push("Set Travel Waypoint #" + (Number(index) + 1));
-          })
+          })}else{
+            items.push("Set Travel Waypoint #1");
+          }
+        }else{
+            items.push("Set Travel Waypoint #1");
+        }
         }
         items.push("Set Travel Destination");
       // }
@@ -2515,7 +2528,27 @@ qx.Class.define("mobileedd.page.Map",
       items.push("Cancel");
       me.model = new qx.data.Array(items);
       var menu = new qx.ui.mobile.dialog.Menu(me.model);
+      
+     
+            new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2) {
+              if (div.innerHTML.indexOf("Set Travel") !== -1) {
+                // Divide index2 by 2 as 2 divs comprise a button
+
+                // Select the li tag for styling
+                qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'background-color:#ffe3a4;')
+              }
+              if (div.innerHTML.indexOf("Cancel") !== -1) {
+                // Divide index2 by 2 as 2 divs comprise a button
+
+                // Select the li tag for styling
+                qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;')
+              }
+            })
+          
       menu.show();
+      
+      
+      
       var nwm = me.getLayerByName("National Water Model");
       if (nwm != null && nwm.getVisible())
       {
@@ -2676,9 +2709,8 @@ qx.Class.define("mobileedd.page.Map",
        
         if (selectedItem.indexOf("Set Travel Waypoint") !== -1)
         {
-          if(!this.c.getTravelActive()){
-          qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
-          }
+          
+          mobileedd.page.PageTravelHazards.getInstance().addWaypointContainer();
           var indexToChange = selectedItem.split('#')[1] - 1;
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           mobileedd.page.PageTravelHazards.getInstance().setWaypoint(ll, indexToChange);

@@ -83,9 +83,10 @@ qx.Class.define("mobileedd.MoreLayers",
           if (obj.indexOf("QPE") !== -1) {
             me.qpeReq.send();
           }
+          // Done update travel, but update others
           if(obj!= "Travel Hazard Forecast"){
           this.layers[obj].getSource().updateParams( {
-            "refresh" : new Date()
+            "refresh" : new Date().getTime()
           })
           }
         }
@@ -386,7 +387,7 @@ qx.Class.define("mobileedd.MoreLayers",
             'BBOXSR' : '3857',
             'IMAGESR' : '3857',
             'SIZE' : '256,256',
-            'DPI' : 90,
+            // 'DPI' : 90,
             'time' : time_range
           },
           url : source
@@ -443,9 +444,29 @@ qx.Class.define("mobileedd.MoreLayers",
         } else {
           html += "Layer legend could not be found.";
         }
-        me.html[name] = new qx.ui.mobile.embed.Html(html);
+        
+        
+        var timeRequest = new qx.io.request.Jsonp(source.replace('export', layer.split(':')[1]) + "?f=json&returnUpdates=true", "GET", "application/json");
+      timeRequest.setCache(false);
+      timeRequest.addListenerOnce("success", function(e)
+      {
+        //debugger;
+        try{
+          var timeExtent = e.getTarget().getResponse().timeExtent;
+          var timeRange = '<br>Valid:<br>' + new moment(timeExtent[0]).format('h:mm a ddd M/DD/YYYY') + ' to<br> ' + new moment(timeExtent[1]).format('h:mm a ddd M/DD/YYYY') ;
+        var title = html.split('<br>')[0];
+        var combineHtml = title + timeRange +  html.split(title)[1];
+        }catch(e){
+          //Problem with time response
+          combineHtml = html;
+        }
+        me.html[name] = new qx.ui.mobile.embed.Html(combineHtml);
         me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
         me.mapObject.dynamicLegendContainer.add(me.html[name]);
+      },this);
+        
+        
+        timeRequest.send();
       }, this);
       me.reqArcGIS.send();
     }
