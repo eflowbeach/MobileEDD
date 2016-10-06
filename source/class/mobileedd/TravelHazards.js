@@ -341,12 +341,13 @@ qx.Class.define("mobileedd.TravelHazards",
               anchor = [20, 40];
             }
             var t = feature.get("Temperature");
-              var label = '';
-             if (resolution < 1500) {
-                 label =  t + ' °F';;
-             }
+            var label = '';
+            if (resolution < 1500)
+            {
+              label = t + ' °F';
+              ;
+            }
             var color = '#000000';
-            
             var width = 3;
             if (t < 32)
             {

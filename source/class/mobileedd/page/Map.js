@@ -87,8 +87,8 @@ qx.Class.define("mobileedd.page.Map",
      * Mapping Library
      * */
 
-    //me.setMapUri("resource/mobileedd/ol.js");
-    me.setMapUri("resource/mobileedd/ol-debug.js");
+    me.setMapUri("resource/mobileedd/ol.js");
+    //me.setMapUri("resource/mobileedd/ol-debug.js");
 
     // Warning types
     me.sigMap =
@@ -1380,17 +1380,17 @@ qx.Class.define("mobileedd.page.Map",
         // Don't click map...
         e.preventDefault();
         e.stopPropagation();
+
         // Ensure map is in view
-      qx.core.Init.getApplication().getRouting().executeGet("/");
-      me.map.updateSize();
-        
+        qx.core.Init.getApplication().getRouting().executeGet("/");
+        me.map.updateSize();
       }, this);
-       resetButton.addListener("tap", function(e)
+      resetButton.addListener("tap", function(e)
       {
         // Don't click map...
         e.preventDefault();
         e.stopPropagation();
-        me.reset(); 
+        me.reset();
       }, this);
       this.getLeftContainer().add(resetButton);
 
@@ -2692,7 +2692,9 @@ qx.Class.define("mobileedd.page.Map",
         if (selectedItem == "Set Travel Origin")
         {
           // if (!this.c.getTravelActive()) {
+
           //   qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+
           // }
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           mobileedd.page.PageTravelHazards.getInstance().setOrigin(ll);
@@ -2709,7 +2711,7 @@ qx.Class.define("mobileedd.page.Map",
         }
         if (selectedItem.indexOf("Set Travel Waypoint") !== -1)
         {
-            if (!this.c.getTravelActive()) {
+          if (!this.c.getTravelActive()) {
             qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
           }
           mobileedd.page.PageTravelHazards.getInstance().addWaypointContainer();
