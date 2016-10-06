@@ -1375,12 +1375,22 @@ qx.Class.define("mobileedd.page.Map",
 
       // Reset Button
       var resetButton = new qx.ui.mobile.navigationbar.Button("Reset");
-      resetButton.addListener("tap", function(e)
+      resetButton.addListener("longtap", function(e)
       {
         // Don't click map...
         e.preventDefault();
         e.stopPropagation();
-        me.reset();
+        // Ensure map is in view
+      qx.core.Init.getApplication().getRouting().executeGet("/");
+      me.map.updateSize();
+        
+      }, this);
+       resetButton.addListener("tap", function(e)
+      {
+        // Don't click map...
+        e.preventDefault();
+        e.stopPropagation();
+        me.reset(); 
       }, this);
       this.getLeftContainer().add(resetButton);
 
@@ -2537,7 +2547,7 @@ qx.Class.define("mobileedd.page.Map",
           // Divide index2 by 2 as 2 divs comprise a button
 
           // Select the li tag for styling
-          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'background-color:#ffe3a4;')
+          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:#5a842f;')
         }
         if (div.innerHTML.indexOf("Cancel") !== -1) {
           // Divide index2 by 2 as 2 divs comprise a button
@@ -2681,9 +2691,9 @@ qx.Class.define("mobileedd.page.Map",
         // Travel Forecast
         if (selectedItem == "Set Travel Origin")
         {
-          if (!this.c.getTravelActive()) {
-            qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
-          }
+          // if (!this.c.getTravelActive()) {
+          //   qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+          // }
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
           mobileedd.page.PageTravelHazards.getInstance().setOrigin(ll);
           return;
@@ -2699,6 +2709,9 @@ qx.Class.define("mobileedd.page.Map",
         }
         if (selectedItem.indexOf("Set Travel Waypoint") !== -1)
         {
+            if (!this.c.getTravelActive()) {
+            qx.core.Init.getApplication().getRouting().executeGet("/travelhazards");
+          }
           mobileedd.page.PageTravelHazards.getInstance().addWaypointContainer();
           var indexToChange = selectedItem.split('#')[1] - 1;
           var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');

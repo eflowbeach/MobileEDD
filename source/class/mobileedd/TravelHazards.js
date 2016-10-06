@@ -340,14 +340,19 @@ qx.Class.define("mobileedd.TravelHazards",
             if (image != "resource/mobileedd/images/grayball.png") {
               anchor = [20, 40];
             }
-            var label = feature.get("Temperature");
+            var t = feature.get("Temperature");
+              var label = '';
+             if (resolution < 1500) {
+                 label =  t + ' °F';;
+             }
             var color = '#000000';
+            
             var width = 3;
-            if (label < 32)
+            if (t < 32)
             {
               color = '#FF0000';
               width = 6;
-            } else if (label < 37)
+            } else if (t < 37)
             {
               color = '#0011B8';
               width = 4;
