@@ -1114,6 +1114,12 @@ qx.Class.define("mobileedd.page.Map",
         items.push('Cancel');
         var model = new qx.data.Array(items);
         var menu = new qx.ui.mobile.dialog.Menu(model);
+        new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2)
+      {
+        if (div.innerHTML.indexOf("Cancel") !== -1) {
+          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;')
+        }
+      })
         menu.show();
 
         // Loop through More Layers layers to find which ones are selected then color the background green
@@ -1151,6 +1157,12 @@ qx.Class.define("mobileedd.page.Map",
             subitems.push('Cancel');
             var submodel = new qx.data.Array(subitems);
             var submenu = new qx.ui.mobile.dialog.Menu(submodel);
+            new qx.bom.Selector.query('li>div>div', submenu.getContainerElement()).forEach(function(div, index2)
+      {
+        if (div.innerHTML.indexOf("Cancel") !== -1) {
+          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', submenu.getContainerElement())[index2 / 2], 'color:blue;')
+        }
+      })
             submenu.show();
 
             // Loop through More Layers layers to find which ones are selected then color the background green
@@ -1222,6 +1234,12 @@ qx.Class.define("mobileedd.page.Map",
         options.push('Cancel');
         var model = new qx.data.Array(options);
         var menu = new qx.ui.mobile.dialog.Menu(model);
+         new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2)
+      {
+        if (div.innerHTML.indexOf("Cancel") !== -1) {
+          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;')
+        }
+      })
         menu.show();
         menu.addListener("changeSelection", function(evt)
         {
@@ -2770,6 +2788,12 @@ qx.Class.define("mobileedd.page.Map",
           items.push('Cancel');
           var model = new qx.data.Array(items);
           var menu = new qx.ui.mobile.dialog.Menu(model);
+          new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2)
+      {
+        if (div.innerHTML.indexOf("Cancel") !== -1) {
+          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;')
+        }
+      })
           menu.show();
           menu.addListener("changeSelection", function(evt)
           {
