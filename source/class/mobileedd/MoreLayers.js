@@ -101,10 +101,14 @@ qx.Class.define("mobileedd.MoreLayers",
     {
       var me = this;
       Object.keys(me.layers).forEach(function(obj) {
+        try{
         if (bool) {
           me.html[obj].setVisibility('visible');
         } else {
           me.html[obj].setVisibility('excluded');
+        }
+        }catch(e){
+          //not defined
         }
       })
       if (bool) {

@@ -378,6 +378,8 @@ qx.Class.define("mobileedd.page.Map",
       var me = this;
       this.base(arguments);
       this._loadMapLibrary();
+      
+      
 
       // me.drawer
       me.drawer = new qx.ui.mobile.container.Drawer();
@@ -479,6 +481,31 @@ qx.Class.define("mobileedd.page.Map",
       me.radarContainer = new qx.ui.mobile.container.Composite();
       me.radarContainer.setLayout(new qx.ui.mobile.layout.VBox());
 
+
+// Precipitation Type
+      var radarPhaseComposite = new qx.ui.mobile.container.Composite();
+      radarPhaseComposite.setLayout(new qx.ui.mobile.layout.HBox());
+      me.phaseControl = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
+      me.phaseControl.addListener("changeValue", function(e)
+      {
+        var bool = e.getData();
+        if (bool)
+        {
+          me.loopTimer.start();
+          me.radarToggleButton.setValue(true);
+        } else
+        {
+          me.loopTimer.stop();
+        }
+      });
+      var loopLabel = new qx.ui.mobile.basic.Label("Show Snow/Ice?");
+      loopLabel.addCssClass("loopLabel");
+      radarPhaseComposite.add(loopLabel, {
+        flex : 1
+      });
+      radarPhaseComposite.add(me.phaseControl);
+      me.radarContainer.add(radarPhaseComposite);
+
       // Loop
       var radarLoopComposite = new qx.ui.mobile.container.Composite();
       radarLoopComposite.setLayout(new qx.ui.mobile.layout.HBox());
@@ -555,8 +582,34 @@ qx.Class.define("mobileedd.page.Map",
       });
       me.radarLoopSlider.addListener("changeValue", function(e)
       {
-        var radarMrms = mobileedd.Radar.getInstance();
-        radarMrms.setSliderIndex(e.getData());
+         var uwRadar = mobileedd.RadarPhase.getInstance();
+         var radarMrms = mobileedd.Radar.getInstance();
+        if(me.phaseControl.getValue()){
+          if(radarMrms.getActive()){
+            radarMrms.stop(true);  
+            radarMrms.setActive(false);
+            uwRadar.setActive(true);
+            uwRadar.start();
+            me.radarLegendImage.setSource(me.c.getSecure() + "//realearth.ssec.wisc.edu/proxy/legend.php?products=nexrphase");
+          }
+          
+          
+            
+          uwRadar.setSliderIndex(e.getData());
+          
+        }else{
+          if(uwRadar.getActive()){
+            uwRadar.stop(true);  
+            uwRadar.setActive(false);
+            radarMrms.setActive(true);
+            radarMrms.start();
+            me.radarLegendImage.setSource("resource/mobileedd/images/legend/radar.png");
+          }
+          radarMrms.setSliderIndex(e.getData());
+        }
+        
+        
+        
       }, this);
       radarLoopSliderComposite.add(me.radarLoopSlider, {
         flex : 1
@@ -864,6 +917,7 @@ qx.Class.define("mobileedd.page.Map",
         {
           observationObject.addLayer();
           observationObject.observationLayer.setVisible(true);
+          observationObject.timer.restartWith(0);
         } else if (typeof observationObject.observationLayer == "undefined" && !e.getData()) {
           return;
         } else {
@@ -1448,6 +1502,7 @@ qx.Class.define("mobileedd.page.Map",
       var me = this;
       me.loopControl.setValue(false);
       me.radarToggleButton.setValue(false);
+      // me.phaseControl.setValue(false);
 
       // me.longLoop.setValue(false);
 
@@ -1516,6 +1571,8 @@ qx.Class.define("mobileedd.page.Map",
       url += me.loopControl.getValue() ? 'T' : 'F';
       url += '&r=';
       url += me.radarToggleButton.getValue() ? 'T' : 'F';
+      url += '&pc=';
+      url += me.phaseControl.getValue() ? 'T' :'F';
 
       // url += '&rll=';
 
@@ -1639,6 +1696,9 @@ qx.Class.define("mobileedd.page.Map",
       me.loopControl.setValue(bool);
       var bool = me.getURLParameter('r') == "T" ? true : false;
       me.radarToggleButton.setValue(bool);
+      
+      var bool = me.getURLParameter('pc') == "T" ? true : false;
+      me.phaseControl.setValue(bool);
 
       // var bool = me.getURLParameter('rll') == "T" ? true : false;
 
@@ -1787,8 +1847,8 @@ qx.Class.define("mobileedd.page.Map",
       me.radarLegendContainer = new qx.ui.mobile.container.Composite();
       me.radarLegendLabel = new qx.ui.mobile.basic.Label("");
       me.radarLegendContainer.add(me.radarLegendLabel);
-      var image = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legend/radar.png");
-      me.radarLegendContainer.add(image);
+      me.radarLegendImage = new qx.ui.mobile.basic.Image("resource/mobileedd/images/legend/radar.png");
+      me.radarLegendContainer.add(me.radarLegendImage);
       me.dynamicLegendContainer.add(me.radarLegendContainer);
 
       // NDFD legend
@@ -2403,6 +2463,11 @@ qx.Class.define("mobileedd.page.Map",
         // Add state overlay
 
         //me.addStatesLayer();
+        
+        
+        
+        
+        
       }.bind(this);
       req.open("GET", this.getMapUri());
       req.send();
