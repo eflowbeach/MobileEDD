@@ -86,8 +86,8 @@ qx.Class.define("mobileedd.page.Map",
     /**
      * Mapping Library
      * */
-
     me.setMapUri("resource/mobileedd/ol.js");
+
     //me.setMapUri("resource/mobileedd/ol-debug.js");
 
     // Warning types
@@ -378,8 +378,6 @@ qx.Class.define("mobileedd.page.Map",
       var me = this;
       this.base(arguments);
       this._loadMapLibrary();
-      
-      
 
       // me.drawer
       me.drawer = new qx.ui.mobile.container.Drawer();
@@ -481,8 +479,7 @@ qx.Class.define("mobileedd.page.Map",
       me.radarContainer = new qx.ui.mobile.container.Composite();
       me.radarContainer.setLayout(new qx.ui.mobile.layout.VBox());
 
-
-// Precipitation Type
+      // Precipitation Type
       var radarPhaseComposite = new qx.ui.mobile.container.Composite();
       radarPhaseComposite.setLayout(new qx.ui.mobile.layout.HBox());
       me.phaseControl = new qx.ui.mobile.form.ToggleButton(false, "Yes", "No");
@@ -582,24 +579,26 @@ qx.Class.define("mobileedd.page.Map",
       });
       me.radarLoopSlider.addListener("changeValue", function(e)
       {
-         var uwRadar = mobileedd.RadarPhase.getInstance();
-         var radarMrms = mobileedd.Radar.getInstance();
-        if(me.phaseControl.getValue()){
-          if(radarMrms.getActive()){
-            radarMrms.stop(true);  
+        var uwRadar = mobileedd.RadarPhase.getInstance();
+        var radarMrms = mobileedd.Radar.getInstance();
+
+        // Handle which source is active Radar precip or MRMS
+        if (me.phaseControl.getValue())
+        {
+          if (radarMrms.getActive())
+          {
+            radarMrms.stop(true);
             radarMrms.setActive(false);
             uwRadar.setActive(true);
             uwRadar.start();
             me.radarLegendImage.setSource(me.c.getSecure() + "//realearth.ssec.wisc.edu/proxy/legend.php?products=nexrphase");
           }
-          
-          
-            
           uwRadar.setSliderIndex(e.getData());
-          
-        }else{
-          if(uwRadar.getActive()){
-            uwRadar.stop(true);  
+        } else
+        {
+          if (uwRadar.getActive())
+          {
+            uwRadar.stop(true);
             uwRadar.setActive(false);
             radarMrms.setActive(true);
             radarMrms.start();
@@ -607,9 +606,6 @@ qx.Class.define("mobileedd.page.Map",
           }
           radarMrms.setSliderIndex(e.getData());
         }
-        
-        
-        
       }, this);
       radarLoopSliderComposite.add(me.radarLoopSlider, {
         flex : 1
@@ -1168,12 +1164,11 @@ qx.Class.define("mobileedd.page.Map",
         items.push('Cancel');
         var model = new qx.data.Array(items);
         var menu = new qx.ui.mobile.dialog.Menu(model);
-        new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2)
-      {
-        if (div.innerHTML.indexOf("Cancel") !== -1) {
-          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;')
-        }
-      })
+        new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2) {
+          if (div.innerHTML.indexOf("Cancel") !== -1) {
+            qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;')
+          }
+        })
         menu.show();
 
         // Loop through More Layers layers to find which ones are selected then color the background green
@@ -1211,12 +1206,11 @@ qx.Class.define("mobileedd.page.Map",
             subitems.push('Cancel');
             var submodel = new qx.data.Array(subitems);
             var submenu = new qx.ui.mobile.dialog.Menu(submodel);
-            new qx.bom.Selector.query('li>div>div', submenu.getContainerElement()).forEach(function(div, index2)
-      {
-        if (div.innerHTML.indexOf("Cancel") !== -1) {
-          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', submenu.getContainerElement())[index2 / 2], 'color:blue;')
-        }
-      })
+            new qx.bom.Selector.query('li>div>div', submenu.getContainerElement()).forEach(function(div, index2) {
+              if (div.innerHTML.indexOf("Cancel") !== -1) {
+                qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', submenu.getContainerElement())[index2 / 2], 'color:blue;')
+              }
+            })
             submenu.show();
 
             // Loop through More Layers layers to find which ones are selected then color the background green
@@ -1288,12 +1282,11 @@ qx.Class.define("mobileedd.page.Map",
         options.push('Cancel');
         var model = new qx.data.Array(options);
         var menu = new qx.ui.mobile.dialog.Menu(model);
-         new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2)
-      {
-        if (div.innerHTML.indexOf("Cancel") !== -1) {
-          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;')
-        }
-      })
+        new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2) {
+          if (div.innerHTML.indexOf("Cancel") !== -1) {
+            qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;')
+          }
+        })
         menu.show();
         menu.addListener("changeSelection", function(evt)
         {
@@ -1422,16 +1415,13 @@ qx.Class.define("mobileedd.page.Map",
       }, this);
       scrollContainer.add(showPopupButton);
 
-
- /**
-      * Feedback
-      * */
+      /**
+           * Feedback
+           * */
       var feedbackButton = new qx.ui.mobile.form.Button("Feedback", "resource/mobileedd/images/feedback.png");
-      feedbackButton.addListener("tap", function(e)
-      {
+      feedbackButton.addListener("tap", function(e) {
         window.open('http://www.nws.noaa.gov/survey/nws-survey.php?code=EEDD', '_blank');
       }, this);
-      
       scrollContainer.add(feedbackButton);
 
       /**
@@ -1514,6 +1504,7 @@ qx.Class.define("mobileedd.page.Map",
       var me = this;
       me.loopControl.setValue(false);
       me.radarToggleButton.setValue(false);
+
       // me.phaseControl.setValue(false);
 
       // me.longLoop.setValue(false);
@@ -1584,7 +1575,7 @@ qx.Class.define("mobileedd.page.Map",
       url += '&r=';
       url += me.radarToggleButton.getValue() ? 'T' : 'F';
       url += '&pc=';
-      url += me.phaseControl.getValue() ? 'T' :'F';
+      url += me.phaseControl.getValue() ? 'T' : 'F';
 
       // url += '&rll=';
 
@@ -1708,7 +1699,6 @@ qx.Class.define("mobileedd.page.Map",
       me.loopControl.setValue(bool);
       var bool = me.getURLParameter('r') == "T" ? true : false;
       me.radarToggleButton.setValue(bool);
-      
       var bool = me.getURLParameter('pc') == "T" ? true : false;
       me.phaseControl.setValue(bool);
 
@@ -2475,11 +2465,6 @@ qx.Class.define("mobileedd.page.Map",
         // Add state overlay
 
         //me.addStatesLayer();
-        
-        
-        
-        
-        
       }.bind(this);
       req.open("GET", this.getMapUri());
       req.send();
@@ -2865,12 +2850,11 @@ qx.Class.define("mobileedd.page.Map",
           items.push('Cancel');
           var model = new qx.data.Array(items);
           var menu = new qx.ui.mobile.dialog.Menu(model);
-          new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2)
-      {
-        if (div.innerHTML.indexOf("Cancel") !== -1) {
-          qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;')
-        }
-      })
+          new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2) {
+            if (div.innerHTML.indexOf("Cancel") !== -1) {
+              qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;')
+            }
+          })
           menu.show();
           menu.addListener("changeSelection", function(evt)
           {

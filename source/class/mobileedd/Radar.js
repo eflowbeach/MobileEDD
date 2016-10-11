@@ -29,9 +29,8 @@ qx.Class.define("mobileedd.Radar",
       init : 5,
       apply : "changeFrames"
     },
-    active:
-    {
-      init: true
+    active : {
+      init : true
     }
   },
   construct : function()

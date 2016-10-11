@@ -11,6 +11,7 @@
 /*global qx*/
 
 /*global ol*/
+
 /*global moment*/
 
 /**
@@ -34,11 +35,12 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
     }
 
     // Putting these up here so they're not as annoying to the user to have to initialize the travel instance
-    // Origin 
+
+    // Origin
     this.__start = new qx.ui.mobile.form.TextField().set( {
       placeholder : "Type location or tap the map."
     });
-    
+
     // Destination
     this.__end = new qx.ui.mobile.form.TextField().set( {
       placeholder : "Type location or tap the map."

@@ -29,9 +29,8 @@ qx.Class.define("mobileedd.RadarPhase",
       init : 5,
       apply : "changeFrames"
     },
-    active:
-    {
-      init: false
+    active : {
+      init : false
     }
   },
   construct : function()
@@ -59,6 +58,7 @@ qx.Class.define("mobileedd.RadarPhase",
     });
 
     // Set up the query timestamp request
+
     // Need to use EDD's since UW's server doesn't serve the correct response type: text/json rather than application/json
     me.timesReq = new qx.io.request.Jsonp("http://preview.weather.gov/edd/resource/edd/universities/getUWVectorTimes.php?layer=nexrphase");
 
@@ -225,7 +225,7 @@ qx.Class.define("mobileedd.RadarPhase",
       Object.keys(me.radarPhaseLayers).sort().forEach(function(obj, index) {
         if (me.getSliderIndex() == index)
         {
-          me.timeMessage.setData(new moment.utc(obj,"YYYYMMDD.HHmmss").toDate());
+          me.timeMessage.setData(new moment.utc(obj, "YYYYMMDD.HHmmss").toDate());
           me.bus.dispatch(me.timeMessage);
         }
       }, this);
@@ -244,12 +244,12 @@ qx.Class.define("mobileedd.RadarPhase",
       me.radarPhaseLayers[time] = new ol.layer.Tile(
       {
         name : "UW - " + time,
-        source : new ol.source.XYZ(
-        {
-          url : me.c.getSecure() + '//realearth.ssec.wisc.edu/proxy/image.php?products=nexrphase_' + time.replace('.','_') + '&x={x}&y={y}&z={z}'
+        source : new ol.source.XYZ( {
+          url : me.c.getSecure() + '//realearth.ssec.wisc.edu/proxy/image.php?products=nexrphase_' + time.replace('.', '_') + '&x={x}&y={y}&z={z}'
         })
       });
       me.map.addLayer(me.radarPhaseLayers[time]);
+
       // me.radarPhaseLayers[time].setVisible(false);
       me.radarPhaseLayers[time].setOpacity(me.getOpacity());
 
