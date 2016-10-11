@@ -65,6 +65,9 @@ qx.Class.define("mobileedd.page.Map",
       init : null,
       nullable : true
     },
+    oldPoint : {
+      init : [0, 0]
+    },
     stateBorderColor : {
       init : "#717171"
     },
@@ -1646,27 +1649,64 @@ qx.Class.define("mobileedd.page.Map",
       url += '&ml=' + ml;
       return url;
     },
+
+    /**
+     * Find the name of the monitoring location
+     * */
     findName : function(value)
     {
       var me = this;
 
       // Get address
       var ll = ol.proj.transform(value, 'EPSG:3857', 'EPSG:4326');
-      var geo = new mobileedd.geo.EsriGeo();
-      geo.reverseGeocodeReq.addListenerOnce("success", function(e)
+
+      /**
+       *  Check to see if position is far enough away from previous position to alert user to a new monitoring address
+       * */
+      var from =
       {
-        var response = e.getTarget().getResponse();
-        if (typeof response.address !== "undefined" && response.address.City != null) {
-          var address = response.address.City + ', ' + response.address.Region;
-        } else {
-          address = 'Lon:' + ll[0].toFixed(2) + ' Lat:' + ll[1].toFixed(2);
+        "type" : "Feature",
+        "properties" : {
+
+        },
+        "geometry" :
+        {
+          "type" : "Point",
+          "coordinates" : me.getOldPoint()
         }
-        me.setMyPositionName(address);
-        var text = new qx.event.message.Message("edd.message");
-        text.setData(['<b>Monitoring:</b><br>' + address + '<br>Active Weather Alerts will appear on the menubar.', 5000]);
-        this.bus.dispatch(text);
-      }, this)
-      geo.reverseGeoRequest(ll[1], ll[0]);
+      };
+      var to =
+      {
+        "type" : "Feature",
+        "properties" : {
+
+        },
+        "geometry" :
+        {
+          "type" : "Point",
+          "coordinates" : ll
+        }
+      };
+      var units = "miles";
+      if (turf.distance(from, to, units) > 10)
+      {
+        var geo = new mobileedd.geo.EsriGeo();
+        geo.reverseGeocodeReq.addListenerOnce("success", function(e)
+        {
+          var response = e.getTarget().getResponse();
+          if (typeof response.address !== "undefined" && response.address.City != null) {
+            var address = response.address.City + ', ' + response.address.Region;
+          } else {
+            address = 'Lon:' + ll[0].toFixed(2) + ' Lat:' + ll[1].toFixed(2);
+          }
+          me.setMyPositionName(address);
+          var text = new qx.event.message.Message("edd.message");
+          text.setData(['<b>Monitoring:</b><br>' + address + '<br>Active Weather Alerts will appear on the menubar.', 5000]);
+          this.bus.dispatch(text);
+        }, this)
+        geo.reverseGeoRequest(ll[1], ll[0]);
+        me.setOldPoint(ll);
+      }
     },
 
     /**
