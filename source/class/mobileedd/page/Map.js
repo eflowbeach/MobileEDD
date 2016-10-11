@@ -1422,6 +1422,18 @@ qx.Class.define("mobileedd.page.Map",
       }, this);
       scrollContainer.add(showPopupButton);
 
+
+ /**
+      * Feedback
+      * */
+      var feedbackButton = new qx.ui.mobile.form.Button("Feedback", "resource/mobileedd/images/feedback.png");
+      feedbackButton.addListener("tap", function(e)
+      {
+        window.open('http://www.nws.noaa.gov/survey/nws-survey.php?code=EEDD', '_blank');
+      }, this);
+      
+      scrollContainer.add(feedbackButton);
+
       /**
       * Close
       * */
