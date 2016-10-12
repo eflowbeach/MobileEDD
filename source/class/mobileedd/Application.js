@@ -191,16 +191,6 @@ qx.Class.define("mobileedd.Application",
         }, this, showTimeout)
       }, this)
 
-      // new qx.event.Timer.once(function(e){
-
-      // var text = new qx.event.message.Message("edd.message");
-
-      //     text.setData(['<b>testing a message</b>', 3000]);
-
-      //     this.bus.dispatch(text);
-
-      // },this,2000);
-
       // Check for new messages every 5 minutes
       var messageTimer = new qx.event.Timer(0);
       messageTimer.addListener("interval", function(e)

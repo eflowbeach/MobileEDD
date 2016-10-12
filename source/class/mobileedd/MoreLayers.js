@@ -336,8 +336,8 @@ qx.Class.define("mobileedd.MoreLayers",
       }
       if (typeof time == "undefined") {
         time = new Date().getTime();
-      }else{
-         time = new moment().add(time.replace('h',''), 'hours').toDate().getTime();
+      } else {
+        time = new moment().add(time.replace('h', ''), 'hours').toDate().getTime();
       }
       var time_range = time + ',' + time;
       if (typeof me.map == "undefined") {
@@ -429,11 +429,11 @@ qx.Class.define("mobileedd.MoreLayers",
         var html = '';
 
         // split the layer call apart show:1,2,3 becomes [1,2,3] (qooxdoo array used for contains()
-        var test = new qx.data.Array(layer.split(':')[1].split(','))
+        var layersToShow = new qx.data.Array(layer.split(':')[1].split(','))
         if (typeof (data.layers) != "undefined") {
           data.layers.forEach(function(obj, index) {
             // if lyr_id is just show or blank: they are requesting all of the layers
-            if (test.contains(obj.layerId + '') || test.toArray()[0] == "" || layer == "show:")
+            if (layersToShow.contains(obj.layerId + '') || layersToShow.toArray()[0] == "" || layer == "show:")
             {
               if (typeof (obj.layerName) !== "undefined") {
                 if (obj.layerName == "Image") {

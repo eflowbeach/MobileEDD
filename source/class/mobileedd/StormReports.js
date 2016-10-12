@@ -46,7 +46,7 @@ qx.Class.define("mobileedd.StormReports",
         {
           var color = 'white';  //feature.get('color');
           var radius = 14;
-          var label = feature.get('magnitude');  //'test';
+          var label = feature.get('magnitude');
           var contrast = 'black';  //getContrast50(color);
           var textStroke = new ol.style.Stroke(
           {

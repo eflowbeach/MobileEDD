@@ -1390,11 +1390,11 @@ qx.Class.define("mobileedd.page.Map",
       var composite = new qx.ui.mobile.container.Composite();
       composite.setLayout(new qx.ui.mobile.layout.VBox());
       var html = new qx.ui.mobile.embed.Html();
-      html.setHtml('<div id="test"></div>');
+      html.setHtml('<div id="borders"></div>');
       showPopupButton.addListener("appear", function()
       {
-        document.getElementById('test').appendChild(document.getElementById('foo'));
-        document.getElementById('test').appendChild(document.getElementById('foo2'));
+        document.getElementById('borders').appendChild(document.getElementById('stateborder'));
+        document.getElementById('borders').appendChild(document.getElementById('countyborder'));
       })
       var closeDialogButton1 = new qx.ui.mobile.form.Button("Close");
 
@@ -1845,9 +1845,9 @@ qx.Class.define("mobileedd.page.Map",
 
       // Border colors
       me.setStateBorderColor('#' + me.getURLParameter('sc'));
-      qx.bom.Selector.query('#foo>input')[0].jscolor.fromString(me.getStateBorderColor());
+      qx.bom.Selector.query('#stateborder>input')[0].jscolor.fromString(me.getStateBorderColor());
       me.setCountyBorderColor('#' + me.getURLParameter('cc'));
-      qx.bom.Selector.query('#foo2>input')[0].jscolor.fromString(me.getCountyBorderColor());
+      qx.bom.Selector.query('#countyborder>input')[0].jscolor.fromString(me.getCountyBorderColor());
       var mqk = me.getURLParameter('mqk');
       if (typeof mqk !== "undefined" && mqk != null) {
         me.c.setMapQuestKey(mqk);
@@ -2600,8 +2600,8 @@ qx.Class.define("mobileedd.page.Map",
         if (layer.get('name') == "River Levels")
         {
           var value = 'Hydrograph - ' + feature.get("location");
-          var test = new qx.data.Array(items);
-          if (!test.contains(value))
+          var hydrographItems = new qx.data.Array(items);
+          if (!hydrographItems.contains(value))
           {
             items.push(value);
             hydrographs[value] = feature;
