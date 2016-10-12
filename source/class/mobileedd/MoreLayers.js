@@ -336,6 +336,8 @@ qx.Class.define("mobileedd.MoreLayers",
       }
       if (typeof time == "undefined") {
         time = new Date().getTime();
+      }else{
+         time = new moment().add(time.replace('h',''), 'hours').toDate().getTime();
       }
       var time_range = time + ',' + time;
       if (typeof me.map == "undefined") {

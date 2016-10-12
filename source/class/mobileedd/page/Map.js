@@ -267,32 +267,38 @@ qx.Class.define("mobileedd.page.Map",
           "Forecast - Day 1" :
           {
             "source" : idp + qpf,
-            "layer" : "show:1"
+            "layer" : "show:1",
+            "time" : "0h"
           },
           "Forecast - Day 2" :
           {
             "source" : idp + qpf,
-            "layer" : "show:2"
+            "layer" : "show:2",
+            "time" : "24h"
           },
           "Forecast - Day 3" :
           {
             "source" : idp + qpf,
-            "layer" : "show:3"
+            "layer" : "show:3",
+            "time" : "48h"
           },
           "Forecast - Day 4-5" :
           {
             "source" : idp + qpf,
-            "layer" : "show:4"
+            "layer" : "show:4",
+            "time" : "72h"
           },
           "Forecast - Day 6-7" :
           {
             "source" : idp + qpf,
-            "layer" : "show:5"
+            "layer" : "show:5",
+            "time" : "120h"
           },
           "Forecast - Day 1-2" :
           {
             "source" : idp + qpf,
-            "layer" : "show:8"
+            "layer" : "show:8",
+            "time" : "0h"
           },
           "Forecast - Day 1-5" :
           {
@@ -1881,7 +1887,7 @@ qx.Class.define("mobileedd.page.Map",
       me.dynamicLegendScrollContainer = new qx.ui.mobile.container.Scroll();
 
       // Ensure contents do not get too big
-      qx.bom.element.Style.setCss(me.dynamicLegendScrollContainer.getContainerElement(), 'width:260px;color:white;');
+      qx.bom.element.Style.setCss(me.dynamicLegendScrollContainer.getContainerElement(), 'width:265px;color:white;');
       me.dynamicLegendContainer = new qx.ui.mobile.container.Composite();
       me.dynamicLegendScrollContainer.add(me.dynamicLegendContainer);
 
