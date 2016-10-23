@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>NWS Mobile EDD v3.2</title>
-  <link rel="shortcut icon" href="favicon.ico?v=2">
+  <link rel="shortcut icon" href="favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -26,8 +26,8 @@ function updateCountyBorder(jscolor) {
 
 <script src="resource/mobileedd/libs/jscolor.min.js"></script>
 <!-- Did not work after page load, so forcing it here -->
-<div style="padding: 10px;" id="foo">State Color<input class="jscolor {closable:false, closeText:'Close', onFineChange:'updateStateBorder(this)'}" value="717171" style="text-align: center;"></div>
-<div style="padding: 10px;" id="foo2">County Color<input class="jscolor {closable:false, closeText:'Close', onFineChange:'updateCountyBorder(this)'}" value="717171" style="text-align: center;"></div>
+<div style="padding: 10px;" id="stateborder">State Color<input class="jscolor {closable:false, closeText:'Close', onFineChange:'updateStateBorder(this)'}" value="717171" style="text-align: center;"></div>
+<div style="padding: 10px;" id="countyborder">County Color<input class="jscolor {closable:false, closeText:'Close', onFineChange:'updateCountyBorder(this)'}" value="717171" style="text-align: center;"></div>
 
 <img id="geolocation_marker" src="resource/mobileedd/images/geolocation_marker_heading.png" />
 

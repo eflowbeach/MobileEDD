@@ -107,6 +107,9 @@ qx.Class.define("mobileedd.Observations",
     redraw : function(value, old)
     {
       var me = this;
+      if (typeof d3 == "undefined") {
+        return;
+      }
       if (me.getDisplayField() == "Temperature" || me.getDisplayField() == "Dew Point")
       {
         var graph_domain = [-30, 120];
@@ -156,16 +159,19 @@ qx.Class.define("mobileedd.Observations",
 
 
 
-      if (value != "Precipitation" && old == "Precipitation") {
-        me.limitTimer.restart();
-      }
-      if (value == "Precipitation" && old != "Precipitation") {
-        me.limitTimer.restart();
-      }
+      if (typeof me.limitTimer != "undefined")
+      {
+        if (value != "Precipitation" && old == "Precipitation") {
+          me.limitTimer.restart();
+        }
+        if (value == "Precipitation" && old != "Precipitation") {
+          me.limitTimer.restart();
+        }
 
-      // Check for period change
-      if (!isNaN(Number(value))) {
-        me.limitTimer.restart();
+        // Check for period change
+        if (!isNaN(Number(value))) {
+          me.limitTimer.restart();
+        }
       }
       if (typeof (this.observationLayer) !== "undefined" && this.observationLayer.getSource() != null) {
         this.observationLayer.getSource().dispatchEvent('change');
@@ -300,6 +306,8 @@ qx.Class.define("mobileedd.Observations",
             var contrast = 'black';
             if (traceFlag) {
               label = "T";
+            } else {
+              return null;
             }
           }
           var textStroke = new ol.style.Stroke(
@@ -476,7 +484,9 @@ qx.Class.define("mobileedd.Observations",
 
       // Token
       me.serviceUrlField += "&token=" + mobileedd.config.Config.getInstance().getMesowestToken();
-      me.observationReq.setUrl(me.serviceUrlField);
+      if (typeof me.observationReq != "undefined") {
+        me.observationReq.setUrl(me.serviceUrlField);
+      }
     }
   }
 });

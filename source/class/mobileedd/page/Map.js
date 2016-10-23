@@ -922,13 +922,17 @@ qx.Class.define("mobileedd.page.Map",
         {
           observationObject.addLayer();
           observationObject.observationLayer.setVisible(true);
-          observationObject.timer.restartWith(0);
+          if (observationObject.timer) {
+            observationObject.timer.restartWith(0);
+          }
         } else if (typeof observationObject.observationLayer == "undefined" && !e.getData()) {
           return;
         } else {
           observationObject.observationLayer.setVisible(e.getData());
           if (e.getData()) {
-            observationObject.timer.restartWith(0);
+            if (observationObject.timer) {
+              observationObject.timer.restartWith(0);
+            }
           } else {
             observationObject.timer.stop();
           }
@@ -1014,6 +1018,7 @@ qx.Class.define("mobileedd.page.Map",
       {
         me.obPeriodButton.setValue(e.getData().item);
         mobileedd.Observations.getInstance().setPeriod(e.getData().item);
+        me.c.setObPeriod(e.getData().item);
       }, this);
       me.obPeriodContainer.add(me.obPeriodButton);
       scrollContainer.add(me.obPeriodContainer);
@@ -1346,8 +1351,10 @@ qx.Class.define("mobileedd.page.Map",
 
         // Shorten
         var widget = new qx.ui.mobile.form.Button("Shorten Url");
-        widget.addListener("tap", function()
+        widget.addListener("tap", function(e)
         {
+          e.preventDefault();
+          e.stopPropagation();
           var req = new qx.io.request.Jsonp("https://go.usa.gov/api/shorten.jsonp?login=edd&apiKey=4429d50bf53eb88bf65d9ff7507c9f1f&longUrl=" + this.makeUrl());
           req.setCallbackParam("callback");
           req.addListenerOnce("success", function(e)
@@ -1604,6 +1611,7 @@ qx.Class.define("mobileedd.page.Map",
       url += '&obs=';
       url += me.observationToggleButton.getValue() ? 'T' : 'F';
       url += '&obfield=' + me.c.getObDisplayedField();
+      url += '&obp=' + me.c.getObPeriod();
 
       // NDFD
       var ndfd = mobileedd.Ndfd.getInstance();
@@ -1738,7 +1746,8 @@ qx.Class.define("mobileedd.page.Map",
       me.map.setView(newView);
 
       // Set Basemap
-      var bm = me.setBasemapByName(me.getURLParameter('bm'));
+      me.setBasemap(me.getURLParameter('bm'));
+      me.setBasemapByName(me.getURLParameter('bm'));
 
       // Toggle buttons
       var bool = me.getURLParameter('lr') == "T" ? true : false;
@@ -1770,6 +1779,16 @@ qx.Class.define("mobileedd.page.Map",
       {
         me.c.setObDisplayedField(field);
         me.obDisplayButton.setValue(field);
+        if (field == "Precipitation") {
+          me.obPeriodContainer.setVisibility('visible');
+        }
+      }
+      var obperiod = me.getURLParameter('obp');
+      if (obperiod != null)
+      {
+        me.c.setObPeriod(obperiod);
+        mobileedd.Observations.getInstance().setPeriod(obperiod);
+        me.obPeriodButton.setValue(obperiod);
       }
 
       // NDFD
@@ -2613,6 +2632,9 @@ qx.Class.define("mobileedd.page.Map",
           for (var i = 0; i < features.length; i++)
           {
             var value = 'Ob - ' + features[i].get("NAME");
+            if (typeof features[i].get("OBSERVATIONS").total_precip_value_1 != "undefined") {
+              value += ' (' + features[i].get("OBSERVATIONS").total_precip_value_1 + ')';
+            }
             items.push(value);
             observations[value] = features[i];
           }

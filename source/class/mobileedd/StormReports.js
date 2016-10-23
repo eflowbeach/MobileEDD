@@ -205,8 +205,8 @@ qx.Class.define("mobileedd.StormReports",
       var url = me.mapObject.getJsonpRoot() + "getLSR.php";
       me.srRequest.setRequestData(
       {
-        "sts" : new moment().utc().subtract(3, 'hours').format('YYYYMMDDHHMM'),
-        "ets" : new moment().utc().format('YYYYMMDDHHMM')
+        "sts" : new moment().utc().subtract(3, 'hours').format('YYYYMMDDHHmm'),
+        "ets" : new moment().utc().format('YYYYMMDDHHmm')
       });
       me.srRequest.setUrl(url);
       me.srRequest.setCallbackParam('callback');

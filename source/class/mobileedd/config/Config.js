@@ -19,6 +19,9 @@ qx.Class.define("mobileedd.config.Config",
     obDisplayedField : {
       init : "Temperature"
     },
+    obPeriod : {
+      init : "1"
+    },
     travelActive : {
       init : false
     },
