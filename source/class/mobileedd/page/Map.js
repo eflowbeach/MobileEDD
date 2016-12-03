@@ -146,13 +146,27 @@ qx.Class.define("mobileedd.page.Map",
       //   "layer" : "show:0"
 
       // },
+      
+       
+      
+      
       "Hydrology" : {
         "group" :
         {
-          "National Water Model" :
+          "National Water Model - Near-Surface Soil Moisture Saturation" :
           {
-            "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/river_network" + msExport,
-            "layer" : "show:0,1,2,3"
+            "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/land_analysis_assim" + msExport,
+            "layer" : "show:0"
+          },
+          "National Water Model - Stream Flow" :
+          {
+            "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/channel_rt_analysis_assim" + msExport,
+            "layer" : "show:1,2,3,4,5,6"
+          },
+           "National Water Model - Stream Flow Anomaly" :
+          {
+            "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/channel_rt_analysis_assim" + msExport,
+            "layer" : "show:8,9,10,11,12,13"
           },
           "River Levels" :
           {
@@ -2705,8 +2719,11 @@ qx.Class.define("mobileedd.page.Map",
         }
       })
       menu.show();
-      var nwm = me.getLayerByName("National Water Model");
-      if (nwm != null && nwm.getVisible())
+      var nwm = me.getLayerByName("National Water Model - Stream Flow");
+       var nwmsfa = me.getLayerByName("National Water Model - Stream Flow Anomaly");
+          
+
+      if (nwm != null && nwm.getVisible() || nwmsfa != null && nwmsfa.getVisible())
       {
         // hazards.push(feature);
         if (typeof (jQuery) === "undefined" || typeof (jQuery.plot) === "undefined")
@@ -2719,7 +2736,7 @@ qx.Class.define("mobileedd.page.Map",
         var url = me.getJsonpRoot() + "hazards/getShortFusedHazards.php";
         var extent = me.map.getView().calculateExtent(me.map.getSize()).toString();
         var ll = e.coordinate;
-        var url = 'http://mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/flowlines/Mapserver/identify?f=json&tolerance=1&returnGeometry=false&imageDisplay=1280,581,1&geometry={"x":' + ll[0] + ',"y":' + ll[1] + '}&geometryType=esriGeometryPoint&sr=102100&mapExtent=' + extent + '&layers=top';
+        var url = 'http://mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/flowlines/Mapserver/identify?f=json&tolerance=2&returnGeometry=false&imageDisplay=1280,581,1&geometry={"x":' + ll[0] + ',"y":' + ll[1] + '}&geometryType=esriGeometryPoint&sr=102100&mapExtent=' + extent + '&layers=top';
         waterRequest.setUrl(url);
         waterRequest.setCallbackParam('callback');
         waterRequest.addListenerOnce("success", function(e)
