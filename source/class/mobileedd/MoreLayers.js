@@ -204,6 +204,97 @@ qx.Class.define("mobileedd.MoreLayers",
       me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
     },
 
+
+ addBoundary:function(layerName, wmslayer){
+      var me =this;
+         var layer = me.mapObject.getLayerByName(layerName);
+
+      // Add the layer if it doesn't exist
+      if (layer == null)
+      {
+       var layer = new ol.layer.Tile(
+      {
+        name : layerName,
+        opacity : 0.7,
+        source : new ol.source.TileWMS(
+        {
+          url : 'http://digital.weather.gov/wms.php',
+          params :
+          {
+            'LAYERS' : wmslayer,
+            'FORMAT' : "image/png",
+            'TRANSPARENT' : "TRUE",
+            'TRANSITIONEFFECT' : "resize",
+            'VERSION' : "1.3.0",
+            //'VT' : me.getValidTime(),  //"2016-10-02T00:00",
+            'EXCEPTIONS' : "INIMAGE",
+            'SERVICE' : "WMS",
+            'REQUEST' : "GetMap",
+            'STYLES' : "",
+            'REGION' : "conus",
+            'CRS' : "EPSG:3857",
+            'WIDTH' : '512',
+            'HEIGHT' : '512'
+          }
+        })
+      });
+        me.layers[layerName] = layer;
+      me.mapObject.map.addOverlay(layer);
+      } else
+      {
+        if (layer.getVisible()) {
+          layer.setVisible(false);
+        } else {
+          layer.setVisible(true);
+        }
+      }
+      
+      
+      
+    },
+
+    /**
+     * Add Borders and Labels
+     * */
+    addBordersAndLabels : function(layerName)
+    {
+      var me = this;
+      var layer = me.mapObject.getLayerByName(layerName);
+
+      // Add the layer if it doesn't exist
+      if (layer == null)
+      {
+        if (layerName == "High Density Cities") {
+          var newLayer = new ol.layer.Tile(
+          {
+            name : layerName,
+            source : new ol.source.Stamen( {
+              layer : 'toner-labels'
+            })
+          });
+        } else if (layerName == "Low Density Cities") {
+          var newLayer = new ol.layer.Tile(
+          {
+            name : layerName,
+            source : new ol.source.Stamen( {
+              layer : 'terrain-labels'
+            })
+          });
+        }
+
+        // Add layer to more layers Object
+        me.layers[layerName] = newLayer;
+        me.mapObject.map.addOverlay(newLayer);
+      } else
+      {
+        if (layer.getVisible()) {
+          layer.setVisible(false);
+        } else {
+          layer.setVisible(true);
+        }
+      }
+    },
+
     /**
     * Add River Levels
     * */

@@ -147,9 +147,32 @@ qx.Class.define("mobileedd.page.Map",
 
       // },
       
-       
-      
-      
+     
+      "Borders and Labels" : {
+        "group" :
+        {
+          "U.S. County Borders (High-Resolution)":
+          {
+            "source" : 'ndfd',
+            "layer" : null
+          },
+           "U.S. State Borders (High-Resolution)":
+          {
+            "source" : 'ndfd',
+            "layer" : null
+          },
+          "High Density Cities" :
+          {
+            "source" : null,
+            "layer" : null
+          },
+          "Low Density Cities" :
+          {
+            "source" : null,
+            "layer" : null
+          }
+        }
+      },
       "Hydrology" : {
         "group" :
         {
@@ -163,7 +186,7 @@ qx.Class.define("mobileedd.page.Map",
             "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/channel_rt_analysis_assim" + msExport,
             "layer" : "show:1,2,3,4,5,6"
           },
-           "National Water Model - Stream Flow Anomaly" :
+          "National Water Model - Stream Flow Anomaly" :
           {
             "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/channel_rt_analysis_assim" + msExport,
             "layer" : "show:8,9,10,11,12,13"
@@ -1261,6 +1284,25 @@ qx.Class.define("mobileedd.page.Map",
               if (selectedItem == 'Cancel') {
                 return;
               }
+              
+              if (selectedItem == "U.S. County Borders (High-Resolution)")
+              {
+               mobileedd.MoreLayers.getInstance().addBoundary(selectedItem, "counties")
+                me.drawer.hide();
+                return;
+              }else if(selectedItem == "U.S. State Borders (High-Resolution)"){
+                mobileedd.MoreLayers.getInstance().addBoundary(selectedItem, "states")
+                me.drawer.hide();
+                return;
+              }
+              
+              
+              if (selectedItem == "High Density Cities" || selectedItem == "Low Density Cities")
+              {
+                mobileedd.MoreLayers.getInstance().addBordersAndLabels(selectedItem);
+                me.drawer.hide();
+                return;
+              }
               if (selectedItem == 'River Levels')
               {
                 mobileedd.MoreLayers.getInstance().addRiverLevels();
@@ -1997,6 +2039,7 @@ qx.Class.define("mobileedd.page.Map",
         }, 3000);
 
         // Background Maps
+        me.blank = new ol.layer.Tile({name : "Blank"});
         me.terrain = new ol.layer.Tile(
         {
           name : "Stamen Terrain",
@@ -2026,48 +2069,6 @@ qx.Class.define("mobileedd.page.Map",
             url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}'
           })
         });
-
-        // Try someday...
-
-        // new ol.layer.Group({
-
-        //                         title: 'Satellite and labels',
-
-        //                         type: 'base',
-
-        //                         combine: true,
-
-        //                         visible: false,
-
-        //                         layers: [
-
-        //                             new ol.layer.Tile({
-
-        //                                 source: new ol.source.BingMaps({
-
-        //                                     // Get your own key at https://www.bingmapsportal.com/
-
-        //                                     key: 'Ahd_32h3fT3C7xFHrqhpKzoixGJGHvOlcvXWy6k2RRYARRsrfu7KDctzDT2ei9xB',
-
-        //                                     imagerySet: 'Aerial'
-
-        //                                 })
-
-        //                             }),
-
-        //                             new ol.layer.Tile({
-
-        //                                 source: new ol.source.Stamen({
-
-        //                                     layer: 'terrain-labels'
-
-        //                                 })
-
-        //                             })
-
-        //                         ]
-
-        //                     })
 
         // ESRI Dark
         var source = new ol.source.XYZ(
@@ -2224,7 +2225,7 @@ qx.Class.define("mobileedd.page.Map",
           name : "Mapbox World Bright",
           source : source
         });
-        me.BasemapOptions = [me.terrain, me.lite, me.natgeo, me.esridark, me.esrilite, me.mapboxWorldbright, me.esriimage, me.esritopo];
+        me.BasemapOptions = [me.terrain, me.lite, me.natgeo, me.esridark, me.esrilite, me.mapboxWorldbright, me.esriimage, me.esritopo, me.blank];
 
         // Don't allow rotations
         var interactions = ol.interaction.defaults(
@@ -2720,9 +2721,7 @@ qx.Class.define("mobileedd.page.Map",
       })
       menu.show();
       var nwm = me.getLayerByName("National Water Model - Stream Flow");
-       var nwmsfa = me.getLayerByName("National Water Model - Stream Flow Anomaly");
-          
-
+      var nwmsfa = me.getLayerByName("National Water Model - Stream Flow Anomaly");
       if (nwm != null && nwm.getVisible() || nwmsfa != null && nwmsfa.getVisible())
       {
         // hazards.push(feature);
