@@ -89,9 +89,9 @@ qx.Class.define("mobileedd.page.Map",
     /**
      * Mapping Library
      * */
-    me.setMapUri("resource/mobileedd/ol.js");
 
-    //me.setMapUri("resource/mobileedd/ol-debug.js");
+    //me.setMapUri("resource/mobileedd/ol.js");
+    me.setMapUri("resource/mobileedd/ol-debug.js");
 
     // Warning types
     me.sigMap =
@@ -146,19 +146,27 @@ qx.Class.define("mobileedd.page.Map",
       //   "layer" : "show:0"
 
       // },
-      
-     
       "Borders and Labels" : {
         "group" :
         {
-          "U.S. County Borders (High-Resolution)":
+          "U.S. Counties (Hi-Res)" :
           {
             "source" : 'ndfd',
             "layer" : null
           },
-           "U.S. State Borders (High-Resolution)":
+          "U.S. States (Hi-Res)" :
           {
             "source" : 'ndfd',
+            "layer" : null
+          },
+          "U.S. States" :
+          {
+            "source" : null,
+            "layer" : null
+          },
+          "U.S. Counties" :
+          {
+            "source" : null,
             "layer" : null
           },
           "High Density Cities" :
@@ -1284,22 +1292,33 @@ qx.Class.define("mobileedd.page.Map",
               if (selectedItem == 'Cancel') {
                 return;
               }
-              
-              if (selectedItem == "U.S. County Borders (High-Resolution)")
+              if (selectedItem == "U.S. States")
               {
-               mobileedd.MoreLayers.getInstance().addBoundary(selectedItem, "counties")
-                me.drawer.hide();
-                return;
-              }else if(selectedItem == "U.S. State Borders (High-Resolution)"){
-                mobileedd.MoreLayers.getInstance().addBoundary(selectedItem, "states")
+                me.stateBorder.setVisible(!me.stateBorder.getVisible());
                 me.drawer.hide();
                 return;
               }
-              
-              
+              if (selectedItem == "U.S. Counties")
+              {
+                me.countyBorder.setVisible(!me.countyBorder.getVisible());
+                me.drawer.hide();
+                return;
+              }
+              if (selectedItem == "U.S. Counties (Hi-Res)")
+              {
+                mobileedd.MoreLayers.getInstance().addBoundary(selectedItem, "counties", me.group)
+                me.drawer.hide();
+                return;
+              } else if (selectedItem == "U.S. States (Hi-Res)")
+              {
+                mobileedd.MoreLayers.getInstance().addBoundary(selectedItem, "states", me.group)
+                me.drawer.hide();
+                return;
+              }
+
               if (selectedItem == "High Density Cities" || selectedItem == "Low Density Cities")
               {
-                mobileedd.MoreLayers.getInstance().addBordersAndLabels(selectedItem);
+                mobileedd.MoreLayers.getInstance().addBordersAndLabels(selectedItem, me.group);
                 me.drawer.hide();
                 return;
               }
@@ -1695,6 +1714,10 @@ qx.Class.define("mobileedd.page.Map",
        * Borders
        * */
 
+      // Show states
+      url += '&s=';
+      url += me.stateBorder.getVisible() ? 'T' : 'F';
+
       // Show counties
       url += '&c=';
       url += me.countyToggleButton.getValue() ? 'T' : 'F';
@@ -1826,6 +1849,8 @@ qx.Class.define("mobileedd.page.Map",
       me.hazardToggleButton.setValue(bool);
       var bool = me.getURLParameter('c') == "T" ? true : false;
       me.countyToggleButton.setValue(bool);
+      var bool = me.getURLParameter('s') == "T" ? true : false;
+      me.stateBorder.setVisible(bool);
 
       // Observations
       var bool = me.getURLParameter('obs') == "T" ? true : false;
@@ -1879,6 +1904,9 @@ qx.Class.define("mobileedd.page.Map",
           var name = mlLayer[0];
           var group = mlLayer[1];
           var opacity = mlLayer[2];
+          if (name == "U.S. States") {
+            return;
+          }
           if (name == "Storm Reports")
           {
             mobileedd.MoreLayers.getInstance().addStormReports();
@@ -1904,6 +1932,24 @@ qx.Class.define("mobileedd.page.Map",
           } else
           {
             var layer = me.layer_list[group].group[name];
+            if (name == "U.S. Counties (Hi-Res)")
+            {
+              mobileedd.MoreLayers.getInstance().addBoundary(name, "counties", group)
+              me.drawer.hide();
+              return;
+            } else if (name == "U.S. States (Hi-Res)")
+            {
+              mobileedd.MoreLayers.getInstance().addBoundary(name, "states", group)
+              me.drawer.hide();
+              return;
+            }
+
+            if (name == "High Density Cities" || name == "Low Density Cities")
+            {
+              mobileedd.MoreLayers.getInstance().addBordersAndLabels(name, group);
+              me.drawer.hide();
+              return;
+            }
             var params =
             {
               "name" : name,
@@ -2039,7 +2085,9 @@ qx.Class.define("mobileedd.page.Map",
         }, 3000);
 
         // Background Maps
-        me.blank = new ol.layer.Tile({name : "Blank"});
+        me.blank = new ol.layer.Tile( {
+          name : "Blank"
+        });
         me.terrain = new ol.layer.Tile(
         {
           name : "Stamen Terrain",
@@ -2225,7 +2273,17 @@ qx.Class.define("mobileedd.page.Map",
           name : "Mapbox World Bright",
           source : source
         });
-        me.BasemapOptions = [me.terrain, me.lite, me.natgeo, me.esridark, me.esrilite, me.mapboxWorldbright, me.esriimage, me.esritopo, me.blank];
+        me.mapboxdark = new ol.layer.Tile(
+        {
+          name : "Mapbox Dark",
+          type : 'base',
+          source : new ol.source.XYZ( {
+            url : 'https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibndzZWRkIiwiYSI6ImZmYmM3NWJkZWNmYjhjOGNiYjljNzBlNjhiNGU1MTA4In0.SuX1cf6crIo8puK6zFewHg'
+          })
+        })
+
+        // Basemaps
+        me.BasemapOptions = [me.terrain, me.lite, me.natgeo, me.esridark, me.esrilite, me.mapboxWorldbright, me.esriimage, me.esritopo, me.blank, me.mapboxdark];
 
         // Don't allow rotations
         var interactions = ol.interaction.defaults(
@@ -2473,6 +2531,7 @@ qx.Class.define("mobileedd.page.Map",
         me.stateBorder = new ol.layer.Vector(
         {
           name : "U.S. States",
+          group : "Borders and Labels",
           source : new ol.source.Vector(
           {
             url : 'resource/mobileedd/data/us-states.json',
@@ -2490,12 +2549,16 @@ qx.Class.define("mobileedd.page.Map",
             return feature.getId() !== undefined ? styleArray : null;
           }
         });
+
+        // Make the states layer work with the more layers options
+        mobileedd.MoreLayers.getInstance().layers["U.S. States"] = me.stateBorder;
         me.map.addLayer(me.stateBorder);
 
         // County Border
         me.countyBorder = new ol.layer.Vector(
         {
           name : "U.S. Counties",
+          group : "Borders and Labels",
           visible : false,
           source : new ol.source.Vector(
           {
@@ -2529,6 +2592,9 @@ qx.Class.define("mobileedd.page.Map",
             return feature.getId() !== undefined ? styleArray : null;
           }
         });
+
+        // Make the counties layer work with the more layers options
+        mobileedd.MoreLayers.getInstance().layers["U.S. Counties"] = me.countyBorder;
         me.map.addLayer(me.countyBorder);
 
         // Weak test polygons to determine region
@@ -2976,7 +3042,7 @@ qx.Class.define("mobileedd.page.Map",
             buttonsWidget.add(toTopButton);
             buttonsWidget.add(cancelButton);
             var popup = new qx.ui.mobile.dialog.Popup(buttonsWidget);
-            popup.setTitle("Change Opacity");
+            popup.setTitle("Change Opacity of <br>" + selectedItem);
             popup.show();
             toTopButton.addListener("tap", function() {
               // Special layer

@@ -170,8 +170,6 @@ qx.Class.define("mobileedd.Ndfd",
       me.timeStepTimer.restart();
     },
 
-   
-
     /**
     * Add the NDFD layers
     */

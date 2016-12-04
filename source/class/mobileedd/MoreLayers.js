@@ -84,11 +84,22 @@ qx.Class.define("mobileedd.MoreLayers",
             me.qpeReq.send();
           }
 
-          // Done update travel, but update others
+          // Don't update travel, but update others
           if (obj != "Travel Hazard Forecast") {
-            this.layers[obj].getSource().updateParams( {
-              "refresh" : new Date().getTime()
-            })
+            if (this.layers[obj].getSource() != null) {
+              if (this.layers[obj] instanceof ol.layer.Tile) {
+                this.layers[obj].getSource().setTileLoadFunction(this.layers[obj].getSource().getTileLoadFunction())
+              } else if (this.layers[obj] instanceof ol.layer.Vector)
+              {
+                // do nothing
+              } else
+              {
+                this.layers[obj].getSource().updateParams( {
+                  "refresh" : new Date().getTime()
+                })
+              }
+
+            }
           }
         }
       }, this)
@@ -203,43 +214,44 @@ qx.Class.define("mobileedd.MoreLayers",
       me.mapObject.dynamicLegendContainer.add(me.html[layerName]);
       me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
     },
-
-
- addBoundary:function(layerName, wmslayer){
-      var me =this;
-         var layer = me.mapObject.getLayerByName(layerName);
+    addBoundary : function(layerName, wmslayer, group)
+    {
+      var me = this;
+      var layer = me.mapObject.getLayerByName(layerName);
 
       // Add the layer if it doesn't exist
       if (layer == null)
       {
-       var layer = new ol.layer.Tile(
-      {
-        name : layerName,
-        opacity : 0.7,
-        source : new ol.source.TileWMS(
+        var borderlayer = new ol.layer.Tile(
         {
-          url : 'http://digital.weather.gov/wms.php',
-          params :
+          name : layerName,
+          opacity : 0.7,
+          source : new ol.source.TileWMS(
           {
-            'LAYERS' : wmslayer,
-            'FORMAT' : "image/png",
-            'TRANSPARENT' : "TRUE",
-            'TRANSITIONEFFECT' : "resize",
-            'VERSION' : "1.3.0",
-            //'VT' : me.getValidTime(),  //"2016-10-02T00:00",
-            'EXCEPTIONS' : "INIMAGE",
-            'SERVICE' : "WMS",
-            'REQUEST' : "GetMap",
-            'STYLES' : "",
-            'REGION' : "conus",
-            'CRS' : "EPSG:3857",
-            'WIDTH' : '512',
-            'HEIGHT' : '512'
-          }
-        })
-      });
-        me.layers[layerName] = layer;
-      me.mapObject.map.addOverlay(layer);
+            url : 'http://digital.weather.gov/wms.php',
+            params :
+            {
+              'LAYERS' : wmslayer,
+              'FORMAT' : "image/png",
+              'TRANSPARENT' : "TRUE",
+              'TRANSITIONEFFECT' : "resize",
+              'VERSION' : "1.3.0",
+
+              //'VT' : me.getValidTime(),  //"2016-10-02T00:00",
+              'EXCEPTIONS' : "INIMAGE",
+              'SERVICE' : "WMS",
+              'REQUEST' : "GetMap",
+              'STYLES' : "",
+              'REGION' : "conus",
+              'CRS' : "EPSG:3857",
+              'WIDTH' : '512',
+              'HEIGHT' : '512'
+            }
+          })
+        });
+        me.layers[layerName] = borderlayer;
+        me.layers[layerName].group = group;
+        me.mapObject.map.addLayer(borderlayer);
       } else
       {
         if (layer.getVisible()) {
@@ -248,15 +260,12 @@ qx.Class.define("mobileedd.MoreLayers",
           layer.setVisible(true);
         }
       }
-      
-      
-      
     },
 
     /**
      * Add Borders and Labels
      * */
-    addBordersAndLabels : function(layerName)
+    addBordersAndLabels : function(layerName, group)
     {
       var me = this;
       var layer = me.mapObject.getLayerByName(layerName);
@@ -284,7 +293,8 @@ qx.Class.define("mobileedd.MoreLayers",
 
         // Add layer to more layers Object
         me.layers[layerName] = newLayer;
-        me.mapObject.map.addOverlay(newLayer);
+        me.layers[layerName].group = group;
+        me.mapObject.map.addLayer(newLayer);
       } else
       {
         if (layer.getVisible()) {
