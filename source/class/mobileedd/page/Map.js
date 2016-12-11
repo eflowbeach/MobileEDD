@@ -2248,6 +2248,23 @@ qx.Class.define("mobileedd.page.Map",
             zoom : 6
           })
         });
+        
+        
+        // test - slow way...
+      //   var url = 'http://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Forecasts_Guidance_Warnings/wpc_qpf/MapServer';
+
+      // var layers = 
+      //   new ol.layer.Image({
+      //     source: new ol.source.ImageArcGISRest({
+      //       ratio: 1,
+      //       params: {"LAYERS":"show:11"},
+      //       url: url
+      //     })
+      //   })
+      // ;
+      // me.map.addLayer(layers);
+        
+        
         var req = new qx.bom.request.Script();
         req.onload = function()
         {
