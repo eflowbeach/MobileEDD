@@ -57,8 +57,7 @@ qx.Class.define("mobileedd.page.Map",
     myPosition :
     {
       init : null,
-      nullable : true,
-      apply : "findName"
+      nullable : true
     },
     myPositionName :
     {
@@ -1435,16 +1434,16 @@ qx.Class.define("mobileedd.page.Map",
           req.addListenerOnce("success", function(e)
           {
             tf.setValue(e.getTarget().getResponse().response.data.entry[0].short_url);
-            me.busyPopup.hide();
+            // me.busyPopup.hide();
           }, this);
           req.addListener("fail", function(e)
           {
             tf.setValue(this.makeUrl());
-            me.busyPopup.hide();
+            // me.busyPopup.hide();
           }, this);
           req.addListener("readyStateChange", function(e) {
             if (e.getTarget().getPhase() == "sent") {
-              me.busyPopup.show();
+              // me.busyPopup.show();
             }
           }, this);
           req.send();
@@ -1743,65 +1742,7 @@ qx.Class.define("mobileedd.page.Map",
       return url;
     },
 
-    /**
-     * Find the name of the monitoring location
-     * */
-    findName : function(value)
-    {
-      var me = this;
-
-      // Get address
-      var ll = ol.proj.transform(value, 'EPSG:3857', 'EPSG:4326');
-
-      /**
-       *  Check to see if position is far enough away from previous position to alert user to a new monitoring address
-       * */
-      var from =
-      {
-        "type" : "Feature",
-        "properties" : {
-
-        },
-        "geometry" :
-        {
-          "type" : "Point",
-          "coordinates" : me.getOldPoint()
-        }
-      };
-      var to =
-      {
-        "type" : "Feature",
-        "properties" : {
-
-        },
-        "geometry" :
-        {
-          "type" : "Point",
-          "coordinates" : ll
-        }
-      };
-      var units = "miles";
-      if (turf.distance(from, to, units) > 10)
-      {
-        var geo = new mobileedd.geo.EsriGeo();
-        geo.reverseGeocodeReq.addListenerOnce("success", function(e)
-        {
-          var response = e.getTarget().getResponse();
-          if (typeof response.address !== "undefined" && response.address.City != null) {
-            var address = response.address.City + ', ' + response.address.Region;
-          } else {
-            address = 'Lon:' + ll[0].toFixed(2) + ' Lat:' + ll[1].toFixed(2);
-          }
-          me.setMyPositionName(address);
-          var text = new qx.event.message.Message("edd.message");
-          text.setData(['<b>Monitoring:</b><br>' + address + '<br>Active Weather Alerts will appear on the menubar.', 5000]);
-          this.bus.dispatch(text);
-        }, this)
-        geo.reverseGeoRequest(ll[1], ll[0]);
-        me.setOldPoint(ll);
-      }
-    },
-
+   
     /**
      * Set the URL parameters
      * */
@@ -2346,10 +2287,7 @@ qx.Class.define("mobileedd.page.Map",
         });
         me.map.addOverlay(marker);
 
-        // LineString to store the different geolocation positions. This LineString is time aware.
-
-        // The Z dimension is actually used to store the rotation (heading). /** @type {ol.geom.GeometryLayout} */
-        var positions = new ol.geom.LineString([], ('XYZM'));
+        
 
         // Geolocation Control
 
@@ -2369,139 +2307,7 @@ qx.Class.define("mobileedd.page.Map",
           me.map.getView().setCenter(geolocation.getPosition());
         })
 
-        // Listen to position changes
-        geolocation.on('change', function()
-        {
-          var position = geolocation.getPosition();
-          me.setMyPosition(position);
-          if (typeof (Storage) !== "undefined") {
-            localStorage.setItem("monitor", JSON.stringify(me.getMyPosition()))
-          }
-          var accuracy = geolocation.getAccuracy();
-          var heading = geolocation.getHeading() || 0;
-          var speed = geolocation.getSpeed() || 0;
-          var m = Date.now();
-          addPosition(position, heading, m, speed);
-          qx.bom.element.Style.setCss(qx.bom.Selector.query('#geolocation_marker')[0], 'transform:rotate(' + Math.round(radToDeg(heading)) + 'deg)')
-        });
-
-        // FIXME we should remove the coordinates in positions
-        geolocation.on('error', function(error)
-        {
-          //var closeDialogButton1 = new qx.ui.mobile.form.Button("Close");
-          var html = new qx.ui.mobile.embed.Html();
-          html.setHtml(error.message.match(/.{1,36}/g).join('<br>'));
-          var popup = new qx.ui.mobile.dialog.Popup(html);
-          popup.setTitle('Geolocation Error');
-          popup.addListener("tap", function(e)
-          {
-            popup.hide();
-            e.preventDefault();
-            e.stopPropagation();
-          }, this);
-          if (error.message != "Only secure origins are allowed (see: https://goo.gl/Y0ZkNV).") {
-            popup.show();
-          }
-          qx.event.Timer.once(function() {
-            popup.hide();
-          }, this, 5000)
-
-          // Show default view
-          me.map.setView(me.defaultView);
-        });
-
-        // convert radians to degrees
-        function radToDeg(rad) {
-          return rad * 360 / (Math.PI * 2);
-        }
-
-        // convert degrees to radians
-        function degToRad(deg) {
-          return deg * Math.PI * 2 / 360;
-        }
-
-        // modulo for negative values
-        function mod(n) {
-          return ((n % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
-        }
-        function addPosition(position, heading, m, speed)
-        {
-          var x = position[0];
-          var y = position[1];
-          var fCoords = positions.getCoordinates();
-          var previous = fCoords[fCoords.length - 1];
-          var prevHeading = previous && previous[2];
-          if (prevHeading)
-          {
-            var headingDiff = heading - mod(prevHeading);
-
-            // force the rotation change to be less than 180°
-            if (Math.abs(headingDiff) > Math.PI)
-            {
-              var sign = (headingDiff >= 0) ? 1 : -1;
-              headingDiff = -sign * (2 * Math.PI - Math.abs(headingDiff));
-            }
-            heading = prevHeading + headingDiff;
-          }
-          positions.appendCoordinate([x, y, heading, m]);
-
-          // only keep the 20 last coordinates
-          positions.setCoordinates(positions.getCoordinates().slice(-20));
-
-          // FIXME use speed instead
-
-          // if (heading && speed) {
-
-          //   markerEl.src = 'resource/mobileedd/images/geolocation_marker_heading.png';
-
-          // } else
-
-          // {
-
-          //   markerEl.src = 'resource/mobileedd/images/geolocation_marker_heading.png';
-
-          //   //markerEl.src = 'resource/mobileedd/images/geolocation_marker.png';
-
-          // }
-        }
-        var previousM = 0;
-
-        // change center and rotation before render
-        me.map.beforeRender(function(map, frameState)
-        {
-          if (frameState !== null)
-          {
-            // use sampling period to get a smooth transition
-            var m = frameState.time - deltaMean * 1.5;
-            m = Math.max(m, previousM);
-            previousM = m;
-
-            // interpolate position along positions LineString
-            var c = positions.getCoordinateAtM(m, true);
-
-            // var view = frameState.viewState;
-            if (c) {
-              // view.center = getCenterWithHeading(c, -c[2], view.resolution);
-
-              // view.rotation = -c[2];
-              marker.setPosition(c);
-            }
-          }
-
-          // return true;  // Force animation to continue
-        });
-
-        // postcompose callback
-        function render() {
-          me.map.render();
-        }
-
-        /**
-         * Start position tracking
-         * */
-        geolocation.setTracking(true);
-        me.map.on('postcompose', render);
-        me.map.render();
+      
 
         // Orientation
         var deviceOrientation = new ol.DeviceOrientation();
