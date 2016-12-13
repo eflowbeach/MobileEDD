@@ -1434,15 +1434,18 @@ qx.Class.define("mobileedd.page.Map",
           req.addListenerOnce("success", function(e)
           {
             tf.setValue(e.getTarget().getResponse().response.data.entry[0].short_url);
+
             // me.busyPopup.hide();
           }, this);
           req.addListener("fail", function(e)
           {
             tf.setValue(this.makeUrl());
+
             // me.busyPopup.hide();
           }, this);
           req.addListener("readyStateChange", function(e) {
-            if (e.getTarget().getPhase() == "sent") {
+            if (e.getTarget().getPhase() == "sent")
+            {
               // me.busyPopup.show();
             }
           }, this);
@@ -1623,22 +1626,11 @@ qx.Class.define("mobileedd.page.Map",
       mobileedd.MoreLayers.getInstance().showLegendVisibilityOfAll(false);
 
       // Default view
-
-      // pan from the current center
-      var pan = ol.animation.pan( {
-        source : me.map.getView().getCenter()
+      me.map.getView().animate(
+      {
+        zoom : me.getDefaultZoom(),
+        center : ol.proj.transform(me.getDefaultCenter(), 'EPSG:4326', 'EPSG:3857')
       });
-
-      // zoom out
-      var zoom = ol.animation.zoom( {
-        resolution : me.map.getView().getResolution()
-      });
-      me.map.beforeRender(zoom);
-      me.map.beforeRender(pan);
-
-      // when we set the new location, the map will pan smoothly to it
-      me.map.getView().setCenter(ol.proj.transform(me.getDefaultCenter(), 'EPSG:4326', 'EPSG:3857'));
-      me.map.getView().setZoom(me.getDefaultZoom());
 
       // Ensure map is in view
       qx.core.Init.getApplication().getRouting().executeGet("/");
@@ -1742,7 +1734,6 @@ qx.Class.define("mobileedd.page.Map",
       return url;
     },
 
-   
     /**
      * Set the URL parameters
      * */
@@ -2248,23 +2239,30 @@ qx.Class.define("mobileedd.page.Map",
             zoom : 6
           })
         });
-        
-        
-        // test - slow way...
-      //   var url = 'http://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Forecasts_Guidance_Warnings/wpc_qpf/MapServer';
 
-      // var layers = 
-      //   new ol.layer.Image({
-      //     source: new ol.source.ImageArcGISRest({
-      //       ratio: 1,
-      //       params: {"LAYERS":"show:11"},
-      //       url: url
-      //     })
-      //   })
-      // ;
-      // me.map.addLayer(layers);
-        
-        
+        // test - slow way...
+
+        //   var url = 'http://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Forecasts_Guidance_Warnings/wpc_qpf/MapServer';
+
+        // var layers =
+
+        //   new ol.layer.Image({
+
+        //     source: new ol.source.ImageArcGISRest({
+
+        //       ratio: 1,
+
+        //       params: {"LAYERS":"show:11"},
+
+        //       url: url
+
+        //     })
+
+        //   })
+
+        // ;
+
+        // me.map.addLayer(layers);
         var req = new qx.bom.request.Script();
         req.onload = function()
         {
@@ -2304,8 +2302,6 @@ qx.Class.define("mobileedd.page.Map",
         });
         me.map.addOverlay(marker);
 
-        
-
         // Geolocation Control
 
         /** @type {olx.GeolocationOptions} */
@@ -2323,8 +2319,6 @@ qx.Class.define("mobileedd.page.Map",
         geolocation.once('change', function(evt) {
           me.map.getView().setCenter(geolocation.getPosition());
         })
-
-      
 
         // Orientation
         var deviceOrientation = new ol.DeviceOrientation();
@@ -2807,7 +2801,7 @@ qx.Class.define("mobileedd.page.Map",
           var found = false;
           me.map.getLayers().getArray().forEach(function(obj) {
             if (obj.getVisible() && obj.get('type') != "base") {
-              if (obj.get('name').indexOf("MRMS -") !== -1)
+              if (obj.get('name').indexOf("MRMS -") !== -1 || obj.get('name').indexOf("UW -") !== -1)
               {
                 if (!found) {
                   items.push('Radar');
@@ -2849,8 +2843,10 @@ qx.Class.define("mobileedd.page.Map",
             if (me.opacityName == "Radar")
             {
               slider.setValue(mobileedd.Radar.getInstance().getOpacity() * 100);
-              slider.addListener("changeValue", function(e) {
+              slider.addListener("changeValue", function(e)
+              {
                 mobileedd.Radar.getInstance().setOpacity(e.getData() / 100);
+                mobileedd.RadarPhase.getInstance().setOpacity(e.getData() / 100);
               }, this);
             } else
             {
