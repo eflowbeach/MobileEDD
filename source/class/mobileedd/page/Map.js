@@ -1429,7 +1429,7 @@ qx.Class.define("mobileedd.page.Map",
         {
           e.preventDefault();
           e.stopPropagation();
-          var req = new qx.io.request.Jsonp("https://go.usa.gov/api/shorten.jsonp?login=edd&apiKey=4429d50bf53eb88bf65d9ff7507c9f1f&longUrl=" + this.makeUrl());
+          var req = new qx.io.request.Jsonp("https://go.usa.gov/api/shorten.jsonp?login=edd&apiKey=4429d50bf53eb88bf65d9ff7507c9f1f&longUrl=" + this.makeUrl(true));
           req.setCallbackParam("callback");
           req.addListenerOnce("success", function(e)
           {
@@ -1640,7 +1640,7 @@ qx.Class.define("mobileedd.page.Map",
     /**
      * Generate a url
      */
-    makeUrl : function()
+    makeUrl : function(encode)
     {
       var me = this;
       var url = document.location.href;
@@ -1729,9 +1729,14 @@ qx.Class.define("mobileedd.page.Map",
       }, this)
 
       // Remove trailing comma and encode
-      ml = encodeURIComponent(ml.slice(0, -1));
+      ml = ml.slice(0, -1);//encodeURIComponent(ml.slice(0, -1));
       url += '&ml=' + ml;
-      return url;
+      if(encode){
+        return encodeURIComponent(url);  
+      }else{
+        return url;
+      }
+      
     },
 
     /**
