@@ -130,16 +130,16 @@ qx.Class.define("mobileedd.Hazards",
           var fg = 'white';
           var label = '';
 
-          // Better colors for short-fused hazards
-          if (feature.get('phenomenon') == "SV" || me.hazardMap[feature.get('phenomenon')] == "SV" && feature.get('significance') == "Warning")
+          // Better colors for short-fused warnings
+          if (me.hazardMap[feature.get('phenomenon')] == "SV" && feature.get('significance') == "Warning")
           {
             color = '#FFF000';
             fg = 'black';
-          } else if (feature.get('phenomenon') == "TO" || me.hazardMap[feature.get('phenomenon')] == "TO" && feature.get('significance') == "Warning") {
+          } else if (me.hazardMap[feature.get('phenomenon')] == "TO" && feature.get('significance') == "Warning") {
             color = '#FF0000';
-          } else if (feature.get('phenomenon') == "FF" || me.hazardMap[feature.get('phenomenon')] == "FF" && feature.get('significance') == "Warning") {
+          } else if (me.hazardMap[feature.get('phenomenon')] == "FF" && feature.get('significance') == "Warning") {
             color = '#0AF330';
-          } else if (feature.get('phenomenon') == "MA" || me.hazardMap[feature.get('phenomenon')] == "MA" && feature.get('significance') == "Warning") {
+          } else if (me.hazardMap[feature.get('phenomenon')] == "MA" && feature.get('significance') == "Warning") {
             color = '#29E8EF';
           } else {
             color = feature.get('color');
