@@ -1729,14 +1729,13 @@ qx.Class.define("mobileedd.page.Map",
       }, this)
 
       // Remove trailing comma and encode
-      ml = ml.slice(0, -1);//encodeURIComponent(ml.slice(0, -1));
+      ml = ml.slice(0, -1);  //encodeURIComponent(ml.slice(0, -1));
       url += '&ml=' + ml;
-      if(encode){
-        return encodeURIComponent(url);  
-      }else{
+      if (encode) {
+        return encodeURIComponent(url);
+      } else {
         return url;
       }
-      
     },
 
     /**
@@ -1854,20 +1853,24 @@ qx.Class.define("mobileedd.page.Map",
             mobileedd.MoreLayers.getInstance().addRiverLevels();
             return;
           }
-          if (typeof (group) == "undefined" || group == "undefined")
-          {
-            var layer = me.layer_list[name];
-            var params =
+          if (typeof (group) == "undefined" || group == "undefined") {
+            try
             {
-              "name" : name,
-              "source" : layer.source,
-              "layer" : layer.layer,
-              "time" : layer.time,
-              "opacity" : opacity
-            };
-            mobileedd.MoreLayers.getInstance().addRestLayer(params);
-          } else
-          {
+              var layer = me.layer_list[name];
+              var params =
+              {
+                "name" : name,
+                "source" : layer.source,
+                "layer" : layer.layer,
+                "time" : layer.time,
+                "opacity" : opacity
+              };
+              mobileedd.MoreLayers.getInstance().addRestLayer(params);
+            }catch (e)
+            {
+              // county name layer...
+            }
+          } else {
             var layer = me.layer_list[group].group[name];
             if (name == "U.S. Counties (Hi-Res)")
             {
