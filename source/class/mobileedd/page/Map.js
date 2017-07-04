@@ -947,125 +947,7 @@ qx.Class.define("mobileedd.page.Map",
       me.hazardConfigureContainer.addCssClass("configureButton");
       scrollContainer.add(me.hazardConfigureContainer);
 
-      /**
-           * Observation Container
-           */
-      var composite = new qx.ui.mobile.container.Composite();
-      composite.addCssClass("hboxPad");
-      composite.setLayout(new qx.ui.mobile.layout.HBox());
-      var observationsLabel = new qx.ui.mobile.basic.Label("Observations: ");
-      composite.add(observationsLabel, {
-        flex : 1
-      });
-      observationsLabel.addCssClass("menuLabels");
-      me.observationToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
-      me.observationToggleButton.addListener("changeValue", function(e)
-      {
-        var observationObject = mobileedd.Observations.getInstance();
-        if (typeof observationObject.observationLayer == "undefined" && e.getData())
-        {
-          observationObject.addLayer();
-          observationObject.observationLayer.setVisible(true);
-          if (observationObject.timer) {
-            observationObject.timer.restartWith(0);
-          }
-        } else if (typeof observationObject.observationLayer == "undefined" && !e.getData()) {
-          return;
-        } else {
-          observationObject.observationLayer.setVisible(e.getData());
-          if (e.getData()) {
-            if (observationObject.timer) {
-              observationObject.timer.restartWith(0);
-            }
-          } else {
-            observationObject.timer.stop();
-          }
-        }
-
-        //Hide show option containers
-        if (e.getData())
-        {
-          me.obDisplayFieldContainer.setVisibility('visible');
-          if (me.obDisplayButton.getLabel() == "Precipitation") {
-            me.obPeriodContainer.setVisibility('visible');
-          }
-        } else
-        {
-          me.obPeriodContainer.setVisibility('excluded');
-          me.obDisplayFieldContainer.setVisibility('excluded');
-          me.obBusyIndicator.setVisibility('excluded');
-        }
-      }, this);
-      composite.add(me.observationToggleButton);
-      scrollContainer.add(composite);
-      me.obBusyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
-      me.obBusyIndicator.setVisibility('excluded');
-      qx.bom.element.Style.setCss(me.obBusyIndicator.getContainerElement(), 'background-color:#bbbbbb;');
-      scrollContainer.add(me.obBusyIndicator);
-
-      /**
-       * Observation display field
-       * */
-      me.obDisplayFieldContainer = new qx.ui.mobile.container.Composite();
-      me.obDisplayFieldContainer.setVisibility('excluded');
-      me.obDisplayFieldContainer.setLayout(new qx.ui.mobile.layout.HBox());
-      var obDisplayFieldLabel = new qx.ui.mobile.basic.Label("Displayed Field:");
-      obDisplayFieldLabel.addCssClass("loopLabel");
-      me.obDisplayFieldContainer.add(obDisplayFieldLabel, {
-        flex : 1
-      });
-
-      // fieldDisplayED MENU POPUP
-      me.obDisplayButton = new qx.ui.mobile.form.Button("Temperature");
-      me.obDisplayButton.addListener("tap", function(e) {
-        this.__fieldDisplayMenu.show();
-      }, this);
-      var fields = ["Temperature", "Dew Point", "RH", "Heat Index", "Wind Speed", "Wind Gust", "Precipitation", "Meteorological Ob", "Wave Height", "Primary Swell", "Visibility"]
-      var fieldDisplayMenuModel = new qx.data.Array(fields.sort());
-      this.__fieldDisplayMenu = new qx.ui.mobile.dialog.Menu(fieldDisplayMenuModel, me.obDisplayButton);
-      this.__fieldDisplayMenu.setTitle("Field");
-      this.__fieldDisplayMenu.addListener("changeSelection", function(e)
-      {
-        if (e.getData().item == "Precipitation") {
-          me.obPeriodContainer.setVisibility('visible');
-        } else {
-          me.obPeriodContainer.setVisibility('excluded');
-        }
-        me.obDisplayButton.setValue(e.getData().item);
-        mobileedd.Observations.getInstance().setDisplayField(e.getData().item);
-        me.c.setObDisplayedField(e.getData().item);
-      }, this);
-      me.obDisplayFieldContainer.add(me.obDisplayButton);
-      scrollContainer.add(me.obDisplayFieldContainer);
-
-      /**
-       * Observation Period
-       * */
-      me.obPeriodContainer = new qx.ui.mobile.container.Composite();
-      me.obPeriodContainer.setVisibility('excluded');
-
-      // me.obPeriod.addCssClass("hboxPad");
-      me.obPeriodContainer.setLayout(new qx.ui.mobile.layout.HBox());
-      var obPeriodLabel = new qx.ui.mobile.basic.Label("Ob Period (hours):");
-      obPeriodLabel.addCssClass("loopLabel");
-      me.obPeriodContainer.add(obPeriodLabel, {
-        flex : 1
-      });
-      me.obPeriodButton = new qx.ui.mobile.form.Button("1");
-      me.obPeriodButton.addListener("tap", function(e) {
-        this.__obPeriodMenu.show();
-      }, this);
-      var obPeriodMenuModel = new qx.data.Array(["1", "2", "3", "6", "12", "24", "48"]);
-      this.__obPeriodMenu = new qx.ui.mobile.dialog.Menu(obPeriodMenuModel, me.obPeriodButton);
-      this.__obPeriodMenu.setTitle("Last X hours");
-      this.__obPeriodMenu.addListener("changeSelection", function(e)
-      {
-        me.obPeriodButton.setValue(e.getData().item);
-        mobileedd.Observations.getInstance().setPeriod(e.getData().item);
-        me.c.setObPeriod(e.getData().item);
-      }, this);
-      me.obPeriodContainer.add(me.obPeriodButton);
-      scrollContainer.add(me.obPeriodContainer);
+    
 
       /**
            * NDFD Container
@@ -1206,6 +1088,132 @@ qx.Class.define("mobileedd.page.Map",
 
       // me.ndfdContainer.add(ndfdTimeComposite);
       me.ndfdOptionsContainer.add(ndfdTimeComposite);
+
+
+
+
+  /**
+           * Observation Container
+           */
+      var composite = new qx.ui.mobile.container.Composite();
+      composite.addCssClass("hboxPad");
+      composite.setLayout(new qx.ui.mobile.layout.HBox());
+      var observationsLabel = new qx.ui.mobile.basic.Label("Observations: ");
+      composite.add(observationsLabel, {
+        flex : 1
+      });
+      observationsLabel.addCssClass("menuLabels");
+      me.observationToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
+      me.observationToggleButton.addListener("changeValue", function(e)
+      {
+        var observationObject = mobileedd.Observations.getInstance();
+        if (typeof observationObject.observationLayer == "undefined" && e.getData())
+        {
+          observationObject.addLayer();
+          observationObject.observationLayer.setVisible(true);
+          if (observationObject.timer) {
+            observationObject.timer.restartWith(0);
+          }
+        } else if (typeof observationObject.observationLayer == "undefined" && !e.getData()) {
+          return;
+        } else {
+          observationObject.observationLayer.setVisible(e.getData());
+          if (e.getData()) {
+            if (observationObject.timer) {
+              observationObject.timer.restartWith(0);
+            }
+          } else {
+            observationObject.timer.stop();
+          }
+        }
+
+        //Hide show option containers
+        if (e.getData())
+        {
+          me.obDisplayFieldContainer.setVisibility('visible');
+          if (me.obDisplayButton.getLabel() == "Precipitation") {
+            me.obPeriodContainer.setVisibility('visible');
+          }
+        } else
+        {
+          me.obPeriodContainer.setVisibility('excluded');
+          me.obDisplayFieldContainer.setVisibility('excluded');
+          me.obBusyIndicator.setVisibility('excluded');
+        }
+      }, this);
+      composite.add(me.observationToggleButton);
+      scrollContainer.add(composite);
+      me.obBusyIndicator = new qx.ui.mobile.dialog.BusyIndicator("Please wait...");
+      me.obBusyIndicator.setVisibility('excluded');
+      qx.bom.element.Style.setCss(me.obBusyIndicator.getContainerElement(), 'background-color:#bbbbbb;');
+      scrollContainer.add(me.obBusyIndicator);
+
+      /**
+       * Observation display field
+       * */
+      me.obDisplayFieldContainer = new qx.ui.mobile.container.Composite();
+      me.obDisplayFieldContainer.setVisibility('excluded');
+      me.obDisplayFieldContainer.setLayout(new qx.ui.mobile.layout.HBox());
+      var obDisplayFieldLabel = new qx.ui.mobile.basic.Label("Displayed Field:");
+      obDisplayFieldLabel.addCssClass("loopLabel");
+      me.obDisplayFieldContainer.add(obDisplayFieldLabel, {
+        flex : 1
+      });
+
+      // fieldDisplayED MENU POPUP
+      me.obDisplayButton = new qx.ui.mobile.form.Button("Temperature");
+      me.obDisplayButton.addListener("tap", function(e) {
+        this.__fieldDisplayMenu.show();
+      }, this);
+      var fields = ["Temperature", "Dew Point", "RH", "Heat Index", "Wind Speed", "Wind Gust", "Precipitation", "Meteorological Ob", "Wave Height", "Primary Swell", "Visibility"]
+      var fieldDisplayMenuModel = new qx.data.Array(fields.sort());
+      this.__fieldDisplayMenu = new qx.ui.mobile.dialog.Menu(fieldDisplayMenuModel, me.obDisplayButton);
+      this.__fieldDisplayMenu.setTitle("Field");
+      this.__fieldDisplayMenu.addListener("changeSelection", function(e)
+      {
+        if (e.getData().item == "Precipitation") {
+          me.obPeriodContainer.setVisibility('visible');
+        } else {
+          me.obPeriodContainer.setVisibility('excluded');
+        }
+        me.obDisplayButton.setValue(e.getData().item);
+        mobileedd.Observations.getInstance().setDisplayField(e.getData().item);
+        me.c.setObDisplayedField(e.getData().item);
+      }, this);
+      me.obDisplayFieldContainer.add(me.obDisplayButton);
+      scrollContainer.add(me.obDisplayFieldContainer);
+
+      /**
+       * Observation Period
+       * */
+      me.obPeriodContainer = new qx.ui.mobile.container.Composite();
+      me.obPeriodContainer.setVisibility('excluded');
+
+      // me.obPeriod.addCssClass("hboxPad");
+      me.obPeriodContainer.setLayout(new qx.ui.mobile.layout.HBox());
+      var obPeriodLabel = new qx.ui.mobile.basic.Label("Ob Period (hours):");
+      obPeriodLabel.addCssClass("loopLabel");
+      me.obPeriodContainer.add(obPeriodLabel, {
+        flex : 1
+      });
+      me.obPeriodButton = new qx.ui.mobile.form.Button("1");
+      me.obPeriodButton.addListener("tap", function(e) {
+        this.__obPeriodMenu.show();
+      }, this);
+      var obPeriodMenuModel = new qx.data.Array(["1", "2", "3", "6", "12", "24", "48"]);
+      this.__obPeriodMenu = new qx.ui.mobile.dialog.Menu(obPeriodMenuModel, me.obPeriodButton);
+      this.__obPeriodMenu.setTitle("Last X hours");
+      this.__obPeriodMenu.addListener("changeSelection", function(e)
+      {
+        me.obPeriodButton.setValue(e.getData().item);
+        mobileedd.Observations.getInstance().setPeriod(e.getData().item);
+        me.c.setObPeriod(e.getData().item);
+      }, this);
+      me.obPeriodContainer.add(me.obPeriodButton);
+      scrollContainer.add(me.obPeriodContainer);
+
+
+
 
       // Separation between quick layers and other options
       var spacer = new qx.ui.mobile.container.Composite();
@@ -1531,7 +1539,7 @@ qx.Class.define("mobileedd.page.Map",
       });
 
       // Menu Button
-      var menuButton = new qx.ui.mobile.navigationbar.Button("Menu");
+      var menuButton = new qx.ui.mobile.navigationbar.Button("Menu");//,"resource/mobileedd/images/menu.png");
       menuButton.addListener("tap", function(e)
       {
         e.preventDefault();
