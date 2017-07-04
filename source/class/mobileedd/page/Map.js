@@ -434,7 +434,7 @@ qx.Class.define("mobileedd.page.Map",
 
       // me.drawer
       me.drawer = new qx.ui.mobile.container.Drawer();
-      me.drawer.setOrientation("right");
+      me.drawer.setOrientation("left");
       me.drawer.setTapOffset(0);
 
       // me.drawer.show();
@@ -1538,7 +1538,7 @@ qx.Class.define("mobileedd.page.Map",
         e.stopPropagation();
         me.drawer.show();
       }, this);
-      this.getRightContainer().add(menuButton);
+      this.getLeftContainer().add(menuButton);
 
       // Reset Button
       var resetButton = new qx.ui.mobile.navigationbar.Button("Reset");
@@ -1559,7 +1559,7 @@ qx.Class.define("mobileedd.page.Map",
         e.stopPropagation();
         me.reset();
       }, this);
-      this.getLeftContainer().add(resetButton);
+      this.getRightContainer().add(resetButton);
 
       // Radar Time
       me.bus.subscribe("edd.view.radar.time", function(e)
