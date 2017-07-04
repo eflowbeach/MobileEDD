@@ -23,7 +23,7 @@ qx.Class.define("mobileedd.page.Forecast",
   properties : {
     plotLength :
     {
-      init : 72,
+      init : 168,
       apply : "redrawPlots"
     }
   },
@@ -75,7 +75,7 @@ qx.Class.define("mobileedd.page.Forecast",
       });
 
       // ANCHORED MENU POPUP
-      var showAnchorMenuButton = new qx.ui.mobile.form.Button("3");
+      var showAnchorMenuButton = new qx.ui.mobile.form.Button("7");
       showAnchorMenuButton.addListener("tap", function(e) {
         this.__anchorMenu.show();
       }, this);
