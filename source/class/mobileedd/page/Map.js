@@ -1765,12 +1765,22 @@ qx.Class.define("mobileedd.page.Map",
       me.setBasemapByName(me.getURLParameter('bm'));
 
       // Toggle buttons
+      
+      // Note: this stops the looping so moved it up before the loop control is set
+      var bool = me.getURLParameter('pc') == "T" ? true : false;
+      me.phaseControl.setValue(bool);
+      
       var bool = me.getURLParameter('lr') == "T" ? true : false;
+      
+      // If true be sure to toggle value for delayed listener
+      if(me.loopControl.getValue() && bool){
+       me.loopControl.setValue(false);  
+       me.loopControl.setValue(true);  
+      }
       me.loopControl.setValue(bool);
       var bool = me.getURLParameter('r') == "T" ? true : false;
       me.radarToggleButton.setValue(bool);
-      var bool = me.getURLParameter('pc') == "T" ? true : false;
-      me.phaseControl.setValue(bool);
+    
 
       // var bool = me.getURLParameter('rll') == "T" ? true : false;
 
