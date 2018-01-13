@@ -289,7 +289,7 @@ qx.Class.define("mobileedd.page.Forecast",
         yaxes : [
         {
           position : 'left',
-          axisLabel : 'Temperature, °F',
+          axisLabel : 'Temperature, \xB0F',
           tickFormatter : function(val, axis) {
             return val.toFixed(0);
           }

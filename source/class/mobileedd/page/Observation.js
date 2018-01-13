@@ -170,7 +170,7 @@ qx.Class.define("mobileedd.page.Observation",
             yaxes : [
             {
               position : 'left',
-              axisLabel : '°F',
+              axisLabel : '\xB0F',
               tickFormatter : function(val, axis) {
                 return val.toFixed(0);
               }
@@ -438,7 +438,7 @@ qx.Class.define("mobileedd.page.Observation",
         html += "</td></tr>";
         if (typeof (data["air_temp" + set_name]) !== "undefined")
         {
-          html += "<td><b>Temperature: </b></td><td>" + Math.round(data["air_temp" + set_name][value_type]) + " °F";
+          html += "<td><b>Temperature: </b></td><td>" + Math.round(data["air_temp" + set_name][value_type]) + " \xB0F";
 
           // Heat Index
           if (typeof (data["relative_humidity" + set_name]) !== "undefined" && data["air_temp" + set_name][value_type] >= 80) {
@@ -450,17 +450,17 @@ qx.Class.define("mobileedd.page.Observation",
             var wc = windChill(data["air_temp" + set_name][value_type], mph2kt(data["wind_speed" + set_name][value_type]));
           }
           if (typeof hi !== "undefined" && hi >= 90 && service_type == "OBSERVATIONS") {
-            html += " <font color=\"red\";><b>Heat Index:</b> " + hi + "</font>";
+            html += " <font color=\"red\";><b>Heat Index:</b> " + hi  + " \xB0F" + "</font>";
           }
           if (typeof wc !== "undefined" && wc <= 40 && service_type == "OBSERVATIONS") {
-            html += " <font color=\"blue\";><b>Wind Chill:</b> " + wc + "</font>";
+            html += " <font color=\"blue\";><b>Wind Chill:</b> " + wc  + " \xB0F" + "</font>";
           }
           html += "</td></tr>";
         }
         if (typeof (data["dew_point_temperature" + set_name]) !== "undefined") {
-          html += "<td><b>Dew Point: </b></td><td>" + Math.round(data["dew_point_temperature" + set_name][value_type]) + " °F</td></tr>";
+          html += "<td><b>Dew Point: </b></td><td>" + Math.round(data["dew_point_temperature" + set_name][value_type]) + " \xB0F</td></tr>";
         } else if (typeof (data.dew_point_temperature_value_1d) !== "undefined") {
-          html += "<td><b>Dew Point (derived): </b></td><td>" + Math.round(data.dew_point_temperature_value_1d.value) + " °F</td></tr>";
+          html += "<td><b>Dew Point (derived): </b></td><td>" + Math.round(data.dew_point_temperature_value_1d.value) + " \xB0F</td></tr>";
         }
 
         if (typeof (data["relative_humidity" + set_name]) !== "undefined") {

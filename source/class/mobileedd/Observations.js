@@ -221,6 +221,18 @@ qx.Class.define("mobileedd.Observations",
             // "Temperature", "Dew Point", "RH", "Wind Speed", "Wind Gust", "Precipitation"]);
             if (me.getDisplayField() == "Temperature") {
               var label = (t !== undefined ? '' + Math.round(t[value_type]) : '');
+            }else if (me.getDisplayField() == "Wind Chill") {
+              if(t !== undefined && ws !== undefined && ws[value_type] >= 3){
+                var label = '' + windChill(data["air_temp" + set_name][value_type], mph2kt(data["wind_speed" + set_name][value_type]));
+              }else{
+                var label = '';
+              }
+            }else if (me.getDisplayField() == "Heat Index") {
+              if(t !== undefined && rh !== undefined && t[value_type] >= 75){
+                var label = '' + heatIndex(data["air_temp" + set_name][value_type], data["relative_humidity" + set_name][value_type]);
+              }else{
+                var label = '';
+              }
             } else if (me.getDisplayField() == "Dew Point") {
               var label = (td !== undefined ? '' + Math.round(td[value_type]) : '');
             } else if (me.getDisplayField() == "RH") {

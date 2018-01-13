@@ -1165,7 +1165,7 @@ qx.Class.define("mobileedd.page.Map",
       me.obDisplayButton.addListener("tap", function(e) {
         this.__fieldDisplayMenu.show();
       }, this);
-      var fields = ["Temperature", "Dew Point", "RH", "Heat Index", "Wind Speed", "Wind Gust", "Precipitation", "Meteorological Ob", "Wave Height", "Primary Swell", "Visibility"]
+      var fields = ["Temperature", "Dew Point", "RH", "Heat Index", "Wind Speed", "Wind Gust", "Precipitation", "Meteorological Ob", "Wave Height", "Primary Swell", "Visibility", "Wind Chill"]
       var fieldDisplayMenuModel = new qx.data.Array(fields.sort());
       this.__fieldDisplayMenu = new qx.ui.mobile.dialog.Menu(fieldDisplayMenuModel, me.obDisplayButton);
       this.__fieldDisplayMenu.setTitle("Field");
@@ -2132,7 +2132,7 @@ qx.Class.define("mobileedd.page.Map",
         /**
          * Calculate the resolutions supported by the ArcGIS tile service.
          * There are 16 resolutions, with a factor of 2 between successive
-         * resolutions. The max resolution is such that the world (360°)
+         * resolutions. The max resolution is such that the world (360\xB0)
          * fits into two (512x512 px) tiles.
          */
         var maxResolution = ol.extent.getWidth(projectionExtent) / (tileSize * 2);

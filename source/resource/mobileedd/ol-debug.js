@@ -5102,13 +5102,13 @@ ol.coordinate.squaredDistanceToSegment = function(coordinate, segment) {
  *
  *     var coord = [7.85, 47.983333];
  *     var out = ol.coordinate.toStringHDMS(coord);
- *     // out is now '47° 58′ 60″ N 7° 50′ 60″ E'
+ *     // out is now '47\xB0 58′ 60″ N 7\xB0 50′ 60″ E'
  *
  * Example explicitly specifying 1 fractional digit:
  *
  *     var coord = [7.85, 47.983333];
  *     var out = ol.coordinate.toStringHDMS(coord, 1);
- *     // out is now '47° 58′ 60.0″ N 7° 50′ 60.0″ E'
+ *     // out is now '47\xB0 58′ 60.0″ N 7\xB0 50′ 60.0″ E'
  *
  * @param {ol.Coordinate|undefined} coordinate Coordinate.
  * @param {number=} opt_fractionDigits The number of digits to include
@@ -29612,8 +29612,8 @@ ol.renderer.canvas.VectorLayer.prototype.prepareFrame = function(frameState, lay
   if (vectorSource.getWrapX() && viewState.projection.canWrapX() &&
       !ol.extent.containsExtent(projectionExtent, frameState.extent)) {
     // For the replay group, we need an extent that intersects the real world
-    // (-180° to +180°). To support geometries in a coordinate range from -540°
-    // to +540°, we add at least 1 world width on each side of the projection
+    // (-180\xB0 to +180\xB0). To support geometries in a coordinate range from -540\xB0
+    // to +540\xB0, we add at least 1 world width on each side of the projection
     // extent. If the viewport is wider than the world, we need to add half of
     // the viewport width to make sure we cover the whole viewport.
     var worldWidth = ol.extent.getWidth(projectionExtent);

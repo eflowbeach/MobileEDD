@@ -344,7 +344,7 @@ qx.Class.define("mobileedd.TravelHazards",
             var label = '';
             if (resolution < 1500)
             {
-              label = t + ' °F';
+              label = t + ' \xB0F';
               ;
             }
             var color = '#000000';
