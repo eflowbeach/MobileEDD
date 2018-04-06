@@ -212,7 +212,7 @@ qx.Class.define("mobileedd.Hazards",
       var url = me.mapObject.getJsonpRoot() + "hazards/getShortFusedHazards.php";
 
       // if (me.mapObject.longfuseButton.getValue()) {
-      url += "?all=t";
+      url += "?all=true";
 
       // }
       me.hazardRequest.setUrl(url);
