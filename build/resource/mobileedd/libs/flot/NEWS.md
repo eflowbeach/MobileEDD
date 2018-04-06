@@ -471,7 +471,7 @@ adapt the excanvas include to skip loading it in IE 9 (the examples have been
 adapted thanks to Ryley Breiddal). An alternative to excanvas using Flash has
 also surfaced, if your graphs are slow in IE, you may want to give it a spin:
 
-    http://code.google.com/p/flashcanvas/
+    https://code.google.com/p/flashcanvas/
 
 ### Changes ###
 

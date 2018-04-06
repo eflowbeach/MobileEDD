@@ -41,8 +41,8 @@ qx.Class.define("mobileedd.page.Observation",
         var set_name = '_value_1';
         var value_type = 'value';
 
-        //http://api.mesowest.net/v2/stations/timeseries?&token=a13f6d0a32c842e6815c377e77a64e99&recent=3600&stid=KCRW&units=temp|f,speed|kts,precip|in,pres|mb,height|ft&nocache=1471975626352&callback=qx.bom.request.Jsonp.qx1471975626352259.callback
-        var tsUrl = "http://api.mesowest.net/v2/stations/timeseries?";
+        //https://api.mesowest.net/v2/stations/timeseries?&token=a13f6d0a32c842e6815c377e77a64e99&recent=3600&stid=KCRW&units=temp|f,speed|kts,precip|in,pres|mb,height|ft&nocache=1471975626352&callback=qx.bom.request.Jsonp.qx1471975626352259.callback
+        var tsUrl = "https://api.mesowest.net/v2/stations/timeseries?";
         tsUrl += "&token=" + this.c.getMesowestToken();
 
         // if (start)

@@ -120,7 +120,7 @@ qx.Class.define("mobileedd.Ndfd",
         });
 
         // Update legend
-        me.mapObject.ndfdLegend.setSource('http://digital.weather.gov/scripts/wxmap_legendImage.php?dataset=ndfd&element=' + me.getField() + '&region=' + me.getRegion() + '&opacity=1.0&vt=' + me.getValidTime() + '&width=272&ms=english');
+        me.mapObject.ndfdLegend.setSource('https://digital.weather.gov/scripts/wxmap_legendImage.php?dataset=ndfd&element=' + me.getField() + '&region=' + me.getRegion() + '&opacity=1.0&vt=' + me.getValidTime() + '&width=272&ms=english');
       }
       me.changeLayerTimer.stop();
     }, this);
@@ -183,7 +183,7 @@ qx.Class.define("mobileedd.Ndfd",
         opacity : 0.7,
         source : new ol.source.TileWMS(
         {
-          url : 'http://digital.weather.gov/wms.php',
+          url : 'https://digital.weather.gov/wms.php',
           params :
           {
             'LAYERS' : layers,
@@ -208,7 +208,7 @@ qx.Class.define("mobileedd.Ndfd",
         name : 'NDFD Samples',
         source : new ol.source.TileWMS(
         {
-          url : 'http://digital.weather.gov/wms.php',
+          url : 'https://digital.weather.gov/wms.php',
           params :
           {
             'LAYERS' : layers + '.points',
@@ -233,7 +233,7 @@ qx.Class.define("mobileedd.Ndfd",
         name : 'NDFD Wind Barbs',
         source : new ol.source.TileWMS(
         {
-          url : 'http://digital.weather.gov/wms.php',
+          url : 'https://digital.weather.gov/wms.php',
           params :
           {
             'LAYERS' : 'ndfd.' + me.getRegion() + '.' + 'windspd.windbarbs',

@@ -19,7 +19,7 @@ this.CLOSURE_NO_DEPS = true;
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//      https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS-IS" BASIS,
@@ -210,12 +210,12 @@ goog.define('goog.DEBUG', true);
  * There are few examples: pt-BR, en, en-US, sr-Latin-BO, zh-Hans-CN.
  *
  * See more info about locale codes here:
- * http://www.unicode.org/reports/tr35/#Unicode_Language_and_Locale_Identifiers
+ * https://www.unicode.org/reports/tr35/#Unicode_Language_and_Locale_Identifiers
  *
  * For language codes you should use values defined by ISO 693-1. See it here
- * http://www.w3.org/WAI/ER/IG/ert/iso639.htm. There is only one exception from
+ * https://www.w3.org/WAI/ER/IG/ert/iso639.htm. There is only one exception from
  * this rule: the Hebrew language. For legacy reasons the old code (iw) should
- * be used instead of the new code (he), see http://wiki/Main/IIISynonyms.
+ * be used instead of the new code (he), see https://wiki/Main/IIISynonyms.
  */
 goog.define('goog.LOCALE', 'en');  // default to en
 
@@ -356,7 +356,7 @@ goog.VALID_MODULE_RE_ = /^[a-zA-Z_$][a-zA-Z0-9._$]*$/;
  * goog.module.declareLegacyNamespace().
  *
  *
- * See the public goog.module proposal: http://goo.gl/Va1hin
+ * See the public goog.module proposal: https://goo.gl/Va1hin
  *
  * @param {string} name Namespace provided by this file in the form
  *     "goog.package.part", is expected but not required.
@@ -2466,7 +2466,7 @@ goog.base = function(me, opt_methodName, var_args) {
     throw Error(
         'arguments.caller not defined.  goog.base() cannot be used ' +
         'with strict mode code. See ' +
-        'http://www.ecma-international.org/ecma-262/5.1/#sec-C');
+        'https://www.ecma-international.org/ecma-262/5.1/#sec-C');
   }
 
   if (caller.superClass_) {
@@ -6095,7 +6095,7 @@ ol.functions.FALSE = function() {
 /**
  * @license
  * Latitude/longitude spherical geodesy formulae taken from
- * http://www.movable-type.co.uk/scripts/latlong.html
+ * https://www.movable-type.co.uk/scripts/latlong.html
  * Licensed under CC-BY-3.0.
  */
 
@@ -6133,7 +6133,7 @@ ol.Sphere = function(radius) {
 /**
  * Returns the geodesic area for a list of coordinates.
  *
- * [Reference](http://trs-new.jpl.nasa.gov/dspace/handle/2014/40409)
+ * [Reference](https://trs-new.jpl.nasa.gov/dspace/handle/2014/40409)
  * Robert. G. Chamberlain and William H. Duquette, "Some Algorithms for
  * Polygons on a Sphere", JPL Publication 07-03, Jet Propulsion
  * Laboratory, Pasadena, CA, June 2007
@@ -6296,11 +6296,11 @@ goog.require('ol.proj.proj4');
  * with the following aliases:
  * * `EPSG:4326`: CRS:84, urn:ogc:def:crs:EPSG:6.6:4326,
  *     urn:ogc:def:crs:OGC:1.3:CRS84, urn:ogc:def:crs:OGC:2:84,
- *     http://www.opengis.net/gml/srs/epsg.xml#4326,
+ *     https://www.opengis.net/gml/srs/epsg.xml#4326,
  *     urn:x-ogc:def:crs:EPSG:4326
  * * `EPSG:3857`: EPSG:102100, EPSG:102113, EPSG:900913,
  *     urn:ogc:def:crs:EPSG:6.18:3:3857,
- *     http://www.opengis.net/gml/srs/epsg.xml#3857
+ *     https://www.opengis.net/gml/srs/epsg.xml#3857
  *
  * If you use proj4js, aliases can be added using `proj4.defs()`; see
  * [documentation](https://github.com/proj4js/proj4js). To set an alternative
@@ -9060,7 +9060,7 @@ ol.geom.flat.contains.linearRingContainsExtent = function(flatCoordinates, offse
  * @return {boolean} Contains (x, y).
  */
 ol.geom.flat.contains.linearRingContainsXY = function(flatCoordinates, offset, end, stride, x, y) {
-  // http://geomalgorithms.com/a03-_inclusion.html
+  // https://geomalgorithms.com/a03-_inclusion.html
   // Copyright 2000 softSurfer, 2012 Dan Sunday
   // This code may be freely used and modified for any purpose
   // providing that this copyright notice is included with it.
@@ -9457,7 +9457,7 @@ goog.require('ol.geom.flat.reverse');
  * @return {boolean} Is clockwise.
  */
 ol.geom.flat.orient.linearRingIsClockwise = function(flatCoordinates, offset, end, stride) {
-  // http://tinyurl.com/clockwise-method
+  // https://tinyurl.com/clockwise-method
   // https://github.com/OSGeo/gdal/blob/trunk/gdal/ogr/ogrlinearring.cpp
   var edge = 0;
   var x1 = flatCoordinates[end - stride];
@@ -13594,7 +13594,7 @@ goog.require('ol.events.EventType');
  * element introduced using this parameter will be displayed in full screen.
  *
  * When in full screen mode, a close button is shown to exit full screen mode.
- * The [Fullscreen API](http://www.w3.org/TR/fullscreen/) is used to
+ * The [Fullscreen API](https://www.w3.org/TR/fullscreen/) is used to
  * toggle the map in full screen mode.
  *
  *
@@ -15277,7 +15277,7 @@ ol.pointer.MouseSource.prepareEvent = function(inEvent, dispatcher) {
 ol.pointer.MouseSource.prototype.mousedown = function(inEvent) {
   if (!this.isEventSimulatedFromTouch_(inEvent)) {
     // TODO(dfreedman) workaround for some elements not sending mouseup
-    // http://crbug/149091
+    // https://crbug/149091
     if (ol.pointer.MouseSource.POINTER_ID.toString() in this.pointerMap) {
       this.cancel(inEvent);
     }
@@ -15899,7 +15899,7 @@ ol.inherits(ol.pointer.PointerEvent, ol.events.Event);
  */
 ol.pointer.PointerEvent.prototype.getButtons_ = function(eventDict) {
   // According to the w3c spec,
-  // http://www.w3.org/TR/DOM-Level-3-Events/#events-MouseEvent-button
+  // https://www.w3.org/TR/DOM-Level-3-Events/#events-MouseEvent-button
   // MouseEvent.button == 0 can mean either no mouse button depressed, or the
   // left mouse button depressed.
   //
@@ -17029,7 +17029,7 @@ ol.MapBrowserEventHandler.prototype.handlePointerUp_ = function(pointerEvent) {
   // We emulate click events on left mouse button click, touch contact, and pen
   // contact. isMouseActionButton returns true in these cases (evt.button is set
   // to 0).
-  // See http://www.w3.org/TR/pointerevents/#button-states
+  // See https://www.w3.org/TR/pointerevents/#button-states
   if (!this.dragging_ && this.isMouseActionButton_(pointerEvent)) {
     ol.DEBUG && console.assert(this.down_, 'this.down_ must be truthy');
     this.emulateClick_(this.down_);
@@ -17372,8 +17372,8 @@ goog.require('ol.obj');
  * The implementation is inspired from the Closure Library's Heap class and
  * Python's heapq module.
  *
- * @see http://closure-library.googlecode.com/svn/docs/closure_goog_structs_heap.js.source.html
- * @see http://hg.python.org/cpython/file/2.7/Lib/heapq.py
+ * @see https://closure-library.googlecode.com/svn/docs/closure_goog_structs_heap.js.source.html
+ * @see https://hg.python.org/cpython/file/2.7/Lib/heapq.py
  *
  * @constructor
  * @param {function(T): number} priorityFunction Priority function.
@@ -18416,7 +18416,7 @@ ol.events.condition.targetNotEditable = function(mapBrowserEvent) {
  */
 ol.events.condition.mouseOnly = function(mapBrowserEvent) {
   ol.asserts.assert(mapBrowserEvent.pointerEvent, 56); // mapBrowserEvent must originate from a pointer event
-  // see http://www.w3.org/TR/pointerevents/#widl-PointerEvent-pointerType
+  // see https://www.w3.org/TR/pointerevents/#widl-PointerEvent-pointerType
   return /** @type {ol.MapBrowserEvent} */ (mapBrowserEvent).pointerEvent.pointerType == 'mouse';
 };
 
@@ -18424,7 +18424,7 @@ ol.events.condition.mouseOnly = function(mapBrowserEvent) {
 /**
  * Return `true` if the event originates from a primary pointer in
  * contact with the surface or if the left mouse button is pressed.
- * @see http://www.w3.org/TR/pointerevents/#button-states
+ * @see https://www.w3.org/TR/pointerevents/#button-states
  *
  * @param {ol.MapBrowserEvent} mapBrowserEvent Map browser event.
  * @return {boolean} True if the event originates from a primary pointer.
@@ -20896,7 +20896,7 @@ ol.proj.EPSG3857.CODES = [
   'EPSG:900913',
   'urn:ogc:def:crs:EPSG:6.18:3:3857',
   'urn:ogc:def:crs:EPSG::3857',
-  'http://www.opengis.net/gml/srs/epsg.xml#3857'
+  'https://www.opengis.net/gml/srs/epsg.xml#3857'
 ];
 
 
@@ -21057,7 +21057,7 @@ ol.proj.EPSG4326.PROJECTIONS = [
   new ol.proj.EPSG4326_('urn:ogc:def:crs:EPSG:6.6:4326', 'neu'),
   new ol.proj.EPSG4326_('urn:ogc:def:crs:OGC:1.3:CRS84'),
   new ol.proj.EPSG4326_('urn:ogc:def:crs:OGC:2:84'),
-  new ol.proj.EPSG4326_('http://www.opengis.net/gml/srs/epsg.xml#4326', 'neu'),
+  new ol.proj.EPSG4326_('https://www.opengis.net/gml/srs/epsg.xml#4326', 'neu'),
   new ol.proj.EPSG4326_('urn:x-ogc:def:crs:EPSG:4326', 'neu')
 ];
 
@@ -26138,12 +26138,12 @@ ol.renderer.canvas.IntermediateCanvas.prototype.composeFrame = function(frameSta
     var imageTransform = this.getImageTransform();
     // for performance reasons, context.save / context.restore is not used
     // to save and restore the transformation matrix and the opacity.
-    // see http://jsperf.com/context-save-restore-versus-variable
+    // see https://jsperf.com/context-save-restore-versus-variable
     var alpha = context.globalAlpha;
     context.globalAlpha = layerState.opacity;
 
     // for performance reasons, context.setTransform is only used
-    // when the view is rotated. see http://jsperf.com/canvas-transform
+    // when the view is rotated. see https://jsperf.com/canvas-transform
     var dx = imageTransform[4];
     var dy = imageTransform[5];
     var dw = image.width * imageTransform[0];
@@ -29472,7 +29472,7 @@ ol.renderer.canvas.VectorLayer.prototype.composeFrame = function(frameState, lay
     }
     // for performance reasons, context.save / context.restore is not used
     // to save and restore the transformation matrix and the opacity.
-    // see http://jsperf.com/context-save-restore-versus-variable
+    // see https://jsperf.com/context-save-restore-versus-variable
     var alpha = replayContext.globalAlpha;
     replayContext.globalAlpha = layerState.opacity;
     if (replayContext != context) {
@@ -32876,7 +32876,7 @@ ol.inherits(ol.render.webgl.linestringreplay.defaultshader.Vertex, ol.webgl.Vert
  * @const
  * @type {string}
  */
-ol.render.webgl.linestringreplay.defaultshader.Vertex.DEBUG_SOURCE = 'varying float v_round;\nvarying vec2 v_roundVertex;\nvarying float v_halfWidth;\n\n\nattribute vec2 a_lastPos;\nattribute vec2 a_position;\nattribute vec2 a_nextPos;\nattribute float a_direction;\n\nuniform mat4 u_projectionMatrix;\nuniform mat4 u_offsetScaleMatrix;\nuniform mat4 u_offsetRotateMatrix;\nuniform float u_lineWidth;\nuniform float u_miterLimit;\n\nbool nearlyEquals(in float value, in float ref) {\n  float epsilon = 0.000000000001;\n  return value >= ref - epsilon && value <= ref + epsilon;\n}\n\nvoid alongNormal(out vec2 offset, in vec2 nextP, in float turnDir, in float direction) {\n  vec2 dirVect = nextP - a_position;\n  vec2 normal = normalize(vec2(-turnDir * dirVect.y, turnDir * dirVect.x));\n  offset = u_lineWidth / 2.0 * normal * direction;\n}\n\nvoid miterUp(out vec2 offset, out float round, in bool isRound, in float direction) {\n  float halfWidth = u_lineWidth / 2.0;\n  vec2 tangent = normalize(normalize(a_nextPos - a_position) + normalize(a_position - a_lastPos));\n  vec2 normal = vec2(-tangent.y, tangent.x);\n  vec2 dirVect = a_nextPos - a_position;\n  vec2 tmpNormal = normalize(vec2(-dirVect.y, dirVect.x));\n  float miterLength = abs(halfWidth / dot(normal, tmpNormal));\n  offset = normal * direction * miterLength;\n  round = 0.0;\n  if (isRound) {\n    round = 1.0;\n  } else if (miterLength > u_miterLimit + u_lineWidth) {\n    offset = halfWidth * tmpNormal * direction;\n  }\n}\n\nbool miterDown(out vec2 offset, in vec4 projPos, in mat4 offsetMatrix, in float direction) {\n  bool degenerate = false;\n  vec2 tangent = normalize(normalize(a_nextPos - a_position) + normalize(a_position - a_lastPos));\n  vec2 normal = vec2(-tangent.y, tangent.x);\n  vec2 dirVect = a_lastPos - a_position;\n  vec2 tmpNormal = normalize(vec2(-dirVect.y, dirVect.x));\n  vec2 longOffset, shortOffset, longVertex;\n  vec4 shortProjVertex;\n  float halfWidth = u_lineWidth / 2.0;\n  if (length(a_nextPos - a_position) > length(a_lastPos - a_position)) {\n    longOffset = tmpNormal * direction * halfWidth;\n    shortOffset = normalize(vec2(dirVect.y, -dirVect.x)) * direction * halfWidth;\n    longVertex = a_nextPos;\n    shortProjVertex = u_projectionMatrix * vec4(a_lastPos, 0.0, 1.0);\n  } else {\n    shortOffset = tmpNormal * direction * halfWidth;\n    longOffset = normalize(vec2(dirVect.y, -dirVect.x)) * direction * halfWidth;\n    longVertex = a_lastPos;\n    shortProjVertex = u_projectionMatrix * vec4(a_nextPos, 0.0, 1.0);\n  }\n  //Intersection algorithm based on theory by Paul Bourke (http://paulbourke.net/geometry/pointlineplane/).\n  vec4 p1 = u_projectionMatrix * vec4(longVertex, 0.0, 1.0) + offsetMatrix * vec4(longOffset, 0.0, 0.0);\n  vec4 p2 = projPos + offsetMatrix * vec4(longOffset, 0.0, 0.0);\n  vec4 p3 = shortProjVertex + offsetMatrix * vec4(-shortOffset, 0.0, 0.0);\n  vec4 p4 = shortProjVertex + offsetMatrix * vec4(shortOffset, 0.0, 0.0);\n  float denom = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);\n  float firstU = ((p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x)) / denom;\n  float secondU = ((p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x)) / denom;\n  float epsilon = 0.000000000001;\n  if (firstU > epsilon && firstU < 1.0 - epsilon && secondU > epsilon && secondU < 1.0 - epsilon) {\n    shortProjVertex.x = p1.x + firstU * (p2.x - p1.x);\n    shortProjVertex.y = p1.y + firstU * (p2.y - p1.y);\n    offset = shortProjVertex.xy;\n    degenerate = true;\n  } else {\n    float miterLength = abs(halfWidth / dot(normal, tmpNormal));\n    offset = normal * direction * miterLength;\n  }\n  return degenerate;\n}\n\nvoid squareCap(out vec2 offset, out float round, in bool isRound, in vec2 nextP,\n    in float turnDir, in float direction) {\n  round = 0.0;\n  vec2 dirVect = a_position - nextP;\n  vec2 firstNormal = normalize(dirVect);\n  vec2 secondNormal = vec2(turnDir * firstNormal.y * direction, -turnDir * firstNormal.x * direction);\n  vec2 hypotenuse = normalize(firstNormal - secondNormal);\n  vec2 normal = vec2(turnDir * hypotenuse.y * direction, -turnDir * hypotenuse.x * direction);\n  float length = sqrt(v_halfWidth * v_halfWidth * 2.0);\n  offset = normal * length;\n  if (isRound) {\n    round = 1.0;\n  }\n}\n\nvoid main(void) {\n  bool degenerate = false;\n  float direction = float(sign(a_direction));\n  mat4 offsetMatrix = u_offsetScaleMatrix * u_offsetRotateMatrix;\n  vec2 offset;\n  vec4 projPos = u_projectionMatrix * vec4(a_position, 0.0, 1.0);\n  bool round = nearlyEquals(mod(a_direction, 2.0), 0.0);\n\n  v_round = 0.0;\n  v_halfWidth = u_lineWidth / 2.0;\n  v_roundVertex = projPos.xy;\n\n  if (nearlyEquals(mod(a_direction, 3.0), 0.0) || nearlyEquals(mod(a_direction, 17.0), 0.0)) {\n    alongNormal(offset, a_nextPos, 1.0, direction);\n  } else if (nearlyEquals(mod(a_direction, 5.0), 0.0) || nearlyEquals(mod(a_direction, 13.0), 0.0)) {\n    alongNormal(offset, a_lastPos, -1.0, direction);\n  } else if (nearlyEquals(mod(a_direction, 23.0), 0.0)) {\n    miterUp(offset, v_round, round, direction);\n  } else if (nearlyEquals(mod(a_direction, 19.0), 0.0)) {\n    degenerate = miterDown(offset, projPos, offsetMatrix, direction);\n  } else if (nearlyEquals(mod(a_direction, 7.0), 0.0)) {\n    squareCap(offset, v_round, round, a_nextPos, 1.0, direction);\n  } else if (nearlyEquals(mod(a_direction, 11.0), 0.0)) {\n    squareCap(offset, v_round, round, a_lastPos, -1.0, direction);\n  }\n  if (!degenerate) {\n    vec4 offsets = offsetMatrix * vec4(offset, 0.0, 0.0);\n    gl_Position = projPos + offsets;\n  } else {\n    gl_Position = vec4(offset, 0.0, 1.0);\n  }\n}\n\n\n';
+ol.render.webgl.linestringreplay.defaultshader.Vertex.DEBUG_SOURCE = 'varying float v_round;\nvarying vec2 v_roundVertex;\nvarying float v_halfWidth;\n\n\nattribute vec2 a_lastPos;\nattribute vec2 a_position;\nattribute vec2 a_nextPos;\nattribute float a_direction;\n\nuniform mat4 u_projectionMatrix;\nuniform mat4 u_offsetScaleMatrix;\nuniform mat4 u_offsetRotateMatrix;\nuniform float u_lineWidth;\nuniform float u_miterLimit;\n\nbool nearlyEquals(in float value, in float ref) {\n  float epsilon = 0.000000000001;\n  return value >= ref - epsilon && value <= ref + epsilon;\n}\n\nvoid alongNormal(out vec2 offset, in vec2 nextP, in float turnDir, in float direction) {\n  vec2 dirVect = nextP - a_position;\n  vec2 normal = normalize(vec2(-turnDir * dirVect.y, turnDir * dirVect.x));\n  offset = u_lineWidth / 2.0 * normal * direction;\n}\n\nvoid miterUp(out vec2 offset, out float round, in bool isRound, in float direction) {\n  float halfWidth = u_lineWidth / 2.0;\n  vec2 tangent = normalize(normalize(a_nextPos - a_position) + normalize(a_position - a_lastPos));\n  vec2 normal = vec2(-tangent.y, tangent.x);\n  vec2 dirVect = a_nextPos - a_position;\n  vec2 tmpNormal = normalize(vec2(-dirVect.y, dirVect.x));\n  float miterLength = abs(halfWidth / dot(normal, tmpNormal));\n  offset = normal * direction * miterLength;\n  round = 0.0;\n  if (isRound) {\n    round = 1.0;\n  } else if (miterLength > u_miterLimit + u_lineWidth) {\n    offset = halfWidth * tmpNormal * direction;\n  }\n}\n\nbool miterDown(out vec2 offset, in vec4 projPos, in mat4 offsetMatrix, in float direction) {\n  bool degenerate = false;\n  vec2 tangent = normalize(normalize(a_nextPos - a_position) + normalize(a_position - a_lastPos));\n  vec2 normal = vec2(-tangent.y, tangent.x);\n  vec2 dirVect = a_lastPos - a_position;\n  vec2 tmpNormal = normalize(vec2(-dirVect.y, dirVect.x));\n  vec2 longOffset, shortOffset, longVertex;\n  vec4 shortProjVertex;\n  float halfWidth = u_lineWidth / 2.0;\n  if (length(a_nextPos - a_position) > length(a_lastPos - a_position)) {\n    longOffset = tmpNormal * direction * halfWidth;\n    shortOffset = normalize(vec2(dirVect.y, -dirVect.x)) * direction * halfWidth;\n    longVertex = a_nextPos;\n    shortProjVertex = u_projectionMatrix * vec4(a_lastPos, 0.0, 1.0);\n  } else {\n    shortOffset = tmpNormal * direction * halfWidth;\n    longOffset = normalize(vec2(dirVect.y, -dirVect.x)) * direction * halfWidth;\n    longVertex = a_lastPos;\n    shortProjVertex = u_projectionMatrix * vec4(a_nextPos, 0.0, 1.0);\n  }\n  //Intersection algorithm based on theory by Paul Bourke (https://paulbourke.net/geometry/pointlineplane/).\n  vec4 p1 = u_projectionMatrix * vec4(longVertex, 0.0, 1.0) + offsetMatrix * vec4(longOffset, 0.0, 0.0);\n  vec4 p2 = projPos + offsetMatrix * vec4(longOffset, 0.0, 0.0);\n  vec4 p3 = shortProjVertex + offsetMatrix * vec4(-shortOffset, 0.0, 0.0);\n  vec4 p4 = shortProjVertex + offsetMatrix * vec4(shortOffset, 0.0, 0.0);\n  float denom = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);\n  float firstU = ((p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x)) / denom;\n  float secondU = ((p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x)) / denom;\n  float epsilon = 0.000000000001;\n  if (firstU > epsilon && firstU < 1.0 - epsilon && secondU > epsilon && secondU < 1.0 - epsilon) {\n    shortProjVertex.x = p1.x + firstU * (p2.x - p1.x);\n    shortProjVertex.y = p1.y + firstU * (p2.y - p1.y);\n    offset = shortProjVertex.xy;\n    degenerate = true;\n  } else {\n    float miterLength = abs(halfWidth / dot(normal, tmpNormal));\n    offset = normal * direction * miterLength;\n  }\n  return degenerate;\n}\n\nvoid squareCap(out vec2 offset, out float round, in bool isRound, in vec2 nextP,\n    in float turnDir, in float direction) {\n  round = 0.0;\n  vec2 dirVect = a_position - nextP;\n  vec2 firstNormal = normalize(dirVect);\n  vec2 secondNormal = vec2(turnDir * firstNormal.y * direction, -turnDir * firstNormal.x * direction);\n  vec2 hypotenuse = normalize(firstNormal - secondNormal);\n  vec2 normal = vec2(turnDir * hypotenuse.y * direction, -turnDir * hypotenuse.x * direction);\n  float length = sqrt(v_halfWidth * v_halfWidth * 2.0);\n  offset = normal * length;\n  if (isRound) {\n    round = 1.0;\n  }\n}\n\nvoid main(void) {\n  bool degenerate = false;\n  float direction = float(sign(a_direction));\n  mat4 offsetMatrix = u_offsetScaleMatrix * u_offsetRotateMatrix;\n  vec2 offset;\n  vec4 projPos = u_projectionMatrix * vec4(a_position, 0.0, 1.0);\n  bool round = nearlyEquals(mod(a_direction, 2.0), 0.0);\n\n  v_round = 0.0;\n  v_halfWidth = u_lineWidth / 2.0;\n  v_roundVertex = projPos.xy;\n\n  if (nearlyEquals(mod(a_direction, 3.0), 0.0) || nearlyEquals(mod(a_direction, 17.0), 0.0)) {\n    alongNormal(offset, a_nextPos, 1.0, direction);\n  } else if (nearlyEquals(mod(a_direction, 5.0), 0.0) || nearlyEquals(mod(a_direction, 13.0), 0.0)) {\n    alongNormal(offset, a_lastPos, -1.0, direction);\n  } else if (nearlyEquals(mod(a_direction, 23.0), 0.0)) {\n    miterUp(offset, v_round, round, direction);\n  } else if (nearlyEquals(mod(a_direction, 19.0), 0.0)) {\n    degenerate = miterDown(offset, projPos, offsetMatrix, direction);\n  } else if (nearlyEquals(mod(a_direction, 7.0), 0.0)) {\n    squareCap(offset, v_round, round, a_nextPos, 1.0, direction);\n  } else if (nearlyEquals(mod(a_direction, 11.0), 0.0)) {\n    squareCap(offset, v_round, round, a_lastPos, -1.0, direction);\n  }\n  if (!degenerate) {\n    vec4 offsets = offsetMatrix * vec4(offset, 0.0, 0.0);\n    gl_Position = projPos + offsets;\n  } else {\n    gl_Position = vec4(offset, 0.0, 1.0);\n  }\n}\n\n\n';
 
 
 /**
@@ -35616,7 +35616,7 @@ ol.render.webgl.PolygonReplay.prototype.getIntersections_ = function(segment, rt
 
 /**
  * Line intersection algorithm by Paul Bourke.
- * @see http://paulbourke.net/geometry/pointlineplane/
+ * @see https://paulbourke.net/geometry/pointlineplane/
  *
  * @private
  * @param {ol.WebglPolygonVertex} p0 First point.
@@ -37221,13 +37221,13 @@ goog.require('ol.proj');
  * if the web browser antialiases clipping edges on canvas.
  *
  * Currently only Chrome does not antialias the edges, but this is probably
- * going to be "fixed" in the future: http://crbug.com/424291
+ * going to be "fixed" in the future: https://crbug.com/424291
  *
  * @type {boolean}
  * @private
  */
 ol.reproj.browserAntialiasesClip_ = (function() {
-  // Adapted from http://stackoverflow.com/questions/4565112/javascript-how-to-find-out-if-the-user-browser-is-chrome
+  // Adapted from https://stackoverflow.com/questions/4565112/javascript-how-to-find-out-if-the-user-browser-is-chrome
   var isOpera = navigator.userAgent.indexOf('OPR') > -1;
   var isIEedge = navigator.userAgent.indexOf('Edge') > -1;
   return !(
@@ -38896,8 +38896,8 @@ ol.inherits(ol.renderer.webgl.ImageLayer, ol.renderer.webgl.Layer);
 ol.renderer.webgl.ImageLayer.prototype.createTexture_ = function(image) {
 
   // We meet the conditions to work with non-power of two textures.
-  // http://www.khronos.org/webgl/wiki/WebGL_and_OpenGL_Differences#Non-Power_of_Two_Texture_Support
-  // http://learningwebgl.com/blog/?p=2101
+  // https://www.khronos.org/webgl/wiki/WebGL_and_OpenGL_Differences#Non-Power_of_Two_Texture_Support
+  // https://learningwebgl.com/blog/?p=2101
 
   var imageElement = image.getImage();
   var gl = this.mapRenderer.getGL();
@@ -44218,7 +44218,7 @@ goog.require('ol.math');
  * @classdesc
  * The ol.DeviceOrientation class provides access to information from
  * DeviceOrientation events.  See the [HTML 5 DeviceOrientation Specification](
- * http://www.w3.org/TR/orientation-event/) for more details.
+ * https://www.w3.org/TR/orientation-event/) for more details.
  *
  * Many new computers, and especially mobile phones
  * and tablets, provide hardware support for device orientation. Web
@@ -44262,7 +44262,7 @@ goog.require('ol.math');
  * To get notified of device orientation changes, register a listener for the
  * generic `change` event on your `ol.DeviceOrientation` instance.
  *
- * @see {@link http://www.w3.org/TR/orientation-event/}
+ * @see {@link https://www.w3.org/TR/orientation-event/}
  *
  * @constructor
  * @extends {ol.Object}
@@ -49603,7 +49603,7 @@ ol.format.GeoJSON.prototype.readProjectionFromObject = function(object) {
     } else if (crs.type == 'EPSG') {
       // 'EPSG' is not part of the GeoJSON specification, but is generated by
       // GeoServer.
-      // TODO: remove this when http://jira.codehaus.org/browse/GEOS-5996
+      // TODO: remove this when https://jira.codehaus.org/browse/GEOS-5996
       // is fixed and widely deployed.
       projection = ol.proj.get('EPSG:' + crs.properties.code);
     } else {
@@ -50074,7 +50074,7 @@ ol.inherits(ol.format.GMLBase, ol.format.XMLFeature);
  * @const
  * @type {string}
  */
-ol.format.GMLBase.GMLNS = 'http://www.opengis.net/gml';
+ol.format.GMLBase.GMLNS = 'https://www.opengis.net/gml';
 
 
 /**
@@ -50103,7 +50103,7 @@ ol.format.GMLBase.prototype.readFeaturesInternal = function(node, objectStack) {
   var localName = node.localName;
   var features = null;
   if (localName == 'FeatureCollection') {
-    if (node.namespaceURI === 'http://www.opengis.net/wfs') {
+    if (node.namespaceURI === 'https://www.opengis.net/wfs') {
       features = ol.xml.pushParseAndPop([],
           this.FEATURE_COLLECTION_PARSERS, node,
           objectStack, this);
@@ -50498,7 +50498,7 @@ ol.format.GMLBase.prototype.readFlatCoordinatesFromNode_ = function(node, object
  * @private
  */
 ol.format.GMLBase.prototype.MULTIPOINT_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'pointMember': ol.xml.makeArrayPusher(
         ol.format.GMLBase.prototype.pointMemberParser_),
     'pointMembers': ol.xml.makeArrayPusher(
@@ -50513,7 +50513,7 @@ ol.format.GMLBase.prototype.MULTIPOINT_PARSERS_ = {
  * @private
  */
 ol.format.GMLBase.prototype.MULTILINESTRING_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'lineStringMember': ol.xml.makeArrayPusher(
         ol.format.GMLBase.prototype.lineStringMemberParser_),
     'lineStringMembers': ol.xml.makeArrayPusher(
@@ -50528,7 +50528,7 @@ ol.format.GMLBase.prototype.MULTILINESTRING_PARSERS_ = {
  * @private
  */
 ol.format.GMLBase.prototype.MULTIPOLYGON_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'polygonMember': ol.xml.makeArrayPusher(
         ol.format.GMLBase.prototype.polygonMemberParser_),
     'polygonMembers': ol.xml.makeArrayPusher(
@@ -50543,7 +50543,7 @@ ol.format.GMLBase.prototype.MULTIPOLYGON_PARSERS_ = {
  * @private
  */
 ol.format.GMLBase.prototype.POINTMEMBER_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'Point': ol.xml.makeArrayPusher(
         ol.format.GMLBase.prototype.readFlatCoordinatesFromNode_)
   }
@@ -50556,7 +50556,7 @@ ol.format.GMLBase.prototype.POINTMEMBER_PARSERS_ = {
  * @private
  */
 ol.format.GMLBase.prototype.LINESTRINGMEMBER_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'LineString': ol.xml.makeArrayPusher(
         ol.format.GMLBase.prototype.readLineString)
   }
@@ -50569,7 +50569,7 @@ ol.format.GMLBase.prototype.LINESTRINGMEMBER_PARSERS_ = {
  * @private
  */
 ol.format.GMLBase.prototype.POLYGONMEMBER_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'Polygon': ol.xml.makeArrayPusher(
         ol.format.GMLBase.prototype.readPolygon)
   }
@@ -50582,7 +50582,7 @@ ol.format.GMLBase.prototype.POLYGONMEMBER_PARSERS_ = {
  * @protected
  */
 ol.format.GMLBase.prototype.RING_PARSERS = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'LinearRing': ol.xml.makeReplacer(
         ol.format.GMLBase.prototype.readFlatLinearRing_)
   }
@@ -50646,7 +50646,7 @@ goog.require('ol.string');
  * @const
  * @type {string}
  */
-ol.format.XSD.NAMESPACE_URI = 'http://www.w3.org/2001/XMLSchema';
+ol.format.XSD.NAMESPACE_URI = 'https://www.w3.org/2001/XMLSchema';
 
 
 /**
@@ -50886,7 +50886,7 @@ ol.inherits(ol.format.GML3, ol.format.GMLBase);
  * @private
  */
 ol.format.GML3.schemaLocation_ = ol.format.GMLBase.GMLNS +
-    ' http://schemas.opengis.net/gml/3.1.1/profiles/gmlsfProfile/' +
+    ' https://schemas.opengis.net/gml/3.1.1/profiles/gmlsfProfile/' +
     '1.0.0/gmlsf.xsd';
 
 
@@ -51255,7 +51255,7 @@ ol.format.GML3.prototype.readFlatPosList_ = function(node, objectStack) {
  * @private
  */
 ol.format.GML3.prototype.GEOMETRY_FLAT_COORDINATES_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'pos': ol.xml.makeReplacer(ol.format.GML3.prototype.readFlatPos_),
     'posList': ol.xml.makeReplacer(ol.format.GML3.prototype.readFlatPosList_)
   }
@@ -51268,7 +51268,7 @@ ol.format.GML3.prototype.GEOMETRY_FLAT_COORDINATES_PARSERS_ = {
  * @private
  */
 ol.format.GML3.prototype.FLAT_LINEAR_RINGS_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'interior': ol.format.GML3.prototype.interiorParser_,
     'exterior': ol.format.GML3.prototype.exteriorParser_
   }
@@ -51281,7 +51281,7 @@ ol.format.GML3.prototype.FLAT_LINEAR_RINGS_PARSERS_ = {
  * @private
  */
 ol.format.GML3.prototype.GEOMETRY_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'Point': ol.xml.makeReplacer(ol.format.GMLBase.prototype.readPoint),
     'MultiPoint': ol.xml.makeReplacer(
         ol.format.GMLBase.prototype.readMultiPoint),
@@ -51311,7 +51311,7 @@ ol.format.GML3.prototype.GEOMETRY_PARSERS_ = {
  * @private
  */
 ol.format.GML3.prototype.MULTICURVE_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'curveMember': ol.xml.makeArrayPusher(
         ol.format.GML3.prototype.curveMemberParser_),
     'curveMembers': ol.xml.makeArrayPusher(
@@ -51326,7 +51326,7 @@ ol.format.GML3.prototype.MULTICURVE_PARSERS_ = {
  * @private
  */
 ol.format.GML3.prototype.MULTISURFACE_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'surfaceMember': ol.xml.makeArrayPusher(
         ol.format.GML3.prototype.surfaceMemberParser_),
     'surfaceMembers': ol.xml.makeArrayPusher(
@@ -51341,7 +51341,7 @@ ol.format.GML3.prototype.MULTISURFACE_PARSERS_ = {
  * @private
  */
 ol.format.GML3.prototype.CURVEMEMBER_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'LineString': ol.xml.makeArrayPusher(
         ol.format.GMLBase.prototype.readLineString),
     'Curve': ol.xml.makeArrayPusher(ol.format.GML3.prototype.readCurve_)
@@ -51355,7 +51355,7 @@ ol.format.GML3.prototype.CURVEMEMBER_PARSERS_ = {
  * @private
  */
 ol.format.GML3.prototype.SURFACEMEMBER_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'Polygon': ol.xml.makeArrayPusher(ol.format.GMLBase.prototype.readPolygon),
     'Surface': ol.xml.makeArrayPusher(ol.format.GML3.prototype.readSurface_)
   }
@@ -51368,7 +51368,7 @@ ol.format.GML3.prototype.SURFACEMEMBER_PARSERS_ = {
  * @private
  */
 ol.format.GML3.prototype.SURFACE_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'patches': ol.xml.makeReplacer(ol.format.GML3.prototype.readPatch_)
   }
 };
@@ -51380,7 +51380,7 @@ ol.format.GML3.prototype.SURFACE_PARSERS_ = {
  * @private
  */
 ol.format.GML3.prototype.CURVE_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'segments': ol.xml.makeReplacer(ol.format.GML3.prototype.readSegment_)
   }
 };
@@ -51392,7 +51392,7 @@ ol.format.GML3.prototype.CURVE_PARSERS_ = {
  * @private
  */
 ol.format.GML3.prototype.ENVELOPE_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'lowerCorner': ol.xml.makeArrayPusher(
         ol.format.GML3.prototype.readFlatPosList_),
     'upperCorner': ol.xml.makeArrayPusher(
@@ -51407,7 +51407,7 @@ ol.format.GML3.prototype.ENVELOPE_PARSERS_ = {
  * @private
  */
 ol.format.GML3.prototype.PATCHES_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'PolygonPatch': ol.xml.makeReplacer(
         ol.format.GML3.prototype.readPolygonPatch_)
   }
@@ -51420,7 +51420,7 @@ ol.format.GML3.prototype.PATCHES_PARSERS_ = {
  * @private
  */
 ol.format.GML3.prototype.SEGMENTS_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'LineStringSegment': ol.xml.makeReplacer(
         ol.format.GML3.prototype.readLineStringSegment_)
   }
@@ -51514,7 +51514,7 @@ ol.format.GML3.prototype.writePoint_ = function(node, geometry, objectStack) {
  * @private
  */
 ol.format.GML3.ENVELOPE_SERIALIZERS_ = {
-  'http://www.opengis.net/gml': {
+  'https://www.opengis.net/gml': {
     'lowerCorner': ol.xml.makeChildAppender(ol.format.XSD.writeStringTextNode),
     'upperCorner': ol.xml.makeChildAppender(ol.format.XSD.writeStringTextNode)
   }
@@ -51885,7 +51885,7 @@ ol.format.GML3.prototype.writeFeatureMembers_ = function(node, features, objectS
  * @private
  */
 ol.format.GML3.SURFACEORPOLYGONMEMBER_SERIALIZERS_ = {
-  'http://www.opengis.net/gml': {
+  'https://www.opengis.net/gml': {
     'surfaceMember': ol.xml.makeChildAppender(
         ol.format.GML3.prototype.writeSurfaceOrPolygonMember_),
     'polygonMember': ol.xml.makeChildAppender(
@@ -51899,7 +51899,7 @@ ol.format.GML3.SURFACEORPOLYGONMEMBER_SERIALIZERS_ = {
  * @private
  */
 ol.format.GML3.POINTMEMBER_SERIALIZERS_ = {
-  'http://www.opengis.net/gml': {
+  'https://www.opengis.net/gml': {
     'pointMember': ol.xml.makeChildAppender(
         ol.format.GML3.prototype.writePointMember_)
   }
@@ -51911,7 +51911,7 @@ ol.format.GML3.POINTMEMBER_SERIALIZERS_ = {
  * @private
  */
 ol.format.GML3.LINESTRINGORCURVEMEMBER_SERIALIZERS_ = {
-  'http://www.opengis.net/gml': {
+  'https://www.opengis.net/gml': {
     'lineStringMember': ol.xml.makeChildAppender(
         ol.format.GML3.prototype.writeLineStringOrCurveMember_),
     'curveMember': ol.xml.makeChildAppender(
@@ -51925,7 +51925,7 @@ ol.format.GML3.LINESTRINGORCURVEMEMBER_SERIALIZERS_ = {
  * @private
  */
 ol.format.GML3.RING_SERIALIZERS_ = {
-  'http://www.opengis.net/gml': {
+  'https://www.opengis.net/gml': {
     'exterior': ol.xml.makeChildAppender(ol.format.GML3.prototype.writeRing_),
     'interior': ol.xml.makeChildAppender(ol.format.GML3.prototype.writeRing_)
   }
@@ -51937,7 +51937,7 @@ ol.format.GML3.RING_SERIALIZERS_ = {
  * @private
  */
 ol.format.GML3.GEOMETRY_SERIALIZERS_ = {
-  'http://www.opengis.net/gml': {
+  'https://www.opengis.net/gml': {
     'Curve': ol.xml.makeChildAppender(
         ol.format.GML3.prototype.writeCurveOrLineString_),
     'MultiCurve': ol.xml.makeChildAppender(
@@ -51990,7 +51990,7 @@ ol.format.GML3.prototype.MULTIGEOMETRY_MEMBER_NODE_FACTORY_ = function(value, ob
   var parentNode = objectStack[objectStack.length - 1].node;
   ol.DEBUG && console.assert(ol.xml.isNode(parentNode),
       'parentNode should be a node');
-  return ol.xml.createElementNS('http://www.opengis.net/gml',
+  return ol.xml.createElementNS('https://www.opengis.net/gml',
       ol.format.GML3.MULTIGEOMETRY_TO_MEMBER_NODENAME_[parentNode.nodeName]);
 };
 
@@ -52027,7 +52027,7 @@ ol.format.GML3.prototype.GEOMETRY_NODE_FACTORY_ = function(value, objectStack, o
   } else {
     nodeName = 'Envelope';
   }
-  return ol.xml.createElementNS('http://www.opengis.net/gml',
+  return ol.xml.createElementNS('https://www.opengis.net/gml',
       nodeName);
 };
 
@@ -52042,7 +52042,7 @@ ol.format.GML3.prototype.GEOMETRY_NODE_FACTORY_ = function(value, objectStack, o
  */
 ol.format.GML3.prototype.writeGeometryNode = function(geometry, opt_options) {
   opt_options = this.adaptOptions(opt_options);
-  var geom = ol.xml.createElementNS('http://www.opengis.net/gml', 'geom');
+  var geom = ol.xml.createElementNS('https://www.opengis.net/gml', 'geom');
   var context = {node: geom, srsName: this.srsName,
     curve: this.curve_, surface: this.surface_,
     multiSurface: this.multiSurface_, multiCurve: this.multiCurve_};
@@ -52076,9 +52076,9 @@ ol.format.GML3.prototype.writeFeatures;
  */
 ol.format.GML3.prototype.writeFeaturesNode = function(features, opt_options) {
   opt_options = this.adaptOptions(opt_options);
-  var node = ol.xml.createElementNS('http://www.opengis.net/gml',
+  var node = ol.xml.createElementNS('https://www.opengis.net/gml',
       'featureMembers');
-  ol.xml.setAttributeNS(node, 'http://www.w3.org/2001/XMLSchema-instance',
+  ol.xml.setAttributeNS(node, 'https://www.w3.org/2001/XMLSchema-instance',
       'xsi:schemaLocation', this.schemaLocation);
   var context = {
     srsName: this.srsName,
@@ -52185,7 +52185,7 @@ ol.inherits(ol.format.GML2, ol.format.GMLBase);
  * @private
  */
 ol.format.GML2.schemaLocation_ = ol.format.GMLBase.GMLNS +
-    ' http://schemas.opengis.net/gml/2.1.2/feature.xsd';
+    ' https://schemas.opengis.net/gml/2.1.2/feature.xsd';
 
 
 /**
@@ -52309,7 +52309,7 @@ ol.format.GML2.prototype.outerBoundaryIsParser_ = function(node, objectStack) {
  * @private
  */
 ol.format.GML2.prototype.GEOMETRY_FLAT_COORDINATES_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'coordinates': ol.xml.makeReplacer(
         ol.format.GML2.prototype.readFlatCoordinates_)
   }
@@ -52322,7 +52322,7 @@ ol.format.GML2.prototype.GEOMETRY_FLAT_COORDINATES_PARSERS_ = {
  * @private
  */
 ol.format.GML2.prototype.FLAT_LINEAR_RINGS_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'innerBoundaryIs': ol.format.GML2.prototype.innerBoundaryIsParser_,
     'outerBoundaryIs': ol.format.GML2.prototype.outerBoundaryIsParser_
   }
@@ -52335,7 +52335,7 @@ ol.format.GML2.prototype.FLAT_LINEAR_RINGS_PARSERS_ = {
  * @private
  */
 ol.format.GML2.prototype.BOX_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'coordinates': ol.xml.makeArrayPusher(
         ol.format.GML2.prototype.readFlatCoordinates_)
   }
@@ -52348,7 +52348,7 @@ ol.format.GML2.prototype.BOX_PARSERS_ = {
  * @private
  */
 ol.format.GML2.prototype.GEOMETRY_PARSERS_ = {
-  'http://www.opengis.net/gml' : {
+  'https://www.opengis.net/gml' : {
     'Point': ol.xml.makeReplacer(ol.format.GMLBase.prototype.readPoint),
     'MultiPoint': ol.xml.makeReplacer(
         ol.format.GMLBase.prototype.readMultiPoint),
@@ -52417,8 +52417,8 @@ ol.inherits(ol.format.GPX, ol.format.XMLFeature);
  */
 ol.format.GPX.NAMESPACE_URIS_ = [
   null,
-  'http://www.topografix.com/GPX/1/0',
-  'http://www.topografix.com/GPX/1/1'
+  'https://www.topografix.com/GPX/1/0',
+  'https://www.topografix.com/GPX/1/1'
 ];
 
 
@@ -52427,8 +52427,8 @@ ol.format.GPX.NAMESPACE_URIS_ = [
  * @type {string}
  * @private
  */
-ol.format.GPX.SCHEMA_LOCATION_ = 'http://www.topografix.com/GPX/1/1 ' +
-    'http://www.topografix.com/GPX/1/1/gpx.xsd';
+ol.format.GPX.SCHEMA_LOCATION_ = 'https://www.topografix.com/GPX/1/1 ' +
+    'https://www.topografix.com/GPX/1/1/gpx.xsd';
 
 
 /**
@@ -53334,9 +53334,9 @@ ol.format.GPX.prototype.writeFeatures;
 ol.format.GPX.prototype.writeFeaturesNode = function(features, opt_options) {
   opt_options = this.adaptOptions(opt_options);
   //FIXME Serialize metadata
-  var gpx = ol.xml.createElementNS('http://www.topografix.com/GPX/1/1', 'gpx');
-  var xmlnsUri = 'http://www.w3.org/2000/xmlns/';
-  var xmlSchemaInstanceUri = 'http://www.w3.org/2001/XMLSchema-instance';
+  var gpx = ol.xml.createElementNS('https://www.topografix.com/GPX/1/1', 'gpx');
+  var xmlnsUri = 'https://www.w3.org/2000/xmlns/';
+  var xmlSchemaInstanceUri = 'https://www.w3.org/2001/XMLSchema-instance';
   ol.xml.setAttributeNS(gpx, xmlnsUri, 'xmlns:xsi', xmlSchemaInstanceUri);
   ol.xml.setAttributeNS(gpx, xmlSchemaInstanceUri, 'xsi:schemaLocation',
       ol.format.GPX.SCHEMA_LOCATION_);
@@ -54790,7 +54790,7 @@ ol.style.Text.prototype.setTextBaseline = function(textBaseline) {
   this.textBaseline_ = textBaseline;
 };
 
-// FIXME http://earth.google.com/kml/1.0 namespace?
+// FIXME https://earth.google.com/kml/1.0 namespace?
 // FIXME why does node.getAttribute return an unknown type?
 // FIXME serialize arbitrary feature properties
 // FIXME don't parse style if extractStyles is false
@@ -54904,7 +54904,7 @@ ol.format.KML.EXTENSIONS_ = ['.kml'];
  * @private
  */
 ol.format.KML.GX_NAMESPACE_URIS_ = [
-  'http://www.google.com/kml/ext/2.2'
+  'https://www.google.com/kml/ext/2.2'
 ];
 
 
@@ -54915,10 +54915,10 @@ ol.format.KML.GX_NAMESPACE_URIS_ = [
  */
 ol.format.KML.NAMESPACE_URIS_ = [
   null,
-  'http://earth.google.com/kml/2.0',
-  'http://earth.google.com/kml/2.1',
-  'http://earth.google.com/kml/2.2',
-  'http://www.opengis.net/kml/2.2'
+  'https://earth.google.com/kml/2.0',
+  'https://earth.google.com/kml/2.1',
+  'https://earth.google.com/kml/2.2',
+  'https://www.opengis.net/kml/2.2'
 ];
 
 
@@ -54927,7 +54927,7 @@ ol.format.KML.NAMESPACE_URIS_ = [
  * @type {string}
  * @private
  */
-ol.format.KML.SCHEMA_LOCATION_ = 'http://www.opengis.net/kml/2.2 ' +
+ol.format.KML.SCHEMA_LOCATION_ = 'https://www.opengis.net/kml/2.2 ' +
     'https://developers.google.com/kml/schema/kml22gx.xsd';
 
 
@@ -57993,8 +57993,8 @@ ol.format.KML.prototype.writeFeatures;
 ol.format.KML.prototype.writeFeaturesNode = function(features, opt_options) {
   opt_options = this.adaptOptions(opt_options);
   var kml = ol.xml.createElementNS(ol.format.KML.NAMESPACE_URIS_[4], 'kml');
-  var xmlnsUri = 'http://www.w3.org/2000/xmlns/';
-  var xmlSchemaInstanceUri = 'http://www.w3.org/2001/XMLSchema-instance';
+  var xmlnsUri = 'https://www.w3.org/2000/xmlns/';
+  var xmlSchemaInstanceUri = 'https://www.w3.org/2001/XMLSchema-instance';
   ol.xml.setAttributeNS(kml, xmlnsUri, 'xmlns:gx',
       ol.format.KML.GX_NAMESPACE_URIS_[0]);
   ol.xml.setAttributeNS(kml, xmlnsUri, 'xmlns:xsi', xmlSchemaInstanceUri);
@@ -59649,7 +59649,7 @@ goog.require('ol.xml');
 /**
  * @classdesc
  * Feature format for reading data in the
- * [OSMXML format](http://wiki.openstreetmap.org/wiki/OSM_XML).
+ * [OSMXML format](https://wiki.openstreetmap.org/wiki/OSM_XML).
  *
  * @constructor
  * @extends {ol.format.XMLFeature}
@@ -59877,7 +59877,7 @@ goog.provide('ol.format.XLink');
  * @const
  * @type {string}
  */
-ol.format.XLink.NAMESPACE_URI = 'http://www.w3.org/1999/xlink';
+ol.format.XLink.NAMESPACE_URI = 'https://www.w3.org/1999/xlink';
 
 
 /**
@@ -60233,7 +60233,7 @@ ol.format.OWS.readValue_ = function(node, objectStack) {
  */
 ol.format.OWS.NAMESPACE_URIS_ = [
   null,
-  'http://www.opengis.net/ows/1.1'
+  'https://www.opengis.net/ows/1.1'
 ];
 
 
@@ -61336,29 +61336,29 @@ ol.format.WFS.FEATURE_PREFIX = 'feature';
  * @const
  * @type {string}
  */
-ol.format.WFS.XMLNS = 'http://www.w3.org/2000/xmlns/';
+ol.format.WFS.XMLNS = 'https://www.w3.org/2000/xmlns/';
 
 
 /**
  * @const
  * @type {string}
  */
-ol.format.WFS.OGCNS = 'http://www.opengis.net/ogc';
+ol.format.WFS.OGCNS = 'https://www.opengis.net/ogc';
 
 
 /**
  * @const
  * @type {string}
  */
-ol.format.WFS.WFSNS = 'http://www.opengis.net/wfs';
+ol.format.WFS.WFSNS = 'https://www.opengis.net/wfs';
 
 
 /**
  * @const
  * @type {string}
  */
-ol.format.WFS.SCHEMA_LOCATION = 'http://www.opengis.net/wfs ' +
-    'http://schemas.opengis.net/wfs/1.1.0/wfs.xsd';
+ol.format.WFS.SCHEMA_LOCATION = 'https://www.opengis.net/wfs ' +
+    'https://schemas.opengis.net/wfs/1.1.0/wfs.xsd';
 
 
 /**
@@ -61466,7 +61466,7 @@ ol.format.WFS.prototype.readFeatureCollectionMetadataFromDocument = function(doc
  * @private
  */
 ol.format.WFS.FEATURE_COLLECTION_PARSERS_ = {
-  'http://www.opengis.net/gml': {
+  'https://www.opengis.net/gml': {
     'boundedBy': ol.xml.makeObjectPropertySetter(
         ol.format.GMLBase.prototype.readGeometryElement, 'bounds')
   }
@@ -61499,7 +61499,7 @@ ol.format.WFS.prototype.readFeatureCollectionMetadataFromNode = function(node) {
  * @private
  */
 ol.format.WFS.TRANSACTION_SUMMARY_PARSERS_ = {
-  'http://www.opengis.net/wfs': {
+  'https://www.opengis.net/wfs': {
     'totalInserted': ol.xml.makeObjectPropertySetter(
         ol.format.XSD.readNonNegativeInteger),
     'totalUpdated': ol.xml.makeObjectPropertySetter(
@@ -61528,7 +61528,7 @@ ol.format.WFS.readTransactionSummary_ = function(node, objectStack) {
  * @private
  */
 ol.format.WFS.OGC_FID_PARSERS_ = {
-  'http://www.opengis.net/ogc': {
+  'https://www.opengis.net/ogc': {
     'FeatureId': ol.xml.makeArrayPusher(function(node, objectStack) {
       return node.getAttribute('fid');
     })
@@ -61552,7 +61552,7 @@ ol.format.WFS.fidParser_ = function(node, objectStack) {
  * @private
  */
 ol.format.WFS.INSERT_RESULTS_PARSERS_ = {
-  'http://www.opengis.net/wfs': {
+  'https://www.opengis.net/wfs': {
     'Feature': ol.format.WFS.fidParser_
   }
 };
@@ -61576,7 +61576,7 @@ ol.format.WFS.readInsertResults_ = function(node, objectStack) {
  * @private
  */
 ol.format.WFS.TRANSACTION_RESPONSE_PARSERS_ = {
-  'http://www.opengis.net/wfs': {
+  'https://www.opengis.net/wfs': {
     'TransactionSummary': ol.xml.makeObjectPropertySetter(
         ol.format.WFS.readTransactionSummary_, 'transactionSummary'),
     'InsertResults': ol.xml.makeObjectPropertySetter(
@@ -61621,7 +61621,7 @@ ol.format.WFS.prototype.readTransactionResponseFromNode = function(node) {
  * @private
  */
 ol.format.WFS.QUERY_SERIALIZERS_ = {
-  'http://www.opengis.net/wfs': {
+  'https://www.opengis.net/wfs': {
     'PropertyName': ol.xml.makeChildAppender(ol.format.XSD.writeStringTextNode)
   }
 };
@@ -61767,7 +61767,7 @@ ol.format.WFS.writeNative_ = function(node, nativeElement, objectStack) {
  * @private
  */
 ol.format.WFS.TRANSACTION_SERIALIZERS_ = {
-  'http://www.opengis.net/wfs': {
+  'https://www.opengis.net/wfs': {
     'Insert': ol.xml.makeChildAppender(ol.format.WFS.writeFeature_),
     'Update': ol.xml.makeChildAppender(ol.format.WFS.writeUpdate_),
     'Delete': ol.xml.makeChildAppender(ol.format.WFS.writeDelete_),
@@ -62014,10 +62014,10 @@ ol.format.WFS.writeOgcLiteral_ = function(node, value) {
  * @private
  */
 ol.format.WFS.GETFEATURE_SERIALIZERS_ = {
-  'http://www.opengis.net/wfs': {
+  'https://www.opengis.net/wfs': {
     'Query': ol.xml.makeChildAppender(ol.format.WFS.writeQuery_)
   },
-  'http://www.opengis.net/ogc': {
+  'https://www.opengis.net/ogc': {
     'And': ol.xml.makeChildAppender(ol.format.WFS.writeLogicalFilter_),
     'Or': ol.xml.makeChildAppender(ol.format.WFS.writeLogicalFilter_),
     'Not': ol.xml.makeChildAppender(ol.format.WFS.writeNotFilter_),
@@ -62099,7 +62099,7 @@ ol.format.WFS.prototype.writeGetFeature = function(options) {
       }
     }
   }
-  ol.xml.setAttributeNS(node, 'http://www.w3.org/2001/XMLSchema-instance',
+  ol.xml.setAttributeNS(node, 'https://www.w3.org/2001/XMLSchema-instance',
       'xsi:schemaLocation', this.schemaLocation_);
   /** @type {ol.XmlNodeStackItem} */
   var context = {
@@ -62143,7 +62143,7 @@ ol.format.WFS.prototype.writeTransaction = function(inserts, updates, deletes,
       node.setAttribute('handle', options.handle);
     }
   }
-  ol.xml.setAttributeNS(node, 'http://www.w3.org/2001/XMLSchema-instance',
+  ol.xml.setAttributeNS(node, 'https://www.w3.org/2001/XMLSchema-instance',
       'xsi:schemaLocation', this.schemaLocation_);
   if (inserts) {
     obj = {node: node, 'featureNS': options.featureNS,
@@ -63739,7 +63739,7 @@ ol.format.WMSCapabilities.readKeywordList_ = function(node, objectStack) {
  */
 ol.format.WMSCapabilities.NAMESPACE_URIS_ = [
   null,
-  'http://www.opengis.net/wms'
+  'https://www.opengis.net/wms'
 ];
 
 
@@ -64064,7 +64064,7 @@ ol.format.WMSGetFeatureInfo = function(opt_options) {
    * @private
    * @type {string}
    */
-  this.featureNS_ = 'http://mapserver.gis.umn.edu/mapserver';
+  this.featureNS_ = 'https://mapserver.gis.umn.edu/mapserver';
 
 
   /**
@@ -64477,7 +64477,7 @@ ol.format.WMTSCapabilities.readTileMatrixLimits_ = function(node, objectStack) {
  */
 ol.format.WMTSCapabilities.NAMESPACE_URIS_ = [
   null,
-  'http://www.opengis.net/wmts/1.0'
+  'https://www.opengis.net/wmts/1.0'
 ];
 
 
@@ -64488,7 +64488,7 @@ ol.format.WMTSCapabilities.NAMESPACE_URIS_ = [
  */
 ol.format.WMTSCapabilities.OWS_NAMESPACE_URIS_ = [
   null,
-  'http://www.opengis.net/ows/1.1'
+  'https://www.opengis.net/ows/1.1'
 ];
 
 
@@ -64701,7 +64701,7 @@ goog.require('ol.sphere.WGS84');
 /**
  * @classdesc
  * Helper class for providing HTML5 Geolocation capabilities.
- * The [Geolocation API](http://www.w3.org/TR/geolocation-API/)
+ * The [Geolocation API](https://www.w3.org/TR/geolocation-API/)
  * is used to locate a user's position.
  *
  * To get notified of position changes, register a listener for the generic
@@ -64977,10 +64977,10 @@ ol.Geolocation.prototype.getTracking = function() {
 
 /**
  * Get the tracking options.
- * @see http://www.w3.org/TR/geolocation-API/#position-options
+ * @see https://www.w3.org/TR/geolocation-API/#position-options
  * @return {GeolocationPositionOptions|undefined} PositionOptions as defined by
  *     the [HTML5 Geolocation spec
- *     ](http://www.w3.org/TR/geolocation-API/#position_options_interface).
+ *     ](https://www.w3.org/TR/geolocation-API/#position_options_interface).
  * @observable
  * @api stable
  */
@@ -65015,10 +65015,10 @@ ol.Geolocation.prototype.setTracking = function(tracking) {
 
 /**
  * Set the tracking options.
- * @see http://www.w3.org/TR/geolocation-API/#position-options
+ * @see https://www.w3.org/TR/geolocation-API/#position-options
  * @param {GeolocationPositionOptions} options PositionOptions as defined by the
  *     [HTML5 Geolocation spec
- *     ](http://www.w3.org/TR/geolocation-API/#position_options_interface).
+ *     ](https://www.w3.org/TR/geolocation-API/#position_options_interface).
  * @observable
  * @api stable
  */
@@ -73160,7 +73160,7 @@ ol.inherits(ol.source.BingMaps, ol.source.TileImage);
  */
 ol.source.BingMaps.TOS_ATTRIBUTION = new ol.Attribution({
   html: '<a class="ol-attribution-bing-tos" ' +
-      'href="http://www.microsoft.com/maps/product/terms.html">' +
+      'href="https://www.microsoft.com/maps/product/terms.html">' +
       'Terms of Use</a>'
 });
 
@@ -73313,7 +73313,7 @@ goog.require('ol.tilegrid');
  * such as:
  *
  *  tileUrlFunction: function(coordinate) {
- *    return 'http://mapserver.com/' + coordinate[0] + '/' +
+ *    return 'https://mapserver.com/' + coordinate[0] + '/' +
  *        coordinate[1] + '/' + coordinate[2] + '.png';
  *    }
  *
@@ -75689,8 +75689,8 @@ ol.inherits(ol.source.Stamen, ol.source.XYZ);
  */
 ol.source.Stamen.ATTRIBUTIONS = [
   new ol.Attribution({
-    html: 'Map tiles by <a href="http://stamen.com/">Stamen Design</a>, ' +
-        'under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY' +
+    html: 'Map tiles by <a href="https://stamen.com/">Stamen Design</a>, ' +
+        'under <a href="https://creativecommons.org/licenses/by/3.0/">CC BY' +
         ' 3.0</a>.'
   }),
   ol.source.OSM.ATTRIBUTION
@@ -76065,7 +76065,7 @@ ol.source.TileDebug.Tile_.prototype.getImage = function() {
 // FIXME check order of async callbacks
 
 /**
- * @see http://mapbox.com/developers/api/
+ * @see https://mapbox.com/developers/api/
  */
 
 goog.provide('ol.source.TileJSON');
@@ -78286,7 +78286,7 @@ goog.require('ol.dom');
  * Images added to an atlas will be rendered onto a single
  * atlas canvas. The distribution of images on the canvas is
  * managed with the bin packing algorithm described in:
- * http://www.blackpawn.com/texts/lightmaps/
+ * https://www.blackpawn.com/texts/lightmaps/
  *
  * @constructor
  * @struct
@@ -78688,7 +78688,7 @@ ol.style.AtlasManager.prototype.add_ = function(isHitAtlas, id, width, height,
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//      https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS-IS" BASIS,

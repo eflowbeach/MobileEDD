@@ -266,7 +266,7 @@ qx.Class.define("mobileedd.Observations",
             } else
             {
               // Ob
-              var imageUrl = 'http://preview.weather.gov/edd/resource/edd/MappingFramework/js/stationmodel/stationmodel.php?';
+              var imageUrl = 'https://preview.weather.gov/edd/resource/edd/MappingFramework/js/stationmodel/stationmodel.php?';
               imageUrl += (t !== undefined ? '&T=' + Math.round(t[value_type]) : '');
               imageUrl += (td !== undefined ? '&TD=' + Math.round(td[value_type]) : '');
               imageUrl += (ws !== undefined ? '&FF=' + Math.round(ws[value_type]) : '');

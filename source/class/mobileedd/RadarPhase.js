@@ -60,7 +60,7 @@ qx.Class.define("mobileedd.RadarPhase",
     // Set up the query timestamp request
 
     // Need to use EDD's since UW's server doesn't serve the correct response type: text/json rather than application/json
-    me.timesReq = new qx.io.request.Jsonp("http://preview.weather.gov/edd/resource/edd/universities/getUWVectorTimes.php?layer=nexrphase");
+    me.timesReq = new qx.io.request.Jsonp("https://preview.weather.gov/edd/resource/edd/universities/getUWVectorTimes.php?layer=nexrphase");
 
     // Request Succeeded
     me.timesReq.addListener("success", function(e)

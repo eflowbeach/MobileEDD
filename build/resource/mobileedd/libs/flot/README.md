@@ -3,7 +3,7 @@
 ## About ##
 
 Flot is a Javascript plotting library for jQuery.  
-Read more at the website: <http://www.flotcharts.org/>
+Read more at the website: <https://www.flotcharts.org/>
 
 Take a look at the the examples in examples/index.html; they should give a good
 impression of what Flot can do, and the source code of the examples is probably
@@ -104,7 +104,7 @@ domain) have been included in the examples directory.  They are used in
 examples/axes-time-zones/index.html.
 
 
-[excanvas]: http://code.google.com/p/explorercanvas/
-[flashcanvas]: http://code.google.com/p/flashcanvas/
+[excanvas]: https://code.google.com/p/explorercanvas/
+[flashcanvas]: https://code.google.com/p/flashcanvas/
 [timezone-js]: https://github.com/mde/timezone-js
-[olson]: http://ftp.iana.org/time-zones
+[olson]: https://ftp.iana.org/time-zones

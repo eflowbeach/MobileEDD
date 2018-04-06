@@ -1,5 +1,5 @@
 /**
-*  Storm Reports - http://preview.weather.gov/edd/resource/mobileedd/getLSR.php?sts=201609131215&ets=201609131615
+*  Storm Reports - https://preview.weather.gov/edd/resource/mobileedd/getLSR.php?sts=201609131215&ets=201609131615
 *
 */
 

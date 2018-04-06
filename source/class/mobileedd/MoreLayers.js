@@ -228,7 +228,7 @@ qx.Class.define("mobileedd.MoreLayers",
           opacity : 0.7,
           source : new ol.source.TileWMS(
           {
-            url : 'http://digital.weather.gov/wms.php',
+            url : 'https://digital.weather.gov/wms.php',
             params :
             {
               'LAYERS' : wmslayer,

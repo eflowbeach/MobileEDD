@@ -140,7 +140,7 @@ qx.Class.define("mobileedd.page.NationalWaterModel",
          * Medium
          * */
 
-        // http://mapservice.nohrsc.noaa.gov:8080/0.2/forecasts/short_range/streamflow?station_id=19292810
+        // https://mapservice.nohrsc.noaa.gov:8080/0.2/forecasts/short_range/streamflow?station_id=19292810
         var req = new qx.io.request.Xhr("resource/mobileedd/data/getStreamflow.php?id=" + stid + '&type=medium_range');
         req.setParser("json");
         req.addListener("success", function(e)
@@ -204,7 +204,7 @@ qx.Class.define("mobileedd.page.NationalWaterModel",
          * Long Range
          * */
 
-        // http://mapservice.nohrsc.noaa.gov:8080/0.2/forecasts/short_range/streamflow?station_id=19292810
+        // https://mapservice.nohrsc.noaa.gov:8080/0.2/forecasts/short_range/streamflow?station_id=19292810
         var req = new qx.io.request.Xhr("resource/mobileedd/data/getStreamflow.php?id=" + stid + '&type=long_range');
         req.setParser("json");
         req.addListener("success", function(e)

@@ -182,14 +182,14 @@ qx.Class.define("mobileedd.page.Forecast",
         // NDFD forecast
         var mercatorLL = ol.proj.transform(ll, 'EPSG:4326', 'EPSG:3857');
         var region = mobileedd.page.Map.getInstance().getNdfdRegion(mercatorLL);
-        var url = "http://preview.weather.gov/edd/resource/edd/ndfd/getNdfdMeteogramData.php?lat=" + mercatorLL[1] + '&lon=' + mercatorLL[0] + '&region=' + region;
+        var url = "https://preview.weather.gov/edd/resource/edd/ndfd/getNdfdMeteogramData.php?lat=" + mercatorLL[1] + '&lon=' + mercatorLL[0] + '&region=' + region;
         me.ndfdReq.setUrl(url);
         me.ndfdReq.send();
 
         /**
          * Text Forecast
          * */
-        var textUrl = "http://forecast.weather.gov/MapClick.php?lat=" + ll[1] + "&lon=" + ll[0] + "&FcstType=json";
+        var textUrl = "https://forecast.weather.gov/MapClick.php?lat=" + ll[1] + "&lon=" + ll[0] + "&FcstType=json";
         me.fxReq.setUrl(textUrl);
         me.fxReq.send();
       }, this);

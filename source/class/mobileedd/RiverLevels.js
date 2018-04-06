@@ -1,5 +1,5 @@
 /**
-*  Rivers - http://preview.weather.gov/edd/resource/edd/rfc/getAhpsData.php?datadefine=both%7Cmajor%7Cmoderate%7Cminor%7Caction&left=-95.6542258262616&right=-79.74602270126027&top=44.9330348029024&bottom=37.85676929732233
+*  Rivers - https://preview.weather.gov/edd/resource/edd/rfc/getAhpsData.php?datadefine=both%7Cmajor%7Cmoderate%7Cminor%7Caction&left=-95.6542258262616&right=-79.74602270126027&top=44.9330348029024&bottom=37.85676929732233
 *
 */
 
@@ -127,7 +127,7 @@ qx.Class.define("mobileedd.RiverLevels",
       me.riverRequest = new qx.io.request.Jsonp();
       var url = me.mapObject.getJsonpRoot() + "rfc/getAhpsData.php";
 
-      //http://preview.weather.gov/edd/resource/edd/rfc/getAhpsData.php?datadefine=both%7Cmajor%7Cmoderate%7Cminor%7Caction&left=-95.6542258262616&right=-79.74602270126027&top=44.9330348029024&bottom=37.85676929732233
+      //https://preview.weather.gov/edd/resource/edd/rfc/getAhpsData.php?datadefine=both%7Cmajor%7Cmoderate%7Cminor%7Caction&left=-95.6542258262616&right=-79.74602270126027&top=44.9330348029024&bottom=37.85676929732233
       me.riverRequest.setRequestData(
       {
         "datadefine" : "both|major|moderate|minor|action",

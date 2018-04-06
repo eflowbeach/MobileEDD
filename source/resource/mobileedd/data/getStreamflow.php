@@ -5,7 +5,7 @@
 $id = isset($_REQUEST["id"]) ? $_REQUEST["id"] : "0";
 $type = isset($_REQUEST["type"]) ? $_REQUEST["type"] : "short_range";
 // $id = isset($_REQUEST["id"]) ? sanitize($_REQUEST["id"], "FLOAT") : "0";
-$json_url = "http://nwmdata.nohrsc.noaa.gov/0.2/forecasts/".$type."/streamflow?station_id=".$id;
+$json_url = "https://nwmdata.nohrsc.noaa.gov/0.2/forecasts/".$type."/streamflow?station_id=".$id;
 
 // Initializing curl
 $ch = curl_init( $json_url );

@@ -146,7 +146,7 @@ qx.Class.define("mobileedd.Application",
         this.hide = true;
       }, this);
       var statusRequest = new qx.io.request.Jsonp();
-      var url = "http://preview.weather.gov/edd/resource/edd/getEddMobileStatus.php";
+      var url = "https://preview.weather.gov/edd/resource/edd/getEddMobileStatus.php";
       statusRequest.setUrl(url);
       statusRequest.setCache(false);
       statusRequest.setCallbackParam('callback');

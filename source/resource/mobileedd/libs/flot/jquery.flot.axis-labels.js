@@ -1,6 +1,6 @@
 /*
 Axis Labels Plugin for flot.
-http://github.com/markrcote/flot-axislabels
+https://github.com/markrcote/flot-axislabels
 
 Original code is Copyright (c) 2010 Xuan Luo.
 Original code was released under the GPLv3 license by Xuan Luo, September 2010.

@@ -575,7 +575,7 @@ In Python you can get it with something like:
 calendar.timegm(datetime_object.timetuple()) * 1000
 ```
 In Ruby you can get it using the `#to_i` method on the
-[`Time`](http://apidock.com/ruby/Time/to_i) object. If you're using the
+[`Time`](https://apidock.com/ruby/Time/to_i) object. If you're using the
 `active_support` gem (default for Ruby on Rails applications) `#to_i` is also
 available on the `DateTime` and `ActiveSupport::TimeWithZone` objects. You
 simply need to multiply the result by 1000:
@@ -696,7 +696,7 @@ times.
 
 If the Date object has a strftime property (and it is a function), it
 will be used instead of the built-in formatter. Thus you can include
-a strftime library such as http://hacks.bluesmoon.info/strftime/ for
+a strftime library such as https://hacks.bluesmoon.info/strftime/ for
 more powerful date/time formatting.
 
 If everything else fails, you can control the formatting by specifying

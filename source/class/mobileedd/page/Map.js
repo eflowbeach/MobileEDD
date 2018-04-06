@@ -1521,7 +1521,7 @@ qx.Class.define("mobileedd.page.Map",
            * */
       var feedbackButton = new qx.ui.mobile.form.Button("Feedback", "resource/mobileedd/images/feedback.png");
       feedbackButton.addListener("tap", function(e) {
-        window.open('http://www.nws.noaa.gov/survey/nws-survey.php?code=EEDD', '_blank');
+        window.open('https://www.nws.noaa.gov/survey/nws-survey.php?code=EEDD', '_blank');
       }, this);
       scrollContainer.add(feedbackButton);
 
@@ -2268,7 +2268,7 @@ qx.Class.define("mobileedd.page.Map",
 
         // test - slow way...
 
-        //   var url = 'http://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Forecasts_Guidance_Warnings/wpc_qpf/MapServer';
+        //   var url = 'https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Forecasts_Guidance_Warnings/wpc_qpf/MapServer';
 
         // var layers =
 
@@ -2644,7 +2644,7 @@ qx.Class.define("mobileedd.page.Map",
         var url = me.getJsonpRoot() + "hazards/getShortFusedHazards.php";
         var extent = me.map.getView().calculateExtent(me.map.getSize()).toString();
         var ll = e.coordinate;
-        var url = 'http://mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/flowlines/Mapserver/identify?f=json&tolerance=2&returnGeometry=false&imageDisplay=1280,581,1&geometry={"x":' + ll[0] + ',"y":' + ll[1] + '}&geometryType=esriGeometryPoint&sr=102100&mapExtent=' + extent + '&layers=top';
+        var url = 'https://mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/flowlines/Mapserver/identify?f=json&tolerance=2&returnGeometry=false&imageDisplay=1280,581,1&geometry={"x":' + ll[0] + ',"y":' + ll[1] + '}&geometryType=esriGeometryPoint&sr=102100&mapExtent=' + extent + '&layers=top';
         waterRequest.setUrl(url);
         waterRequest.setCallbackParam('callback');
         waterRequest.addListenerOnce("success", function(e)
@@ -3083,7 +3083,7 @@ qx.Class.define("mobileedd.page.Map",
       });
     },
 
-    // From: http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
+    // From: https://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
     getURLParameter : function(name) {
       return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
     },
