@@ -223,7 +223,8 @@ qx.Class.define("mobileedd.Hazards",
         
         // Trick OL3 since Geojson has CRS defined
         data.crs.type = 'name';
-        data.crs.properties.name = 'EPSG:3857';
+        data.crs.properties.name = 'EPSG:4326';
+        
         var features = new ol.format.GeoJSON().readFeatures(data, {
           featureProjection : 'EPSG:3857'
         }
