@@ -220,10 +220,13 @@ qx.Class.define("mobileedd.Hazards",
       me.hazardRequest.addListener("success", function(e)
       {
         var data = e.getTarget().getResponse();
-        var features = new ol.format.GeoJSON().readFeatures(data
-        	// , {
-          // featureProjection : 'EPSG:3857'
-        // }
+        
+        // Trick OL3 since Geojson has CRS defined
+        data.crs.type = 'name';
+        data.crs.properties.name = 'EPSG:3857';
+        var features = new ol.format.GeoJSON().readFeatures(data, {
+          featureProjection : 'EPSG:3857'
+        }
         );
         me.hazardVectorSource.clear();
         me.hazardVectorSource.addFeatures(features);
