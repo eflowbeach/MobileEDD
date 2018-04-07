@@ -1,5 +1,77 @@
 //https://github.com/walkermatt/ol-popup
-import Overlay from 'ol/overlay';
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/overlay')) :
+	typeof define === 'function' && define.amd ? define(['ol/overlay'], factory) :
+	(global.Popup = factory(global.ol.Overlay));
+}(this, (function (Overlay) { 'use strict';
+
+Overlay = 'default' in Overlay ? Overlay['default'] : Overlay;
+
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
+
+var createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
+
+
+
+
+
+
+
+
+
+var inherits = function (subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+};
+
+
+
+
+
+
+
+
+
+
+
+var possibleConstructorReturn = function (self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return call && (typeof call === "object" || typeof call === "function") ? call : self;
+};
 
 /**
 * OpenLayers Popup Overlay.
@@ -9,9 +81,13 @@ import Overlay from 'ol/overlay';
 * @param {olx.OverlayOptions} opt_options options as defined by ol.Overlay. Defaults to
 * `{autoPan: true, autoPanAnimation: {duration: 250}}`
 */
-export default class Popup extends Overlay {
 
-    constructor(opt_options) {
+var Popup = function (_Overlay) {
+    inherits(Popup, _Overlay);
+
+    function Popup(opt_options) {
+        classCallCheck(this, Popup);
+
 
         var options = opt_options || {};
 
@@ -28,30 +104,32 @@ export default class Popup extends Overlay {
         var element = document.createElement('div');
 
         options.element = element;
-        super(options);
 
-        this.container = element;
-        this.container.className = 'ol-popup';
+        var _this = possibleConstructorReturn(this, (Popup.__proto__ || Object.getPrototypeOf(Popup)).call(this, options));
 
-        this.closer = document.createElement('a');
-        this.closer.className = 'ol-popup-closer';
-        this.closer.href = '#';
-        this.container.appendChild(this.closer);
+        _this.container = element;
+        _this.container.className = 'ol-popup';
 
-        var that = this;
-        this.closer.addEventListener('click', function(evt) {
+        _this.closer = document.createElement('a');
+        _this.closer.className = 'ol-popup-closer';
+        _this.closer.href = '#';
+        _this.container.appendChild(_this.closer);
+
+        var that = _this;
+        _this.closer.addEventListener('click', function (evt) {
             that.container.style.display = 'none';
             that.closer.blur();
             evt.preventDefault();
         }, false);
 
-        this.content = document.createElement('div');
-        this.content.className = 'ol-popup-content';
-        this.container.appendChild(this.content);
+        _this.content = document.createElement('div');
+        _this.content.className = 'ol-popup-content';
+        _this.container.appendChild(_this.content);
 
         // Apply workaround to enable scrolling of content div on touch devices
-        Popup.enableTouchScroll_(this.content);
+        Popup.enableTouchScroll_(_this.content);
 
+        return _this;
     }
 
     /**
@@ -60,72 +138,90 @@ export default class Popup extends Overlay {
     * @param {String|HTMLElement} html String or element of HTML to display within the popup.
     * @returns {Popup} The Popup instance
     */
-    show(coord, html) {
-        if (html instanceof HTMLElement) {
-            this.content.innerHTML = "";
-            this.content.appendChild(html);
-        } else {
-            this.content.innerHTML = html;
+
+
+    createClass(Popup, [{
+        key: 'show',
+        value: function show(coord, html) {
+            if (html instanceof HTMLElement) {
+                this.content.innerHTML = "";
+                this.content.appendChild(html);
+            } else {
+                this.content.innerHTML = html;
+            }
+            this.container.style.display = 'block';
+            this.content.scrollTop = 0;
+            this.setPosition(coord);
+            return this;
         }
-        this.container.style.display = 'block';
-        this.content.scrollTop = 0;
-        this.setPosition(coord);
-        return this;
-    }
 
-    /**
-    * @private
-    * @desc Determine if the current browser supports touch events. Adapted from
-    * https://gist.github.com/chrismbarr/4107472
-    */
-    static isTouchDevice_() {
-        try {
-            document.createEvent("TouchEvent");
-            return true;
-        } catch(e) {
-            return false;
+        /**
+        * @private
+        * @desc Determine if the current browser supports touch events. Adapted from
+        * https://gist.github.com/chrismbarr/4107472
+        */
+
+    }, {
+        key: 'hide',
+
+
+        /**
+        * Hide the popup.
+        * @returns {Popup} The Popup instance
+        */
+        value: function hide() {
+            this.container.style.display = 'none';
+            return this;
         }
-    }
 
-    /**
-    * @private
-    * @desc Apply workaround to enable scrolling of overflowing content within an
-    * element. Adapted from https://gist.github.com/chrismbarr/4107472
-    */
-    static enableTouchScroll_(elm) {
-        if(Popup.isTouchDevice_()){
-            var scrollStartPos = 0;
-            elm.addEventListener("touchstart", function(event) {
-                scrollStartPos = this.scrollTop + event.touches[0].pageY;
-            }, false);
-            elm.addEventListener("touchmove", function(event) {
-                this.scrollTop = scrollStartPos - event.touches[0].pageY;
-            }, false);
+        /**
+        * Indicates if the popup is in open state
+        * @returns {Boolean} Whether the popup instance is open
+        */
+
+    }, {
+        key: 'isOpened',
+        value: function isOpened() {
+            return this.container.style.display == 'block';
         }
-    }
+    }], [{
+        key: 'isTouchDevice_',
+        value: function isTouchDevice_() {
+            try {
+                document.createEvent("TouchEvent");
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
 
-    /**
-    * Hide the popup.
-    * @returns {Popup} The Popup instance
-    */
-    hide() {
-        this.container.style.display = 'none';
-        return this;
-    }
+        /**
+        * @private
+        * @desc Apply workaround to enable scrolling of overflowing content within an
+        * element. Adapted from https://gist.github.com/chrismbarr/4107472
+        */
 
+    }, {
+        key: 'enableTouchScroll_',
+        value: function enableTouchScroll_(elm) {
+            if (Popup.isTouchDevice_()) {
+                var scrollStartPos = 0;
+                elm.addEventListener("touchstart", function (event) {
+                    scrollStartPos = this.scrollTop + event.touches[0].pageY;
+                }, false);
+                elm.addEventListener("touchmove", function (event) {
+                    this.scrollTop = scrollStartPos - event.touches[0].pageY;
+                }, false);
+            }
+        }
+    }]);
+    return Popup;
+}(Overlay);
 
-    /**
-    * Indicates if the popup is in open state
-    * @returns {Boolean} Whether the popup instance is open
-    */
-    isOpened() {
-        return this.container.style.display == 'block';
-    }
-
-}
-
-// Expose Popup as ol.Overlay.Popup if using a full build of
-// OpenLayers
 if (window.ol && window.ol.Overlay) {
     window.ol.Overlay.Popup = Popup;
 }
+
+return Popup;
+
+})));

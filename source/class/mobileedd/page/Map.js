@@ -2293,7 +2293,7 @@ qx.Class.define("mobileedd.page.Map",
         req.onload = function()
         {
           // Popup layer
-          me.popup = new ol.Overlay.Popup();
+          me.popup = new Popup(); //ol.Overlay.
           me.map.addOverlay(me.popup);
         }
         req.open("GET", 'resource/mobileedd/libs/ol3-popup.js');
