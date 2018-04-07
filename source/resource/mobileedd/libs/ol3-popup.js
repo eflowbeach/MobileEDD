@@ -1,2 +1,131 @@
-// https://github.com/walkermatt/ol3-popup
-ol.Overlay.Popup=function(t){var e=t||{};this.panMapIfOutOfView=e.panMapIfOutOfView,void 0===this.panMapIfOutOfView&&(this.panMapIfOutOfView=!0),this.ani=e.ani,void 0===this.ani&&(this.ani=ol.animation.pan),this.ani_opts=e.ani_opts,void 0===this.ani_opts&&(this.ani_opts={duration:250}),this.container=document.createElement("div"),this.container.className="ol-popup",this.closer=document.createElement("a"),this.closer.className="ol-popup-closer",this.closer.href="#",this.container.appendChild(this.closer);var i=this;this.closer.addEventListener("click",function(t){i.container.style.display="none",i.closer.blur(),t.preventDefault()},!1),this.content=document.createElement("div"),this.content.className="ol-popup-content",this.container.appendChild(this.content),ol.Overlay.Popup.enableTouchScroll_(this.content),ol.Overlay.call(this,{element:this.container,stopEvent:!0,insertFirst:e.hasOwnProperty("insertFirst")?e.insertFirst:!0})},ol.inherits(ol.Overlay.Popup,ol.Overlay),ol.Overlay.Popup.prototype.show=function(t,e){return this.setPosition(t),this.content.innerHTML=e,this.container.style.display="block",this.panMapIfOutOfView&&this.panIntoView_(t),this.content.scrollTop=0,this},ol.Overlay.Popup.prototype.panIntoView_=function(t){var e={width:this.getElement().clientWidth+20,height:this.getElement().clientHeight+20},i=this.getMap().getSize(),n=20,o=60,s=e.width-o,a=this.getOffset(),r=this.getMap().getPixelFromCoordinate(t),h=r[0]-o,p=i[0]-(r[0]+s),l=r[1]-e.height+a[1],c=i[1]-(r[1]+n)-a[1],u=this.getMap().getView().getCenter(),d=this.getMap().getPixelFromCoordinate(u),v=d.slice();return 0>p?v[0]-=p:0>h&&(v[0]+=h),0>l?v[1]+=l:0>c&&(v[1]-=c),this.ani&&this.ani_opts&&(this.ani_opts.source=u,this.getMap().beforeRender(this.ani(this.ani_opts))),(v[0]!==d[0]||v[1]!==d[1])&&this.getMap().getView().setCenter(this.getMap().getCoordinateFromPixel(v)),this.getMap().getView().getCenter()},ol.Overlay.Popup.isTouchDevice_=function(){try{return document.createEvent("TouchEvent"),!0}catch(t){return!1}},ol.Overlay.Popup.enableTouchScroll_=function(t){if(ol.Overlay.Popup.isTouchDevice_()){var e=0;t.addEventListener("touchstart",function(t){e=this.scrollTop+t.touches[0].pageY},!1),t.addEventListener("touchmove",function(t){this.scrollTop=e-t.touches[0].pageY},!1)}},ol.Overlay.Popup.prototype.hide=function(){return this.container.style.display="none",this};
+//https://github.com/walkermatt/ol-popup
+import Overlay from 'ol/overlay';
+
+/**
+* OpenLayers Popup Overlay.
+* See [the examples](./examples) for usage. Styling can be done via CSS.
+* @constructor
+* @extends {ol.Overlay}
+* @param {olx.OverlayOptions} opt_options options as defined by ol.Overlay. Defaults to
+* `{autoPan: true, autoPanAnimation: {duration: 250}}`
+*/
+export default class Popup extends Overlay {
+
+    constructor(opt_options) {
+
+        var options = opt_options || {};
+
+        if (options.autoPan === undefined) {
+            options.autoPan = true;
+        }
+
+        if (options.autoPanAnimation === undefined) {
+            options.autoPanAnimation = {
+                duration: 250
+            };
+        }
+
+        var element = document.createElement('div');
+
+        options.element = element;
+        super(options);
+
+        this.container = element;
+        this.container.className = 'ol-popup';
+
+        this.closer = document.createElement('a');
+        this.closer.className = 'ol-popup-closer';
+        this.closer.href = '#';
+        this.container.appendChild(this.closer);
+
+        var that = this;
+        this.closer.addEventListener('click', function(evt) {
+            that.container.style.display = 'none';
+            that.closer.blur();
+            evt.preventDefault();
+        }, false);
+
+        this.content = document.createElement('div');
+        this.content.className = 'ol-popup-content';
+        this.container.appendChild(this.content);
+
+        // Apply workaround to enable scrolling of content div on touch devices
+        Popup.enableTouchScroll_(this.content);
+
+    }
+
+    /**
+    * Show the popup.
+    * @param {ol.Coordinate} coord Where to anchor the popup.
+    * @param {String|HTMLElement} html String or element of HTML to display within the popup.
+    * @returns {Popup} The Popup instance
+    */
+    show(coord, html) {
+        if (html instanceof HTMLElement) {
+            this.content.innerHTML = "";
+            this.content.appendChild(html);
+        } else {
+            this.content.innerHTML = html;
+        }
+        this.container.style.display = 'block';
+        this.content.scrollTop = 0;
+        this.setPosition(coord);
+        return this;
+    }
+
+    /**
+    * @private
+    * @desc Determine if the current browser supports touch events. Adapted from
+    * https://gist.github.com/chrismbarr/4107472
+    */
+    static isTouchDevice_() {
+        try {
+            document.createEvent("TouchEvent");
+            return true;
+        } catch(e) {
+            return false;
+        }
+    }
+
+    /**
+    * @private
+    * @desc Apply workaround to enable scrolling of overflowing content within an
+    * element. Adapted from https://gist.github.com/chrismbarr/4107472
+    */
+    static enableTouchScroll_(elm) {
+        if(Popup.isTouchDevice_()){
+            var scrollStartPos = 0;
+            elm.addEventListener("touchstart", function(event) {
+                scrollStartPos = this.scrollTop + event.touches[0].pageY;
+            }, false);
+            elm.addEventListener("touchmove", function(event) {
+                this.scrollTop = scrollStartPos - event.touches[0].pageY;
+            }, false);
+        }
+    }
+
+    /**
+    * Hide the popup.
+    * @returns {Popup} The Popup instance
+    */
+    hide() {
+        this.container.style.display = 'none';
+        return this;
+    }
+
+
+    /**
+    * Indicates if the popup is in open state
+    * @returns {Boolean} Whether the popup instance is open
+    */
+    isOpened() {
+        return this.container.style.display == 'block';
+    }
+
+}
+
+// Expose Popup as ol.Overlay.Popup if using a full build of
+// OpenLayers
+if (window.ol && window.ol.Overlay) {
+    window.ol.Overlay.Popup = Popup;
+}
