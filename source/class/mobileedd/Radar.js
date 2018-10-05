@@ -239,7 +239,7 @@ qx.Class.define("mobileedd.Radar",
       if (typeof me.map == "undefined") {
         return;
       }
-      me.radarLayers[time] = new ol.layer.Tile(
+      me.radarLayers[time] = new ol.layer.Image(
       {
         name : "MRMS - " + time,
         source : new ol.source.ImageWMS(
