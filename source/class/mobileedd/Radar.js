@@ -239,24 +239,23 @@ qx.Class.define("mobileedd.Radar",
       if (typeof me.map == "undefined") {
         return;
       }
-      me.radarLayers[time] = new ol.layer.Image(
+      me.radarLayers[time] = new ol.layer.Tile(
       {
         name : "MRMS - " + time,
-        source : new ol.source.ImageWMS(
+        source : new ol.source.TileWMS(
         {
           params :
           {
             'LAYERS' : 'show:3',
-            'f' : 'image',
-            'FORMAT' : 'png8',
+            'F' : 'image',
+            'FORMAT' : 'PNG8',
             'TRANSPARENT' : 'true',
             'BBOXSR' : '3857',
-            'IMAGESR' : '3857',                     
+            'IMAGESR' : '3857',
+            'SIZE' : '256,256',
             'DPI' : 90,
             'time' : time_range
           },
-          ratio:1,
-          //serverType:'mapserver',
           url : me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/rest/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/export'
         })
       });
