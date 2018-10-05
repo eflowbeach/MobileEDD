@@ -246,7 +246,7 @@ qx.Class.define("mobileedd.Radar",
         {
           params :
           {
-            'LAYERS' : '3',//show:3',
+            'LAYERS' : 'show:3',
             'f' : 'image',
             'FORMAT' : 'png8',
             'TRANSPARENT' : 'true',
@@ -256,7 +256,7 @@ qx.Class.define("mobileedd.Radar",
             'time' : time_range
           },
           ratio:1,
-          serverType:'mapserver',
+          //serverType:'mapserver',
           url : me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/rest/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/export'
         })
       });
