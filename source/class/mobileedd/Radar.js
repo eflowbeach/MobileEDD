@@ -254,7 +254,8 @@ qx.Class.define("mobileedd.Radar",
             'IMAGESR' : '3857',
             'SIZE' : '256,256',
             'DPI' : 90,
-            'time' : time_range
+            'time' : time_range,
+            'serverType' : 'mapserver'
           },
           url : me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/rest/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/export'
         })
