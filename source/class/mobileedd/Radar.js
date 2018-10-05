@@ -246,20 +246,18 @@ qx.Class.define("mobileedd.Radar",
         {
           params :
           {
-            'LAYERS' : '3',
-            // 'F' : 'image',
+            'LAYERS' : 'show:3',
+            'F' : 'image',
             'FORMAT' : 'image/png8',
-            serverType : 'mapserver',
+            'TRANSPARENT' : 'true',
+            'BBOXSR' : '3857',
+            'IMAGESR' : '3857',
             'tiled': false,
-            'TRANSPARENT' : true,
-            // 'BBOXSR' : '3857',
-            // 'IMAGESR' : '3857',
-            // 'DPI' : 90,
+            //'SIZE' : '256,256',
+            'DPI' : 90,
             'time' : time_range
           },
-          ratio: 1,
-          
-          url : me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/WmsServer'
+          url : me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/rest/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/export'
         })
       });
       me.map.addLayer(me.radarLayers[time]);
