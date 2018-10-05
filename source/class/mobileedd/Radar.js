@@ -257,7 +257,7 @@ qx.Class.define("mobileedd.Radar",
           },
           ratio: 1,
           serverType : 'mapserver',
-          url : me.c.getSecure() + '//https://nowcoast.noaa.gov/arcgis/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/WmsServer'
+          url : me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/WmsServer'
         })
       });
       me.map.addLayer(me.radarLayers[time]);
