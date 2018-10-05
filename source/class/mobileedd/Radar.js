@@ -252,11 +252,11 @@ qx.Class.define("mobileedd.Radar",
             'TRANSPARENT' : 'true',
             'BBOXSR' : '3857',
             'IMAGESR' : '3857',
-            'SIZE' : '256,256',
             'DPI' : 90,
-            'time' : time_range,
-            'serverType' : 'mapserver'
+            'time' : time_range
           },
+          ratio: 1,
+          serverType : 'mapserver',
           url : me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/rest/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/export'
         })
       });
