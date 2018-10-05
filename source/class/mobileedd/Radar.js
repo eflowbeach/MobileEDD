@@ -248,7 +248,7 @@ qx.Class.define("mobileedd.Radar",
           {
             'LAYERS' : 'show:3',
             'F' : 'image',
-            'FORMAT' : 'image/png8',
+            'FORMAT' : 'png8',
             'TRANSPARENT' : 'true',
             'BBOXSR' : '3857',
             'IMAGESR' : '3857',
