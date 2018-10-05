@@ -47,7 +47,7 @@
   {
     "APPLICATION"  : "mobileedd",
     "APPLICATION_PATH" : "mobileedd",
-    "QOOXDOO_PATH" : "../edd/libs/qooxdoo-5.0.1-sdk",
+    "QOOXDOO_PATH" : "qooxdoo-5.0.2-sdk",
     "LOCALES"      : [ "en" ],
     "CACHE"        : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
     "MOBILE_THEME" : "custom",
