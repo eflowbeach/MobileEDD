@@ -242,7 +242,7 @@ qx.Class.define("mobileedd.Radar",
       me.radarLayers[time] = new ol.layer.Tile(
       {
         name : "MRMS - " + time,
-        source : new ol.source.TileWMS(
+        source : new ol.source.ImageWMS(
         {
           params :
           {
