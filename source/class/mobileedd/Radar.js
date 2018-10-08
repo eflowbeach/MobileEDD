@@ -239,10 +239,10 @@ qx.Class.define("mobileedd.Radar",
       if (typeof me.map == "undefined") {
         return;
       }
-      me.radarLayers[time] = new ol.layer.Tile(
+      me.radarLayers[time] = new ol.layer.Image(
       {
         name : "MRMS - " + time,
-        source : new ol.source.TileWMS(
+        source : new ol.source.ImageWMS(
         {
           params :
           {
@@ -252,11 +252,13 @@ qx.Class.define("mobileedd.Radar",
             'TRANSPARENT' : 'true',
             'BBOXSR' : '3857',
             'IMAGESR' : '3857',
-            'SIZE' : '256,256',
+            //'SIZE' : '256,256',
             'DPI' : 90,
             'time' : time_range
           },
-          url : me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/rest/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/export'
+          ratio: 1,
+          url : me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/rest/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/export',
+          serverType: 'mapserver'
         })
       });
       me.map.addLayer(me.radarLayers[time]);
