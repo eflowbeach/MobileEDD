@@ -81,7 +81,6 @@ qx.Class.define("mobileedd.page.Map",
     this.bus = qx.event.message.Bus.getInstance();
     this.setTitle("NWS Mobile EDD");
     var me = this;
-        
 
     // Set the service root - preview does not have https - either way it gets blocked...
     me.setJsonpRoot(me.c.getSecure() + "//preview.weather.gov/edd/resource/edd/");
@@ -2347,31 +2346,20 @@ qx.Class.define("mobileedd.page.Map",
           me.map.getView().setCenter(geolocation.getPosition());
         });
 
-        // Orientation
-       var gn = new GyroNorm();
-       function toRadians(angleInDegrees) {
-		  return angleInDegrees * Math.PI / 180;
-		}
-
-      gn.init().then(function() {
-        gn.start(function(event) {
-          var view = me.map.getView();
-          var center = view.getCenter();
-          var resolution = view.getResolution();
-          var alpha = toRadians(event["do"].beta);
-          var beta = toRadians(event["do"].beta);
-          var gamma = toRadians(event["do"].gamma);
-
-          el('alpha').innerText = alpha + ' [rad]';
-          el('beta').innerText = beta + ' [rad]';
-          el('gamma').innerText = gamma + ' [rad]';
-
-          center[0] -= resolution * gamma * 25;
-          center[1] += resolution * beta * 25;
-
-          view.setCenter(view.constrainCenter(center));
-        });
-      });
+        // // Orientation
+        // var deviceOrientation = new ol.DeviceOrientation();
+// 
+        // // tilt the map
+        // deviceOrientation.on(['change:beta', 'change:gamma'], function(event)
+        // {
+          // var center = view.getCenter();
+          // var resolution = view.getResolution();
+          // var beta = event.target.getBeta() || 0;
+          // var gamma = event.target.getGamma() || 0;
+          // center[0] -= resolution * gamma * 25;
+          // center[1] += resolution * beta * 25;
+          // view.setCenter(view.constrainCenter(center));
+        // });
 
         // Turn on radar
         me.radarToggleButton.setValue(true);
