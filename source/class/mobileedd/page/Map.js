@@ -2062,7 +2062,7 @@ qx.Class.define("mobileedd.page.Map",
             layer : 'toner-lite'
           })
         });
-        var attribution = new ol.Attribution( {
+        var attribution = new ol.control.Attribution( {
           html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer">ArcGIS</a>'
         });
         me.natgeo = new ol.layer.Tile(
@@ -2090,7 +2090,7 @@ qx.Class.define("mobileedd.page.Map",
           me.setUrlParams();
           me.hazardObject.hazardRequest.send();
         });
-        var attribution = new ol.Attribution( {
+        var attribution = new ol.control.Attribution( {
           html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer">ArcGIS</a>'
         });
         me.esridark = new ol.layer.Tile(
@@ -2099,7 +2099,7 @@ qx.Class.define("mobileedd.page.Map",
           type : 'base',
           source : source
         });
-        var attribution = new ol.Attribution( {
+        var attribution = new ol.control.Attribution( {
           html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer">ArcGIS</a>'
         });
         me.esridark_reference = new ol.layer.Tile(
@@ -2120,7 +2120,7 @@ qx.Class.define("mobileedd.page.Map",
             url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
           })
         });
-        var attribution = new ol.Attribution( {
+        var attribution = new ol.control.Attribution( {
           html : 'Copyright:&copy; 2013 ESRI, i-cubed, GeoEye'
         });
         var projection = ol.proj.get('EPSG:4326');
@@ -2175,7 +2175,7 @@ qx.Class.define("mobileedd.page.Map",
             })
           })
         });
-        var attribution = new ol.Attribution( {
+        var attribution = new ol.control.Attribution( {
           html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer">ArcGIS</a>'
         });
         me.esrilite_reference = new ol.layer.Tile(
@@ -2186,7 +2186,7 @@ qx.Class.define("mobileedd.page.Map",
             url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
           })
         });
-        var attribution = new ol.Attribution( {
+        var attribution = new ol.control.Attribution( {
           html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer">ArcGIS</a>'
         });
         var urlTemplateTopo = me.c.getSecure() + '//services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer/tile/{z}/{y}/{x}';
