@@ -90,7 +90,7 @@ qx.Class.define("mobileedd.page.Map",
      * */
 
     //me.setMapUri("resource/mobileedd/ol.js");
-    me.setMapUri("resource/mobileedd/ol-debug.js");
+    me.setMapUri("resource/mobileedd/ol.js");
 
     // Warning types
     me.sigMap =
@@ -99,7 +99,7 @@ qx.Class.define("mobileedd.page.Map",
       "Watch" : "A",
       "Advisory" : "Y",
       "Statement" : "S"
-    }
+    };
 
     // A list of hazards to display
     me.hazard_types =
