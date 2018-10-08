@@ -81,6 +81,7 @@ qx.Class.define("mobileedd.page.Map",
     this.bus = qx.event.message.Bus.getInstance();
     this.setTitle("NWS Mobile EDD");
     var me = this;
+        
 
     // Set the service root - preview does not have https - either way it gets blocked...
     me.setJsonpRoot(me.c.getSecure() + "//preview.weather.gov/edd/resource/edd/");
@@ -2348,15 +2349,18 @@ qx.Class.define("mobileedd.page.Map",
 
         // Orientation
        var gn = new GyroNorm();
+       function toRadians(angleInDegrees) {
+		  return angleInDegrees * Math.PI / 180;
+		}
 
       gn.init().then(function() {
         gn.start(function(event) {
           var view = me.map.getView();
           var center = view.getCenter();
           var resolution = view.getResolution();
-          var alpha = new ol.math.toRadians(event["do"].beta);
-          var beta = new ol.math.toRadians(event["do"].beta);
-          var gamma = new ol.math.toRadians(event["do"].gamma);
+          var alpha = toRadians(event["do"].beta);
+          var beta = toRadians(event["do"].beta);
+          var gamma = toRadians(event["do"].gamma);
 
           el('alpha').innerText = alpha + ' [rad]';
           el('beta').innerText = beta + ' [rad]';
