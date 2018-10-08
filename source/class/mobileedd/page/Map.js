@@ -2344,22 +2344,30 @@ qx.Class.define("mobileedd.page.Map",
         var deltaMean = 500;  // the geolocation sampling period mean in ms
         geolocation.once('change', function(evt) {
           me.map.getView().setCenter(geolocation.getPosition());
-        })
+        });
 
         // Orientation
-        var deviceOrientation = new ol.DeviceOrientation();
+       var gn = new GyroNorm();
 
-        // tilt the map
-        deviceOrientation.on(['change:beta', 'change:gamma'], function(event)
-        {
+      gn.init().then(function() {
+        gn.start(function(event) {
+          var view = me.map.getView();
           var center = view.getCenter();
           var resolution = view.getResolution();
-          var beta = event.target.getBeta() || 0;
-          var gamma = event.target.getGamma() || 0;
+          var alpha = new ol.math.toRadians(event["do"].beta);
+          var beta = new ol.math.toRadians(event["do"].beta);
+          var gamma = new ol.math.toRadians(event["do"].gamma);
+
+          el('alpha').innerText = alpha + ' [rad]';
+          el('beta').innerText = beta + ' [rad]';
+          el('gamma').innerText = gamma + ' [rad]';
+
           center[0] -= resolution * gamma * 25;
           center[1] += resolution * beta * 25;
+
           view.setCenter(view.constrainCenter(center));
         });
+      });
 
         // Turn on radar
         me.radarToggleButton.setValue(true);
