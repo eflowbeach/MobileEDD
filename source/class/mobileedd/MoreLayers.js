@@ -483,6 +483,8 @@ qx.Class.define("mobileedd.MoreLayers",
           return;
         }
       }
+      
+      var ol_url = source.replace('/export','');
       me.layers[name] = new ol.layer.Image(
       {
         name : name,
@@ -492,13 +494,13 @@ qx.Class.define("mobileedd.MoreLayers",
           {
             'LAYERS' : layer,
             'F' : 'image',
-            'FORMAT' : (name == "Observations") ? 'PNG32' : 'PNG8',
+            'FORMAT' : (name == "Observations") ? 'png32' : 'png8',
             'TRANSPARENT' : true,
             'BBOXSR' : '3857',
             'IMAGESR' : '3857',            
             'time' : time_range
           },
-          url : source
+          url : ol_url
         })
       });
       me.map.addLayer(me.layers[name]);

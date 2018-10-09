@@ -1892,12 +1892,12 @@ qx.Class.define("mobileedd.page.Map",
             var layer = me.layer_list[group].group[name];
             if (name == "U.S. Counties (Hi-Res)")
             {
-              mobileedd.MoreLayers.getInstance().addBoundary(name, "counties", group)
+              mobileedd.MoreLayers.getInstance().addBoundary(name, "counties", group);
               me.drawer.hide();
               return;
             } else if (name == "U.S. States (Hi-Res)")
             {
-              mobileedd.MoreLayers.getInstance().addBoundary(name, "states", group)
+              mobileedd.MoreLayers.getInstance().addBoundary(name, "states", group);
               me.drawer.hide();
               return;
             }
