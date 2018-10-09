@@ -720,7 +720,7 @@ qx.Class.define("mobileedd.TravelHazards",
       waypoints += "&to=" + end;
 
       // The url
-      var url = me.c.getSecure() + "//open.mapquestapi.com/directions/v2/route?key=" + me.c.getMapQuestKey() + "&outFormat=json&routeType=fastest&timeType=2&dateType=0&date=" + leaveDate + "&localTime=" + leaveTime + "&doReverseGeocode=false&enhancedNarrative=false&shapeFormat=cmp&generalize=0&locale=en_US&unit=m&from=" + start + waypoints + "&drivingStyle=2&highwayEfficiency=21.0";
+      var url = "https://open.mapquestapi.com/directions/v2/route?key=" + me.c.getMapQuestKey() + "&outFormat=json&routeType=fastest&timeType=2&dateType=0&date=" + leaveDate + "&localTime=" + leaveTime + "&doReverseGeocode=false&enhancedNarrative=false&shapeFormat=cmp&generalize=0&locale=en_US&unit=m&from=" + start + waypoints + "&drivingStyle=2&highwayEfficiency=21.0";
       me.directionService.setUrl(url);
       me.directionService.addListenerOnce("success", function(e)
       {

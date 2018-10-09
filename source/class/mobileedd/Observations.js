@@ -440,9 +440,9 @@ qx.Class.define("mobileedd.Observations",
       // Service
       var label = me.getDisplayField();  //me.field_select_box.getSelection()[0].getLabel();
       if (label == "Precipitation") {
-        me.serviceUrlField = me.c.getSecure() + "//api.mesowest.net/v2/stations/precipitation?";
+        me.serviceUrlField = "https://api.mesowest.net/v2/stations/precipitation?";
       } else {
-        me.serviceUrlField = me.c.getSecure() + "//api.mesowest.net/v2/stations/latest?";
+        me.serviceUrlField = "https://api.mesowest.net/v2/stations/latest?";
       }
       var extent = me.map.getView().calculateExtent(me.map.getSize())
       var bboxArray = ol.proj.transformExtent(extent, 'EPSG:3857', 'EPSG:4326');

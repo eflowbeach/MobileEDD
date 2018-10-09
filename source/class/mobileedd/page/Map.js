@@ -83,7 +83,7 @@ qx.Class.define("mobileedd.page.Map",
     var me = this;
 
     // Set the service root - preview does not have https - either way it gets blocked...
-    me.setJsonpRoot(me.c.getSecure() + "//preview.weather.gov/edd/resource/edd/");
+    me.setJsonpRoot("https://preview.weather.gov/edd/resource/edd/");
 
     /**
      * Mapping Library
@@ -123,11 +123,11 @@ qx.Class.define("mobileedd.page.Map",
      * Set up common urls for "More Layers"
      * */
     var msExport = '/MapServer/export';
-    var nc = me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/rest/services/nowcoast/';
-    var idp = me.c.getSecure() + '//idpgis.ncep.noaa.gov/arcgis/rest/services/';
+    var nc = 'https://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/';
+    var idp = 'https://idpgis.ncep.noaa.gov/arcgis/rest/services/';
     var qpf = 'NWS_Forecasts_Guidance_Warnings/wpc_qpf' + msExport;
     var spc = 'NWS_Forecasts_Guidance_Warnings/SPC_wx_outlks' + msExport;
-    var npsg = me.c.getSecure() + '//psgeodata.fs.fed.us/arcgis/rest/services/NPSG/';
+    var npsg = 'https://psgeodata.fs.fed.us/arcgis/rest/services/NPSG/';
     me.layer_list =
     {
       "Lightning Density" :
@@ -185,17 +185,17 @@ qx.Class.define("mobileedd.page.Map",
         {
           "National Water Model - Near-Surface Soil Moisture Saturation" :
           {
-            "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/land_analysis_assim" + msExport,
+            "source" : "https://mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/land_analysis_assim" + msExport,
             "layer" : "show:0"
           },
           "National Water Model - Stream Flow" :
           {
-            "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/channel_rt_analysis_assim" + msExport,
+            "source" : "https://mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/channel_rt_analysis_assim" + msExport,
             "layer" : "show:1,2,3,4,5,6"
           },
           "National Water Model - Stream Flow Anomaly" :
           {
-            "source" : me.c.getSecure() + "//mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/channel_rt_analysis_assim" + msExport,
+            "source" : "https://mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/channel_rt_analysis_assim" + msExport,
             "layer" : "show:8,9,10,11,12,13"
           },
           "River Levels" :
@@ -210,7 +210,7 @@ qx.Class.define("mobileedd.page.Map",
         {
           "Active Fire Perimeters" :
           {
-            "source" : me.c.getSecure() + "//tmservices1.esri.com/arcgis/rest/services/LiveFeeds/Wildfire_Activity" + msExport,
+            "source" : "https://tmservices1.esri.com/arcgis/rest/services/LiveFeeds/Wildfire_Activity" + msExport,
             "layer" : "show:2"
           },
           "Forecasted Fire Danger" :
@@ -644,7 +644,7 @@ qx.Class.define("mobileedd.page.Map",
             radarMrms.setActive(false);
             uwRadar.setActive(true);
             uwRadar.start();
-            me.radarLegendImage.setSource(me.c.getSecure() + "//realearth.ssec.wisc.edu/proxy/legend.php?products=nexrphase");
+            me.radarLegendImage.setSource("https://realearth.ssec.wisc.edu/proxy/legend.php?products=nexrphase");
           }
           uwRadar.setSliderIndex(e.getData());
         } else
@@ -2063,7 +2063,7 @@ qx.Class.define("mobileedd.page.Map",
           })
         });
         var attribution = new ol.control.Attribution( {
-          html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href="' + 'https://services.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer">ArcGIS</a>'
         });
         me.natgeo = new ol.layer.Tile(
         {
@@ -2072,7 +2072,7 @@ qx.Class.define("mobileedd.page.Map",
           source : new ol.source.XYZ(
           {
             attributions : [attribution],
-            url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}'
+            url : 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}'
           })
         });
 
@@ -2080,7 +2080,7 @@ qx.Class.define("mobileedd.page.Map",
         var source = new ol.source.XYZ(
         {
           attributions : [attribution],
-          url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+          url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
         });
 
         // Application ready after tiles load
@@ -2091,7 +2091,7 @@ qx.Class.define("mobileedd.page.Map",
           me.hazardObject.hazardRequest.send();
         });
         var attribution = new ol.control.Attribution( {
-          html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href="' + 'https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer">ArcGIS</a>'
         });
         me.esridark = new ol.layer.Tile(
         {
@@ -2100,14 +2100,14 @@ qx.Class.define("mobileedd.page.Map",
           source : source
         });
         var attribution = new ol.control.Attribution( {
-          html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href="' + 'https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer">ArcGIS</a>'
         });
         me.esridark_reference = new ol.layer.Tile(
         {
           name : "ESRI Dark Gray Reference",
           type : 'base',
           source : new ol.source.XYZ( {
-            url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
+            url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
           })
         });
         me.esrilite = new ol.layer.Tile(
@@ -2117,7 +2117,7 @@ qx.Class.define("mobileedd.page.Map",
           source : new ol.source.XYZ(
           {
             attributions : [attribution],
-            url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+            url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
           })
         });
         var attribution = new ol.control.Attribution( {
@@ -2141,7 +2141,7 @@ qx.Class.define("mobileedd.page.Map",
         for (z = 0; z < 16; ++z) {
           resolutions[z] = maxResolution / Math.pow(2, z);
         }
-        var urlTemplate = me.c.getSecure() + '//services.arcgisonline.com/arcgis/rest/services/ESRI_Imagery_World_2D/MapServer/tile/{z}/{y}/{x}';
+        var urlTemplate = 'https://services.arcgisonline.com/arcgis/rest/services/ESRI_Imagery_World_2D/MapServer/tile/{z}/{y}/{x}';
         me.esriimage = new ol.layer.Tile(
         {
           name : "ESRI Satellite",
@@ -2176,20 +2176,20 @@ qx.Class.define("mobileedd.page.Map",
           })
         });
         var attribution = new ol.control.Attribution( {
-          html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href="' + 'https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer">ArcGIS</a>'
         });
         me.esrilite_reference = new ol.layer.Tile(
         {
           name : "ESRI Light Gray Reference",
           type : 'base',
           source : new ol.source.XYZ( {
-            url : me.c.getSecure() + '//server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
+            url : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
           })
         });
         var attribution = new ol.control.Attribution( {
-          html : 'Tiles &copy; <a href="' + me.c.getSecure() + '//services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer">ArcGIS</a>'
+          html : 'Tiles &copy; <a href="' + 'https://services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer">ArcGIS</a>'
         });
-        var urlTemplateTopo = me.c.getSecure() + '//services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer/tile/{z}/{y}/{x}';
+        var urlTemplateTopo = 'https://services.arcgisonline.com/arcgis/rest/services/NGS_Topo_US_2D/MapServer/tile/{z}/{y}/{x}';
         me.esritopo = new ol.layer.Tile(
         {
           name : "ESRI Topographic",
@@ -2223,7 +2223,7 @@ qx.Class.define("mobileedd.page.Map",
         });
         var source = new ol.source.TileJSON(
         {
-          url : me.c.getSecure() + '//api.tiles.mapbox.com/v3/mapbox.world-bright.json',
+          url : 'https://api.tiles.mapbox.com/v3/mapbox.world-bright.json',
           crossOrigin : 'anonymous'
         });
         me.mapboxWorldbright = new ol.layer.Tile(
@@ -2495,7 +2495,7 @@ qx.Class.define("mobileedd.page.Map",
       {
         name : 'US States',
         source : new ol.source.XYZ( {
-          url : me.c.getSecure() + '//ridgewms.srh.noaa.gov/c/tc.py/1.0.0/state/{z}/{x}/{y}.png'
+          url : 'https://ridgewms.srh.noaa.gov/c/tc.py/1.0.0/state/{z}/{x}/{y}.png'
         }),
         opacity : 0.8
       });
@@ -2971,7 +2971,7 @@ qx.Class.define("mobileedd.page.Map",
               var text = new qx.event.message.Message("edd.hazard");
               var html = '';
               if ((phenom == "TO" | phenom == "SV" | phenom == "FF") && sig == 'W') {
-                html += '<img style="width: 100%;" src="' + me.c.getSecure() + '//www.weather.gov/images/crh/impact/K' + wfo + "_" + phenom + "_" + eventid + "_" + feature.get('end') + '.png">';
+                html += '<img style="width: 100%;" src="' + 'https://www.weather.gov/images/crh/impact/K' + wfo + "_" + phenom + "_" + eventid + "_" + feature.get('end') + '.png">';
               }
               html += e.getTarget().getResponse().data[0].report;
               text.setData(html);

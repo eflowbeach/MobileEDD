@@ -58,7 +58,7 @@ qx.Class.define("mobileedd.Radar",
     });
 
     // Set up the query timestamp request
-    me.timesReq = new qx.io.request.Jsonp(me.c.getSecure() + "//nowcoast.noaa.gov/layerinfo?request=timestops&service=radar_meteo_imagery_nexrad_time&layers=3&format=jsonp");
+    me.timesReq = new qx.io.request.Jsonp("https://nowcoast.noaa.gov/layerinfo?request=timestops&service=radar_meteo_imagery_nexrad_time&layers=3&format=jsonp");
 
     // Request Succeeded
     me.timesReq.addListener("success", function(e)

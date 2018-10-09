@@ -93,7 +93,7 @@ qx.Class.define("mobileedd.page.Hydrograph",
         html += '<tr style="color:#FF9900;"><td nowrap="" scope="col">&nbsp;&nbsp;&nbsp;Flood Stage:</td><td scope="col">' + feature.get('flood') + '</td></tr> ';
         html += '<tr style="color:#CACA2F;" ><td nowrap="" scope="col">&nbsp;&nbsp;&nbsp;Action Stage:</td><td scope="col">' + feature.get('action') + '</td></tr> ';
         html += '</b></table>';
-        this.label.setValue(html);  //<img style="width: 100%;" src=me.c.getSecure() + "//water.weather.gov/resources/hydrographs/' + feature.getValue('id').toLowerCase() + '_hg.png">');
+        this.label.setValue(html);  //<img style="width: 100%;" src="https://water.weather.gov/resources/hydrographs/' + feature.getValue('id').toLowerCase() + '_hg.png">');
       }, this);
     },
 

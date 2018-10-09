@@ -134,7 +134,7 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         var tf = new qx.ui.mobile.form.TextArea();
         tf.setValue(this.c.getMapQuestKey());
         form.add(tf, "Your MapQuest Key: ");
-        composite.add(new qx.ui.mobile.form.renderer.Single(form))
+        composite.add(new qx.ui.mobile.form.renderer.Single(form));
 
         // Get a key
         var widget = new qx.ui.mobile.form.Button("Get a Key...");
@@ -150,7 +150,7 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         {
           this.c.setMapQuestKey(tf.getValue());
           if (typeof (Storage) !== "undefined") {
-            localStorage.setItem("mapquestkey", JSON.stringify(tf.getValue()))
+            localStorage.setItem("mapquestkey", JSON.stringify(tf.getValue()));
           }
           popup.hide();
         }, this);
@@ -208,7 +208,7 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
                 var lonlat = obj.slice();
                 var latlon = lonlat.reverse();
                 waypoints += '&to=' + latlon.toString();
-              })
+              });
               th.setWaypointString(waypoints);
             }
 
@@ -220,7 +220,7 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
           {
             this.__popup.setTitle("Could not determine end location address.");
             this.__popup.show();
-          })
+          });
 
           // Find the end location lat/lon from text entry
           var endAddress = this.__end.getValue();
@@ -236,7 +236,7 @@ qx.Class.define("mobileedd.page.PageTravelHazards",
         {
           this.__popup.setTitle("Could not determine start location address.");
           this.__popup.show();
-        })
+        });
 
         // Find the start location lat/lon from text entry
         var startAddress = this.__start.getValue();

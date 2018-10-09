@@ -245,7 +245,7 @@ qx.Class.define("mobileedd.RadarPhase",
       {
         name : "UW - " + time,
         source : new ol.source.XYZ( {
-          url : me.c.getSecure() + '//realearth.ssec.wisc.edu/proxy/image.php?products=nexrphase_' + time.replace('.', '_') + '&x={x}&y={y}&z={z}'
+          url : 'https://realearth.ssec.wisc.edu/proxy/image.php?products=nexrphase_' + time.replace('.', '_') + '&x={x}&y={y}&z={z}'
         })
       });
       me.map.addLayer(me.radarPhaseLayers[time]);

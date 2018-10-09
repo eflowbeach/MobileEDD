@@ -271,7 +271,7 @@ qx.Class.define("mobileedd.Hazards",
         if (me.cycleCount >= me.hazardsAtMyPosition.length) {
           me.cycleCount = 0;
         }
-      })
+      });
     },
     checkWwaAtLocation : function(features)
     {
