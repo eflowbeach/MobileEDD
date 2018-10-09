@@ -183,21 +183,21 @@ qx.Class.define("mobileedd.page.Map",
       "Hydrology" : {
         "group" :
         {
-          "National Water Model - Near-Surface Soil Moisture Saturation" :
-          {
-            "source" : "https://mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/land_analysis_assim" + msExport,
-            "layer" : "show:0"
-          },
-          "National Water Model - Stream Flow" :
-          {
-            "source" : "https://mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/channel_rt_analysis_assim" + msExport,
-            "layer" : "show:1,2,3,4,5,6"
-          },
-          "National Water Model - Stream Flow Anomaly" :
-          {
-            "source" : "https://mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/channel_rt_analysis_assim" + msExport,
-            "layer" : "show:8,9,10,11,12,13"
-          },
+          // "National Water Model - Near-Surface Soil Moisture Saturation" :
+          // {
+            // "source" : "https://mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/land_analysis_assim" + msExport,
+            // "layer" : "show:0"
+          // },
+          // "National Water Model - Stream Flow" :
+          // {
+            // "source" : "https://mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/channel_rt_analysis_assim" + msExport,
+            // "layer" : "show:1,2,3,4,5,6"
+          // },
+          // "National Water Model - Stream Flow Anomaly" :
+          // {
+            // "source" : "https://mapservice.nohrsc.noaa.gov/arcgis/rest/services/national_water_model/channel_rt_analysis_assim" + msExport,
+            // "layer" : "show:8,9,10,11,12,13"
+          // },
           "River Levels" :
           {
             "source" : null,
