@@ -242,23 +242,22 @@ qx.Class.define("mobileedd.Radar",
       me.radarLayers[time] = new ol.layer.Image(
       {
         name : "MRMS - " + time,
-        source : new ol.source.ImageWMS(
+        source : new ol.source.ImageArcGISRest(
         {
           params :
           {
-            'LAYERS' : 'show:3',
+            'LAYERS' : 'show:1,2,3',
             'F' : 'image',
-            'FORMAT' : 'PNG8',
+            'FORMAT' : 'png8',
             'TRANSPARENT' : 'true',
-            'BBOXSR' : '3857',
-            'IMAGESR' : '3857',
-            //'SIZE' : '256,256',
-            'DPI' : 90,
+            'BBOXSR' : '102100',
+            'IMAGESR' : '102100',
+            'DPI' : 96,
             'time' : time_range
           },
           ratio: 1,
-          url : me.c.getSecure() + '//nowcoast.noaa.gov/arcgis/rest/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/export',
-          serverType: 'mapserver'
+          url : 'https://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer'//,
+//          serverType: 'mapserver'
         })
       });
       me.map.addLayer(me.radarLayers[time]);
