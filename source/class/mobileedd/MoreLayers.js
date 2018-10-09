@@ -88,7 +88,7 @@ qx.Class.define("mobileedd.MoreLayers",
           if (obj != "Travel Hazard Forecast") {
             if (this.layers[obj].getSource() != null) {
               if (this.layers[obj] instanceof ol.layer.Tile) {
-                this.layers[obj].getSource().setTileLoadFunction(this.layers[obj].getSource().getTileLoadFunction())
+                this.layers[obj].getSource().setTileLoadFunction(this.layers[obj].getSource().getTileLoadFunction());
               } else if (this.layers[obj] instanceof ol.layer.Vector)
               {
                 // do nothing
@@ -96,13 +96,13 @@ qx.Class.define("mobileedd.MoreLayers",
               {
                 this.layers[obj].getSource().updateParams( {
                   "refresh" : new Date().getTime()
-                })
+                });
               }
 
             }
           }
         }
-      }, this)
+      }, this);
     }, this);
     me.timer.start();
   },
@@ -122,7 +122,7 @@ qx.Class.define("mobileedd.MoreLayers",
         {
           //not defined
         }
-      })
+      });
       if (bool) {
         me.mapObject.dynamicLegendScrollContainer.addCssClass('white');
       } else {
@@ -426,14 +426,14 @@ qx.Class.define("mobileedd.MoreLayers",
       if (name == "Lightning")
       {
         me.ltgReq.send();
-        me.mapObject.lightningContainer.setVisibility('visible')
+        me.mapObject.lightningContainer.setVisibility('visible');
       }
       if (name.indexOf("QPE") !== -1)
       {
         var layerValue = layer.split(':')[1];
-        me.qpeReq.setUrl("https://nowcoast.noaa.gov/layerinfo?request=timestops&service=analysis_meteohydro_sfc_qpe_time&layers=" + layerValue + "&format=jsonp")
+        me.qpeReq.setUrl("https://nowcoast.noaa.gov/layerinfo?request=timestops&service=analysis_meteohydro_sfc_qpe_time&layers=" + layerValue + "&format=jsonp");
         me.qpeReq.send();
-        me.mapObject.qpeContainer.setVisibility('visible')
+        me.mapObject.qpeContainer.setVisibility('visible');
       }
       if (typeof time == "undefined") {
         time = new Date().getTime();
@@ -455,7 +455,7 @@ qx.Class.define("mobileedd.MoreLayers",
             if (me.html[obj].getVisibility() == "visible") {
               remove = false;
             }
-          })
+          });
           if (remove) {
             me.mapObject.dynamicLegendScrollContainer.removeCssClass('white');
           }
@@ -483,22 +483,19 @@ qx.Class.define("mobileedd.MoreLayers",
           return;
         }
       }
-      me.layers[name] = new ol.layer.Tile(
+      me.layers[name] = new ol.layer.Image(
       {
         name : name,
-        source : new ol.source.TileWMS(
+        source : new ol.source.ImageArcGISRest(
         {
           params :
           {
             'LAYERS' : layer,
             'F' : 'image',
             'FORMAT' : (name == "Observations") ? 'PNG32' : 'PNG8',
-            'TRANSPARENT' : 'true',
+            'TRANSPARENT' : true,
             'BBOXSR' : '3857',
-            'IMAGESR' : '3857',
-            'SIZE' : '256,256',
-
-            // 'DPI' : 90,
+            'IMAGESR' : '3857',            
             'time' : time_range
           },
           url : source
@@ -530,7 +527,7 @@ qx.Class.define("mobileedd.MoreLayers",
         var html = '';
 
         // split the layer call apart show:1,2,3 becomes [1,2,3] (qooxdoo array used for contains()
-        var layersToShow = new qx.data.Array(layer.split(':')[1].split(','))
+        var layersToShow = new qx.data.Array(layer.split(':')[1].split(','));
         if (typeof (data.layers) != "undefined") {
           data.layers.forEach(function(obj, index) {
             // if lyr_id is just show or blank: they are requesting all of the layers

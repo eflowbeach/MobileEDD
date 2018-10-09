@@ -246,12 +246,12 @@ qx.Class.define("mobileedd.Radar",
         {
           params :
           {
-            'LAYERS' : 'show:1,2,3',
+            'LAYERS' : 'show:3',
             'F' : 'image',
             'FORMAT' : 'png8',
-            'TRANSPARENT' : 'true',
-            'BBOXSR' : '102100',
-            'IMAGESR' : '102100',
+            'TRANSPARENT' : true,
+            'BBOXSR' : '3857',
+            'IMAGESR' : '3857',
             'DPI' : 96,
             'time' : time_range
           },

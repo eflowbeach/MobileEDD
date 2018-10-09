@@ -442,7 +442,7 @@ qx.Class.define("mobileedd.page.Map",
       me.optionReady = true;
       me.drawer.addListener("changeVisibility", function(e) {
         me.ready = true;
-      })
+      });
       var scroll = new qx.ui.mobile.container.Scroll();
       var scrollContainer = new qx.ui.mobile.container.Composite();
       scroll.add(scrollContainer);
@@ -477,13 +477,13 @@ qx.Class.define("mobileedd.page.Map",
         {
           radarClass.start();
           me.radarContainer.setVisibility("visible");
-          me.radarLegendContainer.setVisibility('visible')
+          me.radarLegendContainer.setVisibility('visible');
         } else
         {
           me.loopControl.setValue(false);
           radarClass.stop();
           me.radarContainer.setVisibility("excluded");
-          me.radarLegendContainer.setVisibility('excluded')
+          me.radarLegendContainer.setVisibility('excluded');
         }
         radarClass.toggleVisibility(e.getData());
       });
@@ -789,7 +789,7 @@ qx.Class.define("mobileedd.page.Map",
         // Add button to the container
         container.add(me.hazardToggleButtons[index]);
         composite.add(container);
-      })
+      });
 
       // Type
       var widget = new qx.ui.mobile.basic.Label("Type");
@@ -830,10 +830,10 @@ qx.Class.define("mobileedd.page.Map",
         // Add button to the container
         container.add(me.hazardToggleWwaButtons[index]);
         composite.add(container);
-      })
+      });
       var spacer = new qx.ui.mobile.container.Composite();
       spacer.addCssClass("thinseparator");
-      composite.add(spacer)
+      composite.add(spacer);
 
       // Toggle All
       me.toggle = 0;
@@ -849,7 +849,7 @@ qx.Class.define("mobileedd.page.Map",
           } else {
             obj.setValue(true);
           }
-        })
+        });
         me.toggle++;
       }, this);
       composite.add(widget);
@@ -870,7 +870,7 @@ qx.Class.define("mobileedd.page.Map",
           } else {
             obj.setValue(true);
           }
-        })
+        });
         me.toggleType++;
       }, this);
       composite.add(widget);
@@ -1232,9 +1232,9 @@ qx.Class.define("mobileedd.page.Map",
         var menu = new qx.ui.mobile.dialog.Menu(model);
         new qx.bom.Selector.query('li>div>div', menu.getContainerElement()).forEach(function(div, index2) {
           if (div.innerHTML.indexOf("Cancel") !== -1) {
-            qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;')
+            qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;');
           }
-        })
+        });
         menu.show();
 
         // Loop through More Layers layers to find which ones are selected then color the background green
@@ -1246,11 +1246,11 @@ qx.Class.define("mobileedd.page.Map",
                 // Divide index2 by 2 as 2 divs comprise a button
 
                 // Select the li tag for styling
-                qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'background-color:#63FF72;')
+                qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'background-color:#63FF72;');
               }
-            })
+            });
           }
-        }, this)
+        }, this);
         menu.addListener("changeSelection", function(evt)
         {
           var selectedItem = evt.getData().item;
@@ -1274,9 +1274,9 @@ qx.Class.define("mobileedd.page.Map",
             var submenu = new qx.ui.mobile.dialog.Menu(submodel);
             new qx.bom.Selector.query('li>div>div', submenu.getContainerElement()).forEach(function(div, index2) {
               if (div.innerHTML.indexOf("Cancel") !== -1) {
-                qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', submenu.getContainerElement())[index2 / 2], 'color:blue;')
+                qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', submenu.getContainerElement())[index2 / 2], 'color:blue;');
               }
-            })
+            });
             submenu.show();
 
             // Loop through More Layers layers to find which ones are selected then color the background green
@@ -1288,11 +1288,11 @@ qx.Class.define("mobileedd.page.Map",
                     // Divide index2 by 2 as 2 divs comprise a button
 
                     // Select the li tag for styling
-                    qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', submenu.getContainerElement())[index2 / 2], 'background-color:#63FF72;')
+                    qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', submenu.getContainerElement())[index2 / 2], 'background-color:#63FF72;');
                   }
-                })
+                });
               }
-            }, this)
+            }, this);
             submenu.addListener("changeSelection", function(evt)
             {
               var selectedItem = evt.getData().item;
@@ -1382,7 +1382,7 @@ qx.Class.define("mobileedd.page.Map",
           if (div.innerHTML.indexOf("Cancel") !== -1) {
             qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;')
           }
-        })
+        });
         menu.show();
         menu.addListener("changeSelection", function(evt)
         {
@@ -1422,7 +1422,7 @@ qx.Class.define("mobileedd.page.Map",
         var tf = new qx.ui.mobile.form.TextArea();
         tf.setValue(this.makeUrl());
         form.add(tf, "Web Link: ");
-        composite.add(new qx.ui.mobile.form.renderer.Single(form))
+        composite.add(new qx.ui.mobile.form.renderer.Single(form));
 
         // Go to link
         var widget = new qx.ui.mobile.form.Button("Go to Link");
@@ -1487,7 +1487,7 @@ qx.Class.define("mobileedd.page.Map",
       {
         document.getElementById('borders').appendChild(document.getElementById('stateborder'));
         document.getElementById('borders').appendChild(document.getElementById('countyborder'));
-      })
+      });
       var closeDialogButton1 = new qx.ui.mobile.form.Button("Close");
 
       // Add to popup
@@ -1501,7 +1501,7 @@ qx.Class.define("mobileedd.page.Map",
       me.countyToggleButton = new qx.ui.mobile.form.ToggleButton(false, "Hide", "Show");
       me.countyToggleButton.addListener("changeValue", function(e) {
         me.countyBorder.setVisible(e.getData());
-      })
+      });
       countyContainer.add(me.countyToggleButton);
       composite.add(html);
       composite.add(countyContainer);
@@ -1625,7 +1625,7 @@ qx.Class.define("mobileedd.page.Map",
         if (obj.getVisible() && obj.get('type') !== "base" && obj.get('name') != "U.S. States" && obj.get('name') != "Location Marker") {
           obj.setVisible(false);
         }
-      })
+      });
 
       // NDFD
       me.ndfdToggleButton.setValue(false);
@@ -1734,7 +1734,7 @@ qx.Class.define("mobileedd.page.Map",
         if (layers[obj].getVisible()) {
           ml += obj + '|' + layers[obj].group + '|' + layers[obj].get('opacity') + ',';
         }
-      }, this)
+      }, this);
 
       // Remove trailing comma and encode
       ml = ml.slice(0, -1);  //encodeURIComponent(ml.slice(0, -1));
@@ -1765,7 +1765,7 @@ qx.Class.define("mobileedd.page.Map",
       {
         zoom : z,
         center : ol.proj.transform([Number(ll[0]), Number(ll[1])], 'EPSG:4326', 'EPSG:3857')
-      })
+      });
       me.map.setView(newView);
 
       // Set Basemap
@@ -1838,14 +1838,14 @@ qx.Class.define("mobileedd.page.Map",
         if (this.c.getNdfdRegions()[obj] == ndfd.getRegion()) {
           me.setRegionNdfdButton.setValue(obj);
         }
-      }, this)
+      }, this);
 
       // Set FIELD button value from key/value pair
       Object.keys(this.c.getNdfdFields()).forEach(function(obj, index) {
         if (this.c.getNdfdFields()[obj] == ndfd.getField()) {
           me.setFieldNdfdButton.setValue(obj);
         }
-      }, this)
+      }, this);
 
       // More Layers
       var ml = me.getURLParameter('ml');
@@ -2238,7 +2238,7 @@ qx.Class.define("mobileedd.page.Map",
           source : new ol.source.XYZ( {
             url : 'https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibndzZWRkIiwiYSI6ImZmYmM3NWJkZWNmYjhjOGNiYjljNzBlNjhiNGU1MTA4In0.SuX1cf6crIo8puK6zFewHg'
           })
-        })
+        });
 
         // Basemaps
         me.BasemapOptions = [me.terrain, me.lite, me.natgeo, me.esridark, me.esrilite, me.mapboxWorldbright, me.esriimage, me.esritopo, me.blank, me.mapboxdark];
@@ -2295,7 +2295,7 @@ qx.Class.define("mobileedd.page.Map",
           // Popup layer
           me.popup = new Popup(); //ol.Overlay.
           me.map.addOverlay(me.popup);
-        }
+        };
         req.open("GET", 'resource/mobileedd/libs/ol3-popup.js');
         req.send();
 
@@ -2583,10 +2583,10 @@ qx.Class.define("mobileedd.page.Map",
       // {
       travelSegment.forEach(function(obj, index) {
         items.push('Travel Hazard Segment - #' + index);
-      })
+      });
       travelPoint.forEach(function(obj, index) {
         items.push('Travel Hazard Point - #' + index);
-      })
+      });
       items.push("Set Travel Origin");
 
       // Handle Waypoints
@@ -2596,7 +2596,7 @@ qx.Class.define("mobileedd.page.Map",
           if (pth.waypoints.length > 0) {
             pth.waypoints.forEach(function(obj, index) {
               items.push("Set Travel Waypoint #" + (Number(index) + 2));
-            })
+            });
           } else {
             items.push("Set Travel Waypoint #1");
           }
@@ -2627,7 +2627,7 @@ qx.Class.define("mobileedd.page.Map",
           // Select the li tag for styling
           qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;')
         }
-      })
+      });
       menu.show();
       var nwm = me.getLayerByName("National Water Model - Stream Flow");
       var nwmsfa = me.getLayerByName("National Water Model - Stream Flow Anomaly");
@@ -2654,7 +2654,7 @@ qx.Class.define("mobileedd.page.Map",
           {
             var name = "NWM - " + obj.attributes.reach_id + " (" + obj.attributes.gnis_name + ")";
             me.model.insertAt(0, name.replace('(Null)', ''));
-          }, this)
+          }, this);
         }, this);
         waterRequest.send();
       }
@@ -2671,7 +2671,7 @@ qx.Class.define("mobileedd.page.Map",
         if (div.innerHTML.indexOf("Advisory") !== -1) {
           qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'background-color:#FDF028;')
         }
-      })
+      });
 
       // Get address
       var ll = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
@@ -2695,11 +2695,11 @@ qx.Class.define("mobileedd.page.Map",
             {
               div.innerHTML = 'Monitor ' + address;  // This Point...'
             }
-          })
+          });
         }catch (e) {
           return;
         }
-      }, this)
+      }, this);
       geo.reverseGeoRequest(ll[1], ll[0]);
 
       // Handle selection
@@ -2733,7 +2733,7 @@ qx.Class.define("mobileedd.page.Map",
               content += '<tr><td><b>' + capitalizeFirstLetter(obj) + ':</b></td>';
               content += '<td>' + stormReports[selectedItem].values_[obj] + '</td></tr>';
             }
-          })
+          });
           content += '</table>';
           me.popup.show(geom, content);
         }
@@ -2838,7 +2838,7 @@ qx.Class.define("mobileedd.page.Map",
                 items.push(obj.get('name'));
               }
             }
-          })
+          });
           items = items.sort(me.sortAlphaNum);
           items.push('Cancel');
           var model = new qx.data.Array(items);
@@ -2847,7 +2847,7 @@ qx.Class.define("mobileedd.page.Map",
             if (div.innerHTML.indexOf("Cancel") !== -1) {
               qx.bom.element.Style.setCss(new qx.bom.Selector.query('li', menu.getContainerElement())[index2 / 2], 'color:blue;')
             }
-          })
+          });
           menu.show();
           menu.addListener("changeSelection", function(evt)
           {
@@ -2894,7 +2894,7 @@ qx.Class.define("mobileedd.page.Map",
               if (me.opacityName == "Radar") {
                 Object.keys(mobileedd.Radar.getInstance().radarLayers).forEach(function(obj) {
                   me.putVectorLayerOnTop("MRMS - " + obj);
-                })
+                });
               } else {
                 me.putVectorLayerOnTop(me.opacityName);
               }
@@ -2923,7 +2923,7 @@ qx.Class.define("mobileedd.page.Map",
               text.setData(travelSegment[index]);
               me.bus.dispatch(text);
             }
-          })
+          });
         }
         if (selectedItem.indexOf("Travel Hazard P") != -1) {
           travelPoint.forEach(function(obj, index) {
@@ -2934,7 +2934,7 @@ qx.Class.define("mobileedd.page.Map",
               text.setData(travelPoint[index]);
               me.bus.dispatch(text);
             }
-          })
+          });
         }
 
         // Make Hazard options for menu
@@ -3098,7 +3098,7 @@ qx.Class.define("mobileedd.page.Map",
           // The hazard list likely changed from what was saved
           console.log(e);
         }
-      })
+      });
       me.setSingularHazardArray(display_hazards);
     }
   }
