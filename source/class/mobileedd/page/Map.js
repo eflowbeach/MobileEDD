@@ -2563,7 +2563,9 @@ qx.Class.define("mobileedd.page.Map",
             observations[value] = features[i];
           }
         }
-      });
+      }, {
+          hitTolerance: 10
+        });
       hazards.forEach(function(obj)
       {
         var htype = obj.get('warn_type');
